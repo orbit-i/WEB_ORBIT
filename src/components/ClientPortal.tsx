@@ -223,7 +223,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-[#f8fafc] text-gray-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white">
+    <div className="h-screen bg-[#f8fafc] text-gray-900 flex flex-col font-sans selection:bg-blue-600 selection:text-white overflow-hidden">
       {/* 1. Top Navbar (Clean, Solid, Isolated) */}
       <DashboardHeader
         portalType="client"
@@ -235,7 +235,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({
       />
 
       {/* 2. Main Layout: Left Sidebar + Center Canvas */}
-      <div className="flex flex-1 relative overflow-hidden">
+      <div className="flex flex-1 relative overflow-hidden min-h-0">
         <ClientSidebar
           activeTab={activeTab}
           onSelectTab={setActiveTab}
@@ -249,7 +249,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({
         />
 
         {/* Content Canvas */}
-        <main className="flex-1 overflow-y-auto min-h-[calc(100vh-64px)]">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full">
           <SubHeaderBar
             title={
               activeTab === 'overview'

@@ -102,15 +102,15 @@ export const ClientSidebar: React.FC<ClientSidebarProps> = ({
         />
       )}
 
-      {/* Sidebar Container: Sleek, non-cheap, strictly isolated to logged-in client */}
+      {/* Sidebar Container: Sleek, static on desktop, strictly isolated to logged-in client */}
       <aside
-        className={`fixed lg:sticky top-0 lg:top-16 left-0 bottom-0 lg:bottom-auto lg:h-[calc(100vh-4rem)] z-50 lg:z-30 bg-white border-r border-gray-200/90 flex flex-col justify-between transition-all duration-300 ease-in-out select-none shrink-0 ${
+        className={`fixed lg:static inset-y-0 lg:inset-auto left-0 h-full z-50 lg:z-20 bg-white border-r border-gray-200 flex flex-col justify-between transition-all duration-300 ease-in-out select-none shrink-0 ${
           isOpen
             ? 'w-64 translate-x-0 opacity-100 shadow-xl lg:shadow-none'
             : '-translate-x-full lg:w-0 lg:-translate-x-full lg:opacity-0 lg:overflow-hidden lg:border-r-0 pointer-events-none'
         }`}
       >
-        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
+        <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden min-h-0 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-200 hover:[&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-thumb]:rounded-full">
           {/* Brand Header */}
           <div className="h-16 flex items-center justify-between px-5 border-b border-gray-150 shrink-0">
             <div className="flex items-center gap-2.5">

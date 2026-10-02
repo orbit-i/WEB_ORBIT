@@ -1,235 +1,321 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
-  TrendingUp,
-  MoreVertical,
-  Minus,
-  Maximize2,
-  X,
-  Info,
+  MessageSquare,
+  FileText,
+  Cpu,
+  Award,
+  Users,
+  Image,
   CheckCircle2,
-  Layers,
-  ArrowUpRight,
+  ArrowRight,
   ShieldCheck,
   Server,
   Zap,
-  FolderKanban,
-  Users,
-  Code2,
-  Smartphone,
-  Cloud,
-  FileCheck,
+  Clock,
+  Sparkles,
+  ExternalLink,
+  ChevronRight,
+  Mail,
+  Building2,
+  Database,
+  SlidersHorizontal,
+  KeyRound,
 } from 'lucide-react';
+import { useCms } from '../../context/CmsContext';
 import { WorldMapWidget } from './WorldMapWidget';
-import { CLIENT_PROJECTS } from '../../data/orbitData';
 
-export const ExecutiveDashboardView: React.FC = () => {
-  const [hoveredDay, setHoveredDay] = useState<string | null>(null);
+interface ExecutiveDashboardViewProps {
+  onSelectTab?: (tab: string) => void;
+}
 
-  // Weekly Operations Velocity Data (Mon to Sun)
-  const weeklyStatusData = [
-    { day: 'Mon', commits: 18, delivered: 4, inquiries: 3 },
-    { day: 'Tue', commits: 24, delivered: 6, inquiries: 2 },
-    { day: 'Wed', commits: 32, delivered: 8, inquiries: 5 },
-    { day: 'Thu', commits: 28, delivered: 5, inquiries: 4 },
-    { day: 'Fri', commits: 40, delivered: 10, inquiries: 7 },
-    { day: 'Sat', commits: 22, delivered: 6, inquiries: 3 },
-    { day: 'Sun', commits: 14, delivered: 3, inquiries: 2 },
-  ];
+export const ExecutiveDashboardView: React.FC<ExecutiveDashboardViewProps> = ({ onSelectTab }) => {
+  const {
+    inquiries,
+    articles,
+    services,
+    certificates,
+    teamMembers,
+    mediaAssets,
+    dbStatus,
+  } = useCms();
 
-  // Engineering Milestones & Deliverables
-  const milestoneGoals = [
-    { title: 'Apex Global Dispatch Telemetry API', current: 78, target: 100, color: 'bg-blue-600' },
-    { title: 'Medisphere HIPAA Gateway Security Audit', current: 92, target: 100, color: 'bg-emerald-500' },
-    { title: 'AgriCold IoT Cloud Telemetry SLA', current: 100, target: 100, color: 'bg-purple-600' },
-    { title: 'ORBIT-I Core Microservices v2.4', current: 85, target: 100, color: 'bg-amber-500' },
-  ];
-
-  // Verified Active Engineering Services
-  const coreServices = [
-    {
-      id: 1,
-      name: 'Web & Headless WordPress',
-      spec: 'React, Next.js, Node.js, Custom Coding',
-      tag: 'ACTIVE',
-      tagColor: 'bg-blue-100 text-blue-700 border-blue-200',
-      icon: Code2,
-      iconColor: 'bg-blue-50 text-blue-600',
-    },
-    {
-      id: 2,
-      name: 'Mobile App Engineering',
-      spec: 'React Native, Flutter, iOS & Android',
-      tag: '60 FPS',
-      tagColor: 'bg-purple-100 text-purple-700 border-purple-200',
-      icon: Smartphone,
-      iconColor: 'bg-purple-50 text-purple-600',
-    },
-    {
-      id: 3,
-      name: 'Custom ERP Platforms',
-      spec: 'Bespoke Workflows, MySQL, Microservices',
-      tag: 'ENTERPRISE',
-      tagColor: 'bg-emerald-100 text-emerald-700 border-emerald-200',
-      icon: Layers,
-      iconColor: 'bg-emerald-50 text-emerald-600',
-    },
-    {
-      id: 4,
-      name: 'Cloud Infrastructure & DevOps',
-      spec: 'Docker, Linux Cloud, 99.98% Uptime SLA',
-      tag: 'SLA OK',
-      tagColor: 'bg-amber-100 text-amber-700 border-amber-200',
-      icon: Cloud,
-      iconColor: 'bg-amber-50 text-amber-600',
-    },
-  ];
+  const publishedArticles = articles.filter((a) => a.status === 'published');
+  const draftArticles = articles.filter((a) => a.status !== 'published');
+  const pendingInquiries = inquiries.filter(
+    (i) => !i.status || i.status.toLowerCase() === 'pending' || i.status.toLowerCase() === 'new'
+  );
 
   return (
     <div className="space-y-6">
-      {/* Top Row: Weekly Engineering Delivery Velocity + Real Infrastructure Status */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Weekly Operations Velocity (8 Columns) */}
-        <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-gray-150 shadow-xs flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-            <div>
-              <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                Engineering Velocity &amp; Sprint Deliverables
-              </h3>
-              <p className="text-xs text-gray-500 mt-0.5">
-                Weekly commits, milestone signoffs, and enterprise inquiries velocity
-              </p>
-            </div>
-
-            <div className="flex items-center gap-1.5 text-gray-400">
-              <span className="text-[11px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                Sprints on Schedule
-              </span>
+      {/* 1. Real Operational KPI Metric Cards (Zero Fake Retail or Sales Figures) */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+        {/* Metric 1: Inbound Customer Inquiries */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('inquiries')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Inquiries
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
+              <MessageSquare className="w-3.5 h-3.5" />
             </div>
           </div>
-
-          {/* Body: Velocity Bars + Milestones */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-6 items-center">
-            {/* Chart */}
-            <div className="md:col-span-7">
-              <div className="flex items-center justify-between text-[11px] text-gray-500 mb-3 px-2 font-mono">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-blue-600"></span>
-                    <span>Code Commits</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-emerald-500"></span>
-                    <span>Deliverables</span>
-                  </span>
-                </div>
-                <span className="text-[10px] text-gray-400">Scale: 0 - 50</span>
-              </div>
-
-              {/* Bar Chart Container */}
-              <div className="relative h-48 sm:h-52 flex items-end justify-between px-3 pt-6 border-b border-gray-200">
-                {weeklyStatusData.map((item) => {
-                  const blueHeight = (item.commits / 50) * 100;
-                  const greenHeight = (item.delivered / 15) * 100;
-                  const isHovered = hoveredDay === item.day;
-
-                  return (
-                    <div
-                      key={item.day}
-                      onMouseEnter={() => setHoveredDay(item.day)}
-                      onMouseLeave={() => setHoveredDay(null)}
-                      className="relative flex flex-col items-center justify-end h-full z-10 w-9 sm:w-11 cursor-pointer group"
-                    >
-                      {isHovered && (
-                        <div className="absolute -top-10 bg-gray-900 text-white text-[10px] font-mono py-1 px-2 rounded shadow-lg z-20 whitespace-nowrap">
-                          {item.day}: {item.commits} commits · {item.delivered} deliverables
-                        </div>
-                      )}
-
-                      <div className="flex items-end gap-1 h-full">
-                        <div
-                          style={{ height: `${blueHeight}%` }}
-                          className="w-2.5 sm:w-3 bg-blue-600 hover:bg-blue-700 rounded-t-sm transition-all"
-                        />
-                        <div
-                          style={{ height: `${greenHeight}%` }}
-                          className="w-2.5 sm:w-3 bg-emerald-500 hover:bg-emerald-600 rounded-t-sm transition-all"
-                        />
-                      </div>
-
-                      <span className="text-[11px] font-semibold text-gray-500 mt-2">
-                        {item.day}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {inquiries.length}
             </div>
-
-            {/* Milestones Right */}
-            <div className="md:col-span-5 md:border-l md:border-gray-150 md:pl-6 space-y-3.5">
-              <div className="flex items-center justify-between pb-1">
-                <h4 className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
-                  Active Client Sprints
-                </h4>
-                <span className="text-[10px] text-gray-400 font-mono">Q1/Q2 2026</span>
-              </div>
-
-              <div className="space-y-3">
-                {milestoneGoals.map((m) => (
-                  <div key={m.title} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="text-gray-700 text-[11px] truncate max-w-[170px]" title={m.title}>
-                        {m.title}
-                      </span>
-                      <span className="text-gray-500 font-mono text-[10px]">{m.current}%</span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-1.5 overflow-hidden">
-                      <div
-                        style={{ width: `${m.current}%` }}
-                        className={`h-full rounded-full transition-all ${m.color}`}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom KPI Metric Strip */}
-          <div className="pt-4 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
-            <div className="space-y-0.5">
-              <span className="text-[10px] text-gray-400 font-mono uppercase font-bold">Total Retainers</span>
-              <div className="text-base sm:text-lg font-bold text-gray-900">$83,000</div>
-              <span className="text-[10px] text-emerald-600 font-semibold font-mono">Verified Contracts</span>
-            </div>
-
-            <div className="space-y-0.5">
-              <span className="text-[10px] text-gray-400 font-mono uppercase font-bold">Settled Payments</span>
-              <div className="text-base sm:text-lg font-bold text-emerald-600">$72,500</div>
-              <span className="text-[10px] text-gray-500 font-mono">Wire / Banking Rails</span>
-            </div>
-
-            <div className="space-y-0.5">
-              <span className="text-[10px] text-gray-400 font-mono uppercase font-bold">Pending Milestones</span>
-              <div className="text-base sm:text-lg font-bold text-amber-600">$10,500</div>
-              <span className="text-[10px] text-amber-700 font-semibold font-mono">In Final Review</span>
-            </div>
-
-            <div className="space-y-0.5">
-              <span className="text-[10px] text-gray-400 font-mono uppercase font-bold">Active SLA Uptime</span>
-              <div className="text-base sm:text-lg font-bold text-blue-600">99.98%</div>
-              <span className="text-[10px] text-emerald-600 font-semibold font-mono">Zero Incidents</span>
+            <div className="text-[11px] font-medium text-emerald-600 mt-0.5 truncate flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>{pendingInquiries.length > 0 ? `${pendingInquiries.length} Pending` : 'All Handled'}</span>
             </div>
           </div>
         </div>
 
-        {/* Right Cards: Production Architecture Status */}
+        {/* Metric 2: Published Articles & Insights */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('content')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Articles
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+              <FileText className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {articles.length}
+            </div>
+            <div className="text-[11px] font-medium text-indigo-600 mt-0.5 truncate">
+              {publishedArticles.length} Live on Site
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 3: Verified Enterprise Services */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('services')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Services
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+              <Cpu className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {services.length}
+            </div>
+            <div className="text-[11px] font-medium text-emerald-600 mt-0.5 truncate">
+              Catalog Active
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 4: Material & Certified Credentials */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('certificates')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Credentials
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+              <Award className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {certificates.length}
+            </div>
+            <div className="text-[11px] font-medium text-purple-600 mt-0.5 truncate">
+              SECP &amp; ISO Verified
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 5: Executive & Engineering Roster */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('team')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Personnel
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-colors">
+              <Users className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {teamMembers.length}
+            </div>
+            <div className="text-[11px] font-medium text-amber-600 mt-0.5 truncate">
+              Active Leadership
+            </div>
+          </div>
+        </div>
+
+        {/* Metric 6: Media Assets Storage */}
+        <div
+          onClick={() => onSelectTab && onSelectTab('media')}
+          className="bg-white rounded-2xl p-4 border border-gray-150 shadow-2xs hover:shadow-md hover:border-blue-300 transition-all cursor-pointer group flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-gray-500 font-mono">
+              Media Files
+            </span>
+            <div className="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-colors">
+              <Image className="w-3.5 h-3.5" />
+            </div>
+          </div>
+          <div>
+            <div className="text-2xl font-extrabold text-gray-900 tracking-tight">
+              {mediaAssets.length}
+            </div>
+            <div className="text-[11px] font-medium text-sky-600 mt-0.5 truncate">
+              Cloud Storage
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Middle Row: Real Inquiries Queue + Production Cloud & Security Telemetry */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column (8 cols): Real Inbound Inquiries Feed */}
+        <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-gray-150 shadow-xs flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between pb-4 border-b border-gray-100">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <MessageSquare className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
+                    Inbound Customer Inquiries &amp; Leads
+                  </h3>
+                  <p className="text-xs text-gray-500">
+                    Direct inquiries received via website forms and contact channels
+                  </p>
+                </div>
+              </div>
+
+              {onSelectTab && (
+                <button
+                  onClick={() => onSelectTab('inquiries')}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 transition-colors"
+                >
+                  <span>Manage Inquiries</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Inquiries Stream */}
+            <div className="divide-y divide-gray-100 mt-2">
+              {inquiries.length > 0 ? (
+                inquiries.slice(0, 4).map((inq: any) => (
+                  <div
+                    key={inq.id}
+                    onClick={() => onSelectTab && onSelectTab('inquiries')}
+                    className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-gray-50/80 px-2 rounded-xl transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                        {inq.name ? inq.name.charAt(0).toUpperCase() : 'U'}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs font-bold text-gray-900 truncate">
+                            {inq.name || 'Anonymous Visitor'}
+                          </span>
+                          {inq.company && (
+                            <span className="text-[10px] text-gray-400 font-mono truncate">
+                              · {inq.company}
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] font-semibold text-blue-600 truncate mt-0.5">
+                          {inq.serviceRequired || inq.subject || 'Enterprise Inquiry'}
+                        </div>
+                        {inq.message && (
+                          <div className="text-[11px] text-gray-500 truncate max-w-md mt-0.5">
+                            {inq.message}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-1 shrink-0">
+                      <span
+                        className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                          inq.status?.toLowerCase() === 'resolved' || inq.status?.toLowerCase() === 'replied'
+                            ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            : inq.status?.toLowerCase() === 'in_progress'
+                            ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                            : 'bg-amber-50 text-amber-700 border border-amber-200'
+                        }`}
+                      >
+                        {inq.status || 'New'}
+                      </span>
+                      <span className="text-[10px] text-gray-400 font-mono">
+                        {inq.submittedAt || inq.date || 'Recent'}
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="py-12 text-center">
+                  <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mx-auto mb-3">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h4 className="text-sm font-bold text-gray-800">Inbound Queue Clear</h4>
+                  <p className="text-xs text-gray-500 mt-1 max-w-sm mx-auto">
+                    No pending customer inquiries. New leads submitted from the public contact form will appear here in real time.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
+            <span className="font-mono text-[11px]">
+              Total Records: {inquiries.length} Inbound Requests
+            </span>
+            {onSelectTab && (
+              <button
+                onClick={() => onSelectTab('inquiries')}
+                className="font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1"
+              >
+                <span>View All Inquiries</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column (4 cols): Cloud Infrastructure & Security Health */}
         <div className="lg:col-span-4 flex flex-col justify-between gap-6">
           {/* Card 1: Production Linux Cloud Cluster */}
-          <div className="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[170px]">
+          <div className="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white rounded-2xl p-5 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[160px]">
             <div className="flex items-center justify-between text-white/90">
-              <span className="text-xs font-bold tracking-wide uppercase font-mono">Production Cloud Health</span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+              <span className="text-xs font-bold tracking-wide uppercase font-mono flex items-center gap-1.5">
+                <Server className="w-3.5 h-3.5" />
+                <span>Production Cloud Health</span>
+              </span>
+              <span className="flex items-center gap-1.5 text-[10px] font-mono bg-white/20 px-2 py-0.5 rounded-full">
+                <span className="w-2 h-2 rounded-full bg-emerald-300 animate-pulse"></span>
+                <span>Active</span>
+              </span>
             </div>
 
             <div className="my-2">
@@ -248,7 +334,7 @@ export const ExecutiveDashboardView: React.FC = () => {
           </div>
 
           {/* Card 2: Security & Zero-Trust Firewall */}
-          <div className="bg-gradient-to-br from-slate-900 to-gray-900 text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[170px] border border-gray-800">
+          <div className="bg-gradient-to-br from-slate-900 to-gray-900 text-white rounded-2xl p-5 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[160px] border border-gray-800">
             <div className="flex items-center justify-between text-white/90">
               <span className="text-xs font-bold tracking-wide uppercase font-mono text-emerald-400 flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4" />
@@ -274,90 +360,119 @@ export const ExecutiveDashboardView: React.FC = () => {
         </div>
       </div>
 
-      {/* Bottom Row: Active Client Projects (Card 4) + Verified Capabilities (Card 5) + Visitors (Card 6) */}
+      {/* 3. Bottom Row: Verified Services (Real CMS) + Recent Articles (Real CMS) + Global CDN Map */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* CARD 4: REAL CLIENT CONTRACTS STATUS */}
+        {/* CARD 1: VERIFIED SERVICES ROSTER */}
         <div className="bg-white rounded-2xl p-5 border border-gray-150 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm sm:text-base font-bold text-gray-900 tracking-tight flex items-center gap-1.5">
-                <FolderKanban className="h-4 w-4 text-blue-600" />
-                <span>Institutional Client Sprints</span>
+                <Cpu className="h-4 w-4 text-blue-600" />
+                <span>Verified Core Services</span>
               </h4>
-              <span className="text-[10px] text-gray-400 font-mono">Live Retainers</span>
+              <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
+                Active
+              </span>
             </div>
-            <p className="text-[11px] text-gray-500 mb-3">Enterprise delivery status &amp; milestones</p>
+            <p className="text-[11px] text-gray-500 mb-3">
+              Official enterprise tech stacks published on site
+            </p>
 
             <div className="divide-y divide-gray-100">
-              {CLIENT_PROJECTS.map((prj) => (
-                <div key={prj.id} className="py-2.5 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-900 truncate max-w-[160px]">
-                      {prj.clientOrg}
-                    </span>
-                    <span className="text-[10px] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.2 rounded-full border border-emerald-200">
-                      {prj.progressPercent}%
-                    </span>
+              {services.slice(0, 4).map((svc: any) => (
+                <div key={svc.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <Cpu className="h-4 w-4" />
+                    </div>
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-gray-900 truncate">
+                        {svc.title || svc.name}
+                      </div>
+                      <div className="text-[10px] text-gray-400 truncate">
+                        {svc.technologies ? svc.technologies.slice(0, 3).join(', ') : svc.category}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-[11px] text-gray-500 truncate">{prj.title}</div>
-                  <div className="text-[10px] text-gray-400 font-mono truncate">{prj.currentMilestone}</div>
+                  <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded border bg-blue-50 text-blue-700 border-blue-200 shrink-0 uppercase">
+                    {svc.category || 'Verified'}
+                  </span>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="pt-3 border-t border-gray-100 text-center">
-            <span className="text-[11px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer">
-              Open CRM &amp; Clients Hub →
-            </span>
+            {onSelectTab && (
+              <button
+                onClick={() => onSelectTab('services')}
+                className="text-[11px] font-bold text-blue-600 hover:text-blue-800 transition-colors"
+              >
+                Manage Services Catalog →
+              </button>
+            )}
           </div>
         </div>
 
-        {/* CARD 5: CORE ENGINEERING CAPABILITIES */}
+        {/* CARD 2: REAL PUBLISHED ARTICLES & INSIGHTS */}
         <div className="bg-white rounded-2xl p-5 border border-gray-150 shadow-xs flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-2">
               <h4 className="text-sm sm:text-base font-bold text-gray-900 tracking-tight flex items-center gap-1.5">
-                <Code2 className="h-4 w-4 text-blue-600" />
-                <span>Verified Core Capabilities</span>
+                <FileText className="h-4 w-4 text-indigo-600" />
+                <span>Blogs &amp; Insights CMS</span>
               </h4>
-              <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full">
-                Active
+              <span className="text-[10px] font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-0.5 rounded-full">
+                {publishedArticles.length} Live
               </span>
             </div>
-            <p className="text-[11px] text-gray-500 mb-3">Enterprise technology stacks</p>
+            <p className="text-[11px] text-gray-500 mb-3">
+              Research publications and technology insights
+            </p>
 
             <div className="divide-y divide-gray-100">
-              {coreServices.map((svc) => {
-                const Icon = svc.icon;
-                return (
-                  <div key={svc.id} className="py-2.5 flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${svc.iconColor}`}>
-                        <Icon className="h-4 w-4" />
+              {articles.slice(0, 4).map((art: any) => (
+                <div key={art.id} className="py-2.5 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                      <FileText className="h-4 w-4" />
+                    </div>
+                    <div className="truncate">
+                      <div className="text-xs font-bold text-gray-900 truncate">
+                        {art.title}
                       </div>
-                      <div className="truncate">
-                        <div className="text-xs font-bold text-gray-900 truncate">{svc.name}</div>
-                        <div className="text-[10px] text-gray-400 truncate">{svc.spec}</div>
+                      <div className="text-[10px] text-gray-400 truncate">
+                        {art.category} · {art.readTime || '5 min read'}
                       </div>
                     </div>
-                    <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${svc.tagColor} shrink-0`}>
-                      {svc.tag}
-                    </span>
                   </div>
-                );
-              })}
+                  <span
+                    className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border shrink-0 ${
+                      art.status === 'published'
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : 'bg-amber-50 text-amber-700 border-amber-200'
+                    }`}
+                  >
+                    {art.status === 'published' ? 'LIVE' : 'DRAFT'}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
           <div className="pt-3 border-t border-gray-100 text-center">
-            <span className="text-[11px] font-bold text-blue-600 hover:text-blue-800 cursor-pointer">
-              Manage Services Catalog →
-            </span>
+            {onSelectTab && (
+              <button
+                onClick={() => onSelectTab('content')}
+                className="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 transition-colors"
+              >
+                Open Articles &amp; Blog CMS →
+              </button>
+            )}
           </div>
         </div>
 
-        {/* CARD 6: VISITORS WORLD MAP */}
+        {/* CARD 3: VISITORS WORLD MAP */}
         <div className="h-full">
           <WorldMapWidget title="Global Telemetry & Visitors" />
         </div>

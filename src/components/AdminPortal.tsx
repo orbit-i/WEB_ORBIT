@@ -179,8 +179,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const [statusNotification, setStatusNotification] = useState<string | null>(null);
 
   const tabTitles: Record<AdminTab, string> = {
-    dashboard: 'Sales Report',
-    sales_report: 'Sales Report',
+    dashboard: 'Executive Overview',
+    sales_report: 'Executive Overview',
     clients: 'Client CRM, Projects & Payments',
     pages: 'Website Pages Content Editor',
     team: 'Job Info & Team Members',
@@ -473,7 +473,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f6fa] text-gray-900 flex flex-col font-sans selection:bg-[#2f6fed] selection:text-white">
+    <div className="h-screen bg-[#f4f6fa] text-gray-900 flex flex-col font-sans selection:bg-[#2f6fed] selection:text-white overflow-hidden">
       {/* 1. Top Navbar (Vibrant Royal Blue #2f6fed matching reference image) */}
       <DashboardHeader
         portalType="admin"
@@ -485,7 +485,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
       />
 
       {/* 2. Main Flex Layout: Left Sidebar + Center Canvas */}
-      <div className="flex flex-1 relative overflow-hidden">
+      <div className="flex flex-1 relative overflow-hidden min-h-0">
         {/* Clean White Left Navigation Sidebar */}
         <DashboardSidebar
           activeTab={activeAdminTab as any}
@@ -500,11 +500,11 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
         />
 
         {/* Content Canvas Area */}
-        <main className="flex-1 overflow-y-auto min-h-[calc(100vh-64px)]">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden min-h-0 h-full">
           {/* Sub Header & Breadcrumbs Bar */}
           <SubHeaderBar
-            title={tabTitles[activeAdminTab] || 'Sales Report'}
-            breadcrumbs={['Control', tabTitles[activeAdminTab] || 'Sales Report']}
+            title={tabTitles[activeAdminTab] || 'Executive Overview'}
+            breadcrumbs={['Control', tabTitles[activeAdminTab] || 'Executive Overview']}
             dateLabel="Today: Oct 02"
             onRefresh={() => showNotification('Synchronized live telemetry & database metrics.')}
             onExport={handleExportTelemetryJson}
@@ -524,9 +524,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
 
 
 
-            {/* View 1: Executive Dashboard & Sales Report (Exact Replica of Reference Picture) */}
+            {/* View 1: Executive Dashboard & Operations Overview (Real CMS Telemetry) */}
             {(activeAdminTab === 'sales_report' || activeAdminTab === 'dashboard') && (
-              <ExecutiveDashboardView />
+              <ExecutiveDashboardView onSelectTab={(tab) => setActiveAdminTab(tab as AdminTab)} />
             )}
 
             {/* ========================================================================= */}
