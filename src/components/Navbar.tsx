@@ -106,6 +106,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
     { id: 'services', label: 'Services' },
+    { id: 'team', label: 'Team' },
     { id: 'blog', label: 'Blogs', hasDropdown: true },
     { id: 'careers', label: 'Careers' },
     { id: 'contact', label: 'Contact' },

@@ -5,6 +5,7 @@ import { Hero } from './components/Hero';
 import { HomeIntroSplit } from './components/HomeIntroSplit';
 import { ServicesSection } from './components/ServicesSection';
 import { AboutSection } from './components/AboutSection';
+import { PartnersSection } from './components/PartnersSection';
 import { TeamSection } from './components/TeamSection';
 import { CertificateVerification } from './components/CertificateVerification';
 import { ContactSection } from './components/ContactSection';
@@ -252,6 +253,7 @@ export function App() {
         {activeTab === 'home' && (
           <div>
             <Hero setActiveTab={handleTabChange} />
+            <PartnersSection />
             <HomeIntroSplit setActiveTab={handleTabChange} />
             <ServicesSection
               onSelectServiceForConsultation={handleSelectServiceForConsultation}

@@ -119,3 +119,26 @@ html.dark .prose blockquote {
   color: #f1f5f9 !important;
   border-left-color: #f59e0b !important;
 }
+
+/* -------------------------------------------------------------------------
+ * Smooth Walking Partners Ticker / Marquee
+ * ------------------------------------------------------------------------- */
+@keyframes marquee-walking {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee-walking {
+  display: flex;
+  width: max-content;
+  animation: marquee-walking 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-walking:hover {
+  animation-play-state: paused;
+}
