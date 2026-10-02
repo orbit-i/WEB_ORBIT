@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <script>
+      // Clean up any accidental Object.prototype pollution and install non-enumerable setter
+      (function() {
+        try {
+          if (typeof Object !== 'undefined' && Object.prototype) {
+            delete Object.prototype.fetch;
+          }
+          if (typeof EventTarget !== 'undefined' && EventTarget.prototype) {
+            delete EventTarget.prototype.fetch;
+          }
+
+          var _origFetch = typeof window !== 'undefined' ? window.fetch : null;
+          var _curFetch = _origFetch;
+
+          var fetchDescriptor = {
+            configurable: true,
+            enumerable: false, // strictly non-enumerable like native browser APIs
+            get: function() {
+              return _curFetch;
+            },
+            set: function(fn) {
+              _curFetch = fn;
+            }
+          };
+
+          if (typeof window !== 'undefined') {
+            try {
+              Object.defineProperty(window, 'fetch', fetchDescriptor);
+            } catch (e1) {}
+          }
+
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', fetchDescriptor);
+            } catch (e2) {}
+          }
+        } catch (err) {}
+      })();
+    </script>
+    <link rel="icon" type="image/png" href="/orbit-favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ORBIT-I Private Limited | Software &amp; Technology Solutions</title>
+    <meta name="description" content="ORBIT-I Private Limited designs and builds web platforms, mobile apps, and custom software for businesses that need reliable engineering." />
+    <meta property="og:title" content="ORBIT-I Private Limited | Software &amp; Technology Solutions" />
+    <meta property="og:description" content="ORBIT-I Private Limited designs and builds web platforms, mobile apps, and custom software for businesses that need reliable engineering." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-white text-black antialiased selection:bg-black selection:text-white">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

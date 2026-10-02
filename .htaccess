@@ -1,0 +1,79 @@
+# ==============================================================================
+# ORBIT-I PRIVATE LIMITED - ENTERPRISE APACHE / LITESPEED HARDENED CONFIGURATION
+# ==============================================================================
+
+# 1. Disable Directory Indexing (Prevents browsing directory contents)
+Options -Indexes
+
+# 2. Block direct web access to sensitive environment, source & database files
+<FilesMatch "(^\.env|\.git|\.sql|\.log|package\.json|package-lock\.json|tsconfig\.json|ecosystem\.config\.cjs|server\.ts|db\.ts)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# 3. Block all hidden files and folders (.git, .env, .htaccess itself, etc.)
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order deny,allow
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+
+  # Block requests trying to access .git or node_modules
+  RewriteRule ^(\.git|node_modules|server|src)/ - [F,L,NC]
+
+  # Force HTTPS
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # If running Node.js Reverse Proxy:
+  # Route /api and dynamic calls directly to Node.js backend on Port 3000
+  <IfModule mod_proxy.c>
+    RewriteCond %{REQUEST_URI} ^/api [NC]
+    RewriteRule ^(.*)$ http://127.0.0.1:3000/$1 [P,L]
+  </IfModule>
+
+  # For Static SPA Hosting (index.html fallback for clean URL pushState routing):
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+
+# 4. Strict Security Response Headers
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-XSS-Protection "1; mode=block"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+  Header unset X-Powered-By
+</IfModule>
+
+# 5. Enable Gzip Compression for Fast Loading
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/plain text/html text/xml text/css application/xml application/xhtml+xml application/rss+xml application/javascript application/x-javascript application/json
+</IfModule>
+
+# 6. Cache-Control for Static Assets (Images, Icons, Fonts)
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/jpeg "access plus 1 month"
+  ExpiresByType image/png "access plus 1 month"
+  ExpiresByType image/webp "access plus 1 month"
+  ExpiresByType image/svg+xml "access plus 1 month"
+  ExpiresByType text/css "access plus 1 month"
+  ExpiresByType application/javascript "access plus 1 month"
+</IfModule>
