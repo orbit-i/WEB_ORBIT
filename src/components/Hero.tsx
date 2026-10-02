@@ -1,5 +1,7 @@
 import React from 'react';
 import { COMPANY_INFO } from '../data/orbitData';
+import { useCms } from '../context/CmsContext';
+import { SeoHead } from './common/SeoHead';
 import { ShieldCheck, ArrowRight, CheckCircle, Server, Code2 } from 'lucide-react';
 
 interface HeroProps {
@@ -7,15 +9,23 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ setActiveTab }) => {
+  const { pageContents } = useCms();
+  const homeData = pageContents?.home;
+
   return (
     <section className="bg-white text-black border-b border-gray-100 overflow-hidden relative">
+      <SeoHead
+        title={homeData?.metaTitle || `${COMPANY_INFO.legalName} | Enterprise Software Engineering & Applied AI`}
+        description={homeData?.metaDescription || homeData?.subheadline || 'SECP Registered Software Engineering firm based in Nawabshah, Sindh, Pakistan. Delivering mission-critical web applications, mobile apps, and cloud infrastructure.'}
+        canonicalUrl="https://orbit-i.tech/"
+      />
       <div className="max-w-7xl mx-auto px-6 py-16 md:py-24 lg:py-28">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Headline, Narrative & Actions (7 Columns) */}
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gray-50 border border-gray-200 text-xs font-mono font-medium text-gray-800">
               <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>ENGINEERING HEADQUARTERS · NAWABSHAH, SINDH</span>
+              <span>{homeData?.badge || 'ENGINEERING HEADQUARTERS · NAWABSHAH, SINDH'}</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-black tracking-tight leading-[1.08]">
@@ -23,11 +33,11 @@ export const Hero: React.FC<HeroProps> = ({ setActiveTab }) => {
             </h1>
 
             <h2 className="text-xl sm:text-2xl lg:text-3xl font-semibold text-gray-900 leading-snug">
-              Engineering Software That Stays in Orbit Around Your Business
+              {homeData?.headline || 'Engineering Software That Stays in Orbit Around Your Business'}
             </h2>
 
             <p className="text-base sm:text-lg text-gray-700 leading-relaxed max-w-2xl">
-              We engineer custom software systems, scalable cloud platforms, and modern enterprise web and mobile applications with strict type safety, modular architecture, and long-term production reliability.
+              {homeData?.subheadline || homeData?.description || 'We engineer custom software systems, scalable cloud platforms, and modern enterprise web and mobile applications with strict type safety, modular architecture, and long-term production reliability.'}
             </p>
 
             {/* CTAs - Clean actions: Our Services, Contact Us */}
@@ -36,7 +46,7 @@ export const Hero: React.FC<HeroProps> = ({ setActiveTab }) => {
                 onClick={() => setActiveTab('services')}
                 className="w-full sm:w-auto bg-black text-white hover:bg-gray-800 px-8 py-3.5 rounded-full font-medium transition-all duration-200 text-sm sm:text-base border-2 border-black shadow-sm flex items-center justify-center gap-2"
               >
-                <span>Our Services</span>
+                <span>{homeData?.primaryCtaText || 'Our Services'}</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
@@ -44,7 +54,7 @@ export const Hero: React.FC<HeroProps> = ({ setActiveTab }) => {
                 onClick={() => setActiveTab('contact')}
                 className="w-full sm:w-auto bg-transparent border-2 border-black text-black hover:bg-black hover:text-white px-8 py-3.5 rounded-full font-medium transition-all duration-200 text-sm sm:text-base flex items-center justify-center"
               >
-                Contact Us
+                {homeData?.secondaryCtaText || 'Contact Us'}
               </button>
             </div>
 

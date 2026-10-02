@@ -19,6 +19,7 @@ import {
   ShieldCheck,
   X,
   ArrowRight,
+  Image as ImageIcon,
 } from 'lucide-react';
 
 interface ServicesCmsProps {
@@ -36,6 +37,24 @@ const AVAILABLE_ICONS = [
   { name: 'Wrench', icon: Wrench, label: 'Custom Systems' },
 ];
 
+const SUGGESTED_TECH_TAGS = [
+  'WordPress',
+  'Custom Coding',
+  'React',
+  'Next.js',
+  'Node.js',
+  'PHP',
+  'TypeScript',
+  'TailwindCSS',
+  'MySQL',
+  'React Native',
+  'Flutter',
+  'Python',
+  'Docker',
+  'AWS Cloud',
+  'REST APIs',
+];
+
 export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) => {
   const { services, addService, updateService, deleteService, resetServicesToDefault } = useCms();
 
@@ -47,10 +66,12 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
   const [category, setCategory] = useState('Core Engineering');
   const [summary, setSummary] = useState('');
   const [description, setDescription] = useState('');
+  const [detailedDescription, setDetailedDescription] = useState('');
   const [benefitsText, setBenefitsText] = useState('');
   const [techsText, setTechsText] = useState('');
-  const [iconName, setIconName] = useState('Cpu');
+  const [iconName, setIconName] = useState('Code2');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageAlt, setImageAlt] = useState('');
 
   const handleOpenAdd = () => {
     setEditingId(null);
@@ -58,10 +79,12 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
     setCategory('Core Engineering');
     setSummary('');
     setDescription('');
+    setDetailedDescription('');
     setBenefitsText('High performance & sub-second latency\nEnterprise security & RBAC protection\nFull source code & IP ownership\nContinuous automated CI/CD deployments');
-    setTechsText('TypeScript, React 19, Node.js, PostgreSQL, Docker');
-    setIconName('Cpu');
-    setImageUrl('');
+    setTechsText('WordPress, Custom Coding, React, Next.js, Node.js, PHP, TypeScript, TailwindCSS, MySQL');
+    setIconName('Code2');
+    setImageUrl('https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80');
+    setImageAlt('Web Development and Custom Coding by ORBIT-I');
     setIsModalOpen(true);
   };
 
@@ -75,11 +98,24 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
     );
     setSummary(svc.summary || '');
     setDescription(svc.description || '');
+    setDetailedDescription(svc.detailedDescription || svc.description || '');
     setBenefitsText(svc.benefits ? svc.benefits.join('\n') : '');
     setTechsText(svc.technologies ? svc.technologies.join(', ') : '');
-    setIconName(svc.iconName || 'Cpu');
-    setImageUrl((svc as any).imageUrl || '');
+    setIconName(svc.iconName || 'Code2');
+    setImageUrl(svc.imageUrl || '');
+    setImageAlt(svc.imageAlt || `${svc.title} - ORBIT-I Private Limited`);
     setIsModalOpen(true);
+  };
+
+  const handleAddTechTag = (tag: string) => {
+    const current = techsText
+      .split(',')
+      .map((t) => t.trim())
+      .filter(Boolean);
+    if (!current.includes(tag)) {
+      current.push(tag);
+      setTechsText(current.join(', '));
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -110,23 +146,26 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
       title: title.trim(),
       summary: summary.trim() || title.trim(),
       description: description.trim() || summary.trim(),
+      detailedDescription: detailedDescription.trim() || description.trim() || summary.trim(),
       benefits: benefitsArray.length > 0 ? benefitsArray : ['Enterprise grade delivery and maintenance.'],
       technologies: techsArray.length > 0 ? techsArray : ['TypeScript', 'Modern Stack'],
       iconName,
+      imageUrl: imageUrl.trim() || undefined,
+      imageAlt: imageAlt.trim() || `${title.trim()} - ORBIT-I Private Limited`,
       processSteps: [
-        { title: 'Architecture & Scope', description: 'Comprehensive system planning.' },
-        { title: 'Rapid Implementation', description: 'Iterative, sprint-driven code sprints.' },
-        { title: 'Deployment & SLA', description: 'Automated deployment and 24/7 monitoring.' },
+        { title: '01. Technical Discovery', description: 'Requirements mapping, architectural trade-offs, and data modeling.' },
+        { title: '02. System Architecture', description: 'Component wireframes, API contracts, and database schema specification.' },
+        { title: '03. Sprint-Based Build', description: 'Bi-weekly sprint demos with end-to-end visibility and continuous integration.' },
+        { title: '04. Production Deployment', description: 'Security audit, load testing, automated backups, and 30-day post-launch warranty.' },
       ],
-      ...(imageUrl ? { imageUrl } : {}),
     };
 
     if (editingId) {
       await updateService(serviceData);
-      showNotification(`Service "${title}" updated successfully.`);
+      showNotification(`Service "${title}" updated successfully with SEO image and tech stack.`);
     } else {
       await addService(serviceData);
-      showNotification(`New Service "${title}" created and live.`);
+      showNotification(`New Service "${title}" created and published.`);
     }
 
     setIsModalOpen(false);
@@ -150,7 +189,6 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
     }
   };
 
-  // Helper to render icon
   const renderIcon = (name: string) => {
     const found = AVAILABLE_ICONS.find((i) => i.name === name);
     const Comp = found ? found.icon : Cpu;
@@ -159,36 +197,32 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
 
   return (
     <div className="space-y-6">
-      {/* Top Banner & Action Bar */}
-      <div className="bg-white border border-gray-200/80 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      {/* Header bar */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-4 border-b border-gray-200 gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 text-xs font-mono font-semibold rounded-full mb-2">
-            <Cpu className="h-3.5 w-3.5" />
-            <span>SERVICES CMS · SIMPLE &amp; DIRECT</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Services &amp; Solutions Management
+          <h2 className="text-xl font-bold text-gray-900 tracking-tight">
+            Verified Enterprise Services
           </h2>
-          <p className="text-xs text-gray-600 mt-1">
-            Easily add, edit, or remove enterprise offerings displayed on the public landing page and client portal.
+          <p className="text-xs text-gray-500 mt-0.5">
+            Manage public engineering capabilities, SEO images, tech stacks (WordPress, Custom Code, React, etc.), and deliverables.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           <button
             type="button"
             onClick={handleResetDefaults}
-            className="px-3.5 py-2 text-xs font-mono font-medium text-gray-600 hover:text-black bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors flex items-center gap-1.5"
-            title="Restore original verified services"
+            className="px-3.5 py-2 border border-gray-300 hover:bg-gray-100 text-gray-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors"
+            title="Reset to factory verified offerings"
           >
             <RotateCcw className="h-3.5 w-3.5" />
-            <span>Reset Defaults</span>
+            <span className="hidden sm:inline">Reset Defaults</span>
           </button>
 
           <button
             type="button"
             onClick={handleOpenAdd}
-            className="px-5 py-2.5 bg-[#2f6fed] hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-all shadow-sm"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 transition-colors shadow-xs"
           >
             <Plus className="h-4 w-4" />
             <span>Add New Service</span>
@@ -197,92 +231,67 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
       </div>
 
       {/* Services Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {services.map((svc) => {
-          const isAI =
-            svc.id === 'srv-ai' ||
-            svc.title.toLowerCase().includes('ai') ||
-            svc.title.toLowerCase().includes('intelligence');
-
-          return (
-            <div
-              key={svc.id}
-              className={`rounded-2xl border p-6 flex flex-col justify-between transition-all bg-white relative group ${
-                isAI
-                  ? 'border-gray-900 shadow-md ring-1 ring-gray-900/10'
-                  : 'border-gray-200 hover:border-gray-400 hover:shadow-xs'
-              }`}
-            >
-              {/* Header inside card */}
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                      isAI
-                        ? 'bg-black text-amber-300'
-                        : 'bg-blue-50 text-[#2f6fed] border border-blue-100'
-                    }`}
-                  >
-                    {renderIcon(svc.iconName || 'Cpu')}
-                  </div>
-
-                  <span
-                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                      isAI
-                        ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                        : 'bg-gray-100 text-gray-700'
-                    }`}
-                  >
-                    {isAI ? 'Autonomous Systems' : 'Core Engineering'}
-                  </span>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {services.map((svc) => (
+          <div
+            key={svc.id}
+            className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-xs hover:shadow-md transition-all flex flex-col justify-between"
+          >
+            {/* Service Thumbnail Header */}
+            {svc.imageUrl ? (
+              <div className="relative aspect-[16/9] w-full overflow-hidden bg-gray-900">
+                <img
+                  src={svc.imageUrl}
+                  alt={svc.imageAlt || svc.title}
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+                <div className="absolute top-2.5 right-2.5 p-1.5 rounded-lg bg-black/60 backdrop-blur-xs text-white">
+                  {renderIcon(svc.iconName || 'Code2')}
                 </div>
+              </div>
+            ) : (
+              <div className="p-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+                <div className="p-2 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
+                  {renderIcon(svc.iconName || 'Code2')}
+                </div>
+                <span className="text-[10px] font-mono text-gray-400">No Image Set</span>
+              </div>
+            )}
 
-                <h3 className="text-base font-bold text-gray-900 mb-1.5 group-hover:text-[#2f6fed] transition-colors">
+            {/* Card Content */}
+            <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+              <div className="space-y-2">
+                <h4 className="text-base font-bold text-gray-900 leading-snug">
                   {svc.title}
-                </h3>
-
-                <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed mb-4">
-                  {svc.summary}
+                </h4>
+                <p className="text-xs text-gray-600 line-clamp-2 leading-relaxed">
+                  {svc.summary || svc.description}
                 </p>
 
-                {/* Key Benefits Preview */}
-                <div className="space-y-1.5 mb-4">
-                  {svc.benefits?.slice(0, 3).map((benefit, idx) => (
-                    <div key={idx} className="flex items-start gap-2 text-[11px] text-gray-700">
-                      <Check className="h-3.5 w-3.5 text-emerald-600 shrink-0 mt-0.5" />
-                      <span className="line-clamp-1">{benefit}</span>
-                    </div>
+                {/* Tech Stacks */}
+                <div className="flex flex-wrap gap-1 pt-1">
+                  {svc.technologies.slice(0, 4).map((tech, i) => (
+                    <span
+                      key={i}
+                      className="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-700 border border-gray-200"
+                    >
+                      {tech}
+                    </span>
                   ))}
-                  {svc.benefits && svc.benefits.length > 3 && (
-                    <span className="text-[10px] text-gray-400 font-mono pl-5 block">
-                      +{svc.benefits.length - 3} more benefits
+                  {svc.technologies.length > 4 && (
+                    <span className="text-[10px] font-mono px-1.5 py-0.5 text-gray-400">
+                      +{svc.technologies.length - 4} more
                     </span>
                   )}
                 </div>
-
-                {/* Technologies pills */}
-                {svc.technologies && svc.technologies.length > 0 && (
-                  <div className="flex flex-wrap gap-1.5 pt-3 border-t border-gray-100 mb-4">
-                    {svc.technologies.slice(0, 4).map((tech, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2 py-0.5 bg-gray-50 border border-gray-200 text-gray-700 rounded-md text-[10px] font-mono"
-                      >
-                        {tech}
-                      </span>
-                    ))}
-                    {svc.technologies.length > 4 && (
-                      <span className="text-[10px] text-gray-400 font-mono self-center">
-                        +{svc.technologies.length - 4}
-                      </span>
-                    )}
-                  </div>
-                )}
               </div>
 
-              {/* Action Buttons */}
+              {/* Actions */}
               <div className="pt-3 border-t border-gray-100 flex items-center justify-between">
-                <span className="text-[10px] font-mono text-gray-400 truncate max-w-[120px]">
+                <span className="text-[10px] font-mono text-gray-400">
                   ID: {svc.id}
                 </span>
 
@@ -307,24 +316,22 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                 </div>
               </div>
             </div>
-          );
-        })}
+          </div>
+        ))}
       </div>
 
-      {/* ======================================================== */}
-      {/* SIMPLE ADD / EDIT SERVICE MODAL                          */}
-      {/* ======================================================== */}
+      {/* Add / Edit Service Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-200 my-8">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-gray-200 my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-gray-100 mb-6">
               <div>
                 <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                  <Sparkles className="h-5 w-5 text-[#2f6fed]" />
-                  <span>{editingId ? 'Edit Service' : 'Add New Service'}</span>
+                  <Sparkles className="h-5 w-5 text-blue-600" />
+                  <span>{editingId ? 'Edit Service & SEO' : 'Add New Service'}</span>
                 </h3>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  Fill in the details below. Benefits and tech stack are simple plain text!
+                  Configure service title, SEO image, detailed description, and real tech stack.
                 </p>
               </div>
               <button
@@ -340,7 +347,7 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
               {/* Title & Category */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-mono font-semibold text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
                     Service Title *
                   </label>
                   <input
@@ -348,32 +355,82 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                     required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="e.g. Enterprise Cloud & LLM Systems"
-                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-[#2f6fed] focus:outline-none"
+                    placeholder="e.g. Web Application & Custom Software"
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs sm:text-sm focus:border-blue-600 focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono font-semibold text-gray-700 mb-1">
+                  <label className="block text-xs font-semibold text-gray-700 mb-1">
                     Domain / Category
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-[#2f6fed] focus:outline-none bg-white"
+                    className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs sm:text-sm focus:border-blue-600 focus:outline-none bg-white"
                   >
-                    <option value="Autonomous Systems">Autonomous Systems (AI)</option>
                     <option value="Core Engineering">Core Engineering</option>
+                    <option value="Autonomous Systems">Autonomous Systems (AI)</option>
                     <option value="Cloud Infrastructure">Cloud Infrastructure</option>
                     <option value="Mobile Engineering">Mobile Engineering</option>
-                    <option value="Cybersecurity">Cybersecurity &amp; Compliance</option>
+                    <option value="Enterprise Architecture">Enterprise Architecture</option>
                   </select>
                 </div>
               </div>
 
-              {/* Summary */}
+              {/* Service Image & SEO Alt Text */}
+              <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 space-y-3">
+                <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
+                  <ImageIcon className="h-4 w-4 text-blue-600" />
+                  <span>Service Image &amp; SEO Alt Tag</span>
+                </span>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      Image URL or Path
+                    </label>
+                    <input
+                      type="text"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="https://... or /uploads/..."
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:border-blue-600 focus:outline-none font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                      SEO Alt Text (Image Ranking)
+                    </label>
+                    <input
+                      type="text"
+                      value={imageAlt}
+                      onChange={(e) => setImageAlt(e.target.value)}
+                      placeholder="Descriptive text for Google Image search..."
+                      className="w-full px-3 py-2 bg-white border border-gray-300 rounded-xl text-xs focus:border-blue-600 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                {/* Device Upload Option */}
+                <div>
+                  <ImageUploader
+                    label="Or Upload from Device (Computer / Phone)"
+                    value={imageUrl}
+                    onChange={(url) => {
+                      setImageUrl(url);
+                      if (!imageAlt) setImageAlt(`${title} service image`);
+                    }}
+                    aspectRatio="wide"
+                    helperText="Upload custom card banner or graphic from device"
+                  />
+                </div>
+              </div>
+
+              {/* Card Summary */}
               <div>
-                <label className="block text-xs font-mono font-semibold text-gray-700 mb-1">
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
                   Card Summary (1-2 sentences) *
                 </label>
                 <input
@@ -381,52 +438,81 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                   required
                   value={summary}
                   onChange={(e) => setSummary(e.target.value)}
-                  placeholder="e.g. Autonomous Large Language Models, agentic workflows and fine-tuned pipelines."
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-[#2f6fed] focus:outline-none"
+                  placeholder="e.g. Fast, secure, and maintainable enterprise web applications built on modern frameworks."
+                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs sm:text-sm focus:border-blue-600 focus:outline-none"
                 />
               </div>
 
-              {/* Benefits (Easy Multi-line) */}
+              {/* Detailed Description */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-mono font-semibold text-gray-700">
-                    Key Deliverables / Benefits (1 per line)
+                  <label className="block text-xs font-semibold text-gray-700">
+                    Detailed Service Description (Rich Overview)
                   </label>
                   <span className="text-[10px] text-gray-400 font-mono">
-                    Type or paste each benefit on a new line
+                    Shown when user expands service card
                   </span>
                 </div>
                 <textarea
-                  rows={4}
-                  value={benefitsText}
-                  onChange={(e) => setBenefitsText(e.target.value)}
-                  placeholder={"Sub-100ms API latency\nZero-downtime blue/green deployment\nSOC2 & ISO-ready audit logging\nDedicated engineering team"}
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs font-sans leading-relaxed focus:border-[#2f6fed] focus:outline-none"
+                  rows={3}
+                  value={detailedDescription}
+                  onChange={(e) => setDetailedDescription(e.target.value)}
+                  placeholder="Detailed multi-paragraph breakdown of architecture, technical scope, delivery practices, and business value..."
+                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs leading-relaxed focus:border-blue-600 focus:outline-none"
                 />
               </div>
 
-              {/* Technologies (Comma separated) */}
+              {/* Technologies / Tech Stack with Quick Suggestions */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-mono font-semibold text-gray-700">
+                  <label className="block text-xs font-semibold text-gray-700">
                     Technologies / Tech Stack (Comma separated)
                   </label>
                   <span className="text-[10px] text-gray-400 font-mono">
-                    e.g. React 19, TypeScript, PyTorch, Docker
+                    e.g. WordPress, Custom Coding, React, Next.js
                   </span>
                 </div>
                 <input
                   type="text"
                   value={techsText}
                   onChange={(e) => setTechsText(e.target.value)}
-                  placeholder="React 19, TypeScript, Node.js, PyTorch, Docker, Kubernetes"
-                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs font-mono focus:border-[#2f6fed] focus:outline-none"
+                  placeholder="WordPress, Custom Coding, React, Next.js, Node.js, PHP, TypeScript, TailwindCSS"
+                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs font-mono focus:border-blue-600 focus:outline-none"
+                />
+
+                {/* Quick Add Suggestion Pills */}
+                <div className="flex items-center gap-1.5 flex-wrap pt-2">
+                  <span className="text-[10px] text-gray-400 font-mono">Click to Add:</span>
+                  {SUGGESTED_TECH_TAGS.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => handleAddTechTag(tag)}
+                      className="px-2 py-0.5 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded text-[10px] font-mono text-gray-700 border border-gray-200 transition-colors"
+                    >
+                      +{tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Benefits (1 per line) */}
+              <div>
+                <label className="block text-xs font-semibold text-gray-700 mb-1">
+                  Key Deliverables / Benefits (1 per line)
+                </label>
+                <textarea
+                  rows={3}
+                  value={benefitsText}
+                  onChange={(e) => setBenefitsText(e.target.value)}
+                  placeholder={"Sub-100ms API latency\nZero-downtime blue/green deployment\nSOC2 & ISO-ready audit logging\nDedicated engineering team"}
+                  className="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-xs font-sans leading-relaxed focus:border-blue-600 focus:outline-none"
                 />
               </div>
 
               {/* Icon Selector */}
               <div>
-                <label className="block text-xs font-mono font-semibold text-gray-700 mb-2">
+                <label className="block text-xs font-semibold text-gray-700 mb-1.5">
                   Service Icon
                 </label>
                 <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
@@ -438,14 +524,14 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                         key={item.name}
                         type="button"
                         onClick={() => setIconName(item.name)}
-                        className={`p-2.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
+                        className={`p-2 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all ${
                           isSelected
-                            ? 'bg-[#2f6fed] text-white border-[#2f6fed] shadow-xs'
+                            ? 'bg-blue-600 text-white border-blue-600 shadow-xs'
                             : 'bg-gray-50 border-gray-200 text-gray-700 hover:bg-gray-100'
                         }`}
                         title={item.label}
                       >
-                        <IconComp className="h-5 w-5" />
+                        <IconComp className="h-4 w-4" />
                         <span className="text-[9px] font-mono truncate max-w-full">
                           {item.name}
                         </span>
@@ -453,17 +539,6 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                     );
                   })}
                 </div>
-              </div>
-
-              {/* Optional Custom Graphic / Image Upload */}
-              <div className="pt-2">
-                <ImageUploader
-                  label="Service Illustration or Graphic (Optional)"
-                  value={imageUrl}
-                  onChange={setImageUrl}
-                  aspectRatio="wide"
-                  helperText="Upload custom card banner or graphic from device"
-                />
               </div>
 
               {/* Action Buttons */}
@@ -477,7 +552,7 @@ export const ServicesCms: React.FC<ServicesCmsProps> = ({ showNotification }) =>
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 bg-[#2f6fed] hover:bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-colors shadow-sm"
+                  className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 transition-colors shadow-sm"
                 >
                   <Save className="h-4 w-4" />
                   <span>{editingId ? 'Save Changes' : 'Publish Service'}</span>

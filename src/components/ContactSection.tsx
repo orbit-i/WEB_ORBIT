@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { COMPANY_INFO, VERIFIED_SERVICES } from '../data/orbitData';
+import { useCms } from '../context/CmsContext';
+import { SeoHead } from './common/SeoHead';
 import { Mail, Phone, MapPin, CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface ContactSectionProps {
@@ -7,6 +9,14 @@ interface ContactSectionProps {
 }
 
 export const ContactSection: React.FC<ContactSectionProps> = ({ initialService = '' }) => {
+  const { pageContents } = useCms();
+  const contactData = pageContents?.contact;
+
+  const directEmail = contactData?.customFields?.directEmail || COMPANY_INFO.email;
+  const directPhone = contactData?.customFields?.directPhone || COMPANY_INFO.phone;
+  const directWhatsApp = contactData?.customFields?.directWhatsApp || COMPANY_INFO.phone;
+  const headquarters = contactData?.customFields?.headquartersAddress || COMPANY_INFO.location;
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -48,16 +58,21 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService =
 
   return (
     <section className="bg-white text-black py-16 md:py-24">
+      <SeoHead
+        title={contactData?.metaTitle || `Contact Us | ${COMPANY_INFO.legalName}`}
+        description={contactData?.metaDescription || contactData?.subheadline || 'Get in touch with the ORBIT-I engineering leadership for project consultations and technical discovery.'}
+        canonicalUrl="https://orbit-i.tech/#contact"
+      />
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
           {/* Left: Contact Info - 5 Cols */}
           <div className="lg:col-span-5 space-y-6">
             <h2 className="text-3xl md:text-5xl font-bold text-black tracking-tight">
-              Contact Us
+              {contactData?.headline || 'Contact Us'}
             </h2>
 
             <p className="text-base md:text-lg text-gray-700 leading-relaxed">
-              Have a project in mind or need technical consultation? Reach out directly to discuss your requirements with our engineering leadership.
+              {contactData?.subheadline || contactData?.description || 'Have a project in mind or need technical consultation? Reach out directly to discuss your requirements with our engineering leadership.'}
             </p>
 
             <div className="space-y-4 pt-4 border-t border-gray-200">
@@ -68,10 +83,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService =
                 <div>
                   <span className="text-xs font-semibold text-gray-500 uppercase block">Email</span>
                   <a
-                    href={`mailto:${COMPANY_INFO.email}`}
+                    href={`mailto:${directEmail}`}
                     className="text-base font-semibold text-black hover:underline"
                   >
-                    {COMPANY_INFO.email}
+                    {directEmail}
                   </a>
                 </div>
               </div>
@@ -83,10 +98,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService =
                 <div>
                   <span className="text-xs font-semibold text-gray-500 uppercase block">Phone / WhatsApp</span>
                   <a
-                    href={`tel:${COMPANY_INFO.phone.replace(/\s+/g, '')}`}
+                    href={`tel:${directPhone.replace(/\s+/g, '')}`}
                     className="text-base font-semibold text-black hover:underline"
                   >
-                    {COMPANY_INFO.phone}
+                    {directPhone}
                   </a>
                 </div>
               </div>
@@ -98,7 +113,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialService =
                 <div>
                   <span className="text-xs font-semibold text-gray-500 uppercase block">Operating Office</span>
                   <div className="text-sm font-semibold text-black">
-                    {COMPANY_INFO.location}
+                    {headquarters}
                   </div>
                 </div>
               </div>

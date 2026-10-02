@@ -45,9 +45,15 @@ import {
   Building2,
   Database,
   Briefcase,
+  Upload,
+  Camera,
+  Laptop,
+  Smartphone,
 } from 'lucide-react';
 import { ServicesCms } from './admin/ServicesCms';
 import { OperationsCms } from './admin/OperationsCms';
+import { ClientsCms } from './admin/ClientsCms';
+import { PagesCms } from './admin/PagesCms';
 import { WordPressEditor } from './admin/WordPressEditor';
 import { TeamCms } from './admin/TeamCms';
 import { JobsCms } from './admin/JobsCms';
@@ -128,7 +134,9 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     | 'cookies_data'
     | 'tags_urls'
     | 'governance'
-    | 'staff_access';
+    | 'staff_access'
+    | 'clients'
+    | 'pages';
 
   const role = (authenticatedUser?.role || '').toLowerCase();
   const isContentWriter = role === 'content_writer' || role.includes('writer');
@@ -173,6 +181,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const tabTitles: Record<AdminTab, string> = {
     dashboard: 'Sales Report',
     sales_report: 'Sales Report',
+    clients: 'Client CRM, Projects & Payments',
+    pages: 'Website Pages Content Editor',
     team: 'Job Info & Team Members',
     services: 'Verified Enterprise Services',
     certificates: 'Certificate Verification CMS',
@@ -314,12 +324,76 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   };
 
   // ----------------------------------------------------
-  // 4. MEDIA ASSET STATE
+  // 4. MEDIA ASSET STATE & MULTI-DEVICE UPLOAD
   // ----------------------------------------------------
   const [newMediaName, setNewMediaName] = useState('');
   const [newMediaUrl, setNewMediaUrl] = useState('');
   const [newMediaAlt, setNewMediaAlt] = useState('');
   const [newMediaTags, setNewMediaTags] = useState('Brand, Web');
+  const [mediaUploadSource, setMediaUploadSource] = useState<'device' | 'url'>('device');
+  const [isUploadingMedia, setIsUploadingMedia] = useState(false);
+  const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+
+  const handleDeviceUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      setIsUploadingMedia(true);
+      const reader = new FileReader();
+
+      reader.onload = async (event) => {
+        const base64Data = event.target?.result as string;
+        setMediaPreview(base64Data);
+
+        let finalUrl = base64Data;
+        try {
+          const res = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: file.name,
+              data: base64Data,
+              altText: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+            }),
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.url) finalUrl = data.url;
+          }
+        } catch (err) {
+          console.warn('Backend /api/upload fallback to base64 data URL:', err);
+        }
+
+        const sizeStr =
+          file.size > 1024 * 1024
+            ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+            : `${Math.round(file.size / 1024)} KB`;
+
+        const autoName = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+        const newAsset: MediaAsset = {
+          id: `med-${Date.now()}-${i}`,
+          name: autoName,
+          url: finalUrl,
+          type: file.type || 'image/png',
+          size: sizeStr,
+          altText: autoName,
+          tags: ['Upload', 'Device', file.type.split('/')[1] || 'Image'],
+          uploadedAt: new Date().toISOString().split('T')[0],
+        };
+
+        addMediaAsset(newAsset);
+        setNewMediaName(autoName);
+        setNewMediaUrl(finalUrl);
+        setNewMediaAlt(autoName);
+        setIsUploadingMedia(false);
+        showNotification(`Uploaded "${file.name}" successfully!`);
+      };
+
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleAddMedia = (e: React.FormEvent) => {
     e.preventDefault();
@@ -340,6 +414,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     setNewMediaName('');
     setNewMediaUrl('');
     setNewMediaAlt('');
+    setMediaPreview(null);
     showNotification(`Media asset "${newAsset.name}" added to repository.`);
   };
 
@@ -527,6 +602,16 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
             {activeAdminTab === 'operations' && (
               <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-xs">
                 <OperationsCms showNotification={showNotification} setActiveTab={setActiveTab || (() => {})} />
+              </div>
+            )}
+            {activeAdminTab === 'clients' && (
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-xs">
+                <ClientsCms showNotification={showNotification} />
+              </div>
+            )}
+            {activeAdminTab === 'pages' && (
+              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-xs">
+                <PagesCms showNotification={showNotification} />
               </div>
             )}
             {activeAdminTab === 'staff_access' && (
@@ -1447,80 +1532,175 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
               </p>
             </div>
 
-            {/* Add New Media Form */}
-            <form onSubmit={handleAddMedia} className="bg-gray-50 border border-gray-200 rounded-2xl p-6 sm:p-8 space-y-4">
-              <span className="text-xs font-bold uppercase tracking-wider text-black font-mono block pb-2 border-b border-gray-200">
-                Register New Media Asset
-              </span>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Asset Name *
-                  </label>
-                  <input
-                    type="text"
-                    value={newMediaName}
-                    onChange={(e) => setNewMediaName(e.target.value)}
-                    placeholder="e.g. ORBIT-I Transparent Banner"
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-black focus:outline-none focus:border-black"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Asset URL or Path *
-                  </label>
-                  <input
-                    type="text"
-                    value={newMediaUrl}
-                    onChange={(e) => setNewMediaUrl(e.target.value)}
-                    placeholder="/orbit-i-logo.png or https://..."
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black font-mono"
-                    required
-                  />
+            {/* Add New Media Form with Computer & Phone Multi-Source Upload */}
+            <div className="bg-gray-50 border border-gray-200 rounded-2xl p-6 sm:p-8 space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-gray-200 gap-3">
+                <span className="text-xs font-bold uppercase tracking-wider text-black font-mono">
+                  Register or Upload Media Asset
+                </span>
+                <div className="flex items-center gap-2 p-1 bg-white rounded-xl border border-gray-200 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setMediaUploadSource('device')}
+                    className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all ${
+                      mediaUploadSource === 'device'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Device / Phone / Camera</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setMediaUploadSource('url')}
+                    className={`px-3 py-1.5 rounded-lg font-bold flex items-center gap-1.5 transition-all ${
+                      mediaUploadSource === 'url'
+                        ? 'bg-blue-600 text-white shadow-xs'
+                        : 'text-gray-600 hover:text-black'
+                    }`}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span>Direct Web URL</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    SEO Alt Text (Accessibility &amp; Image Ranking)
+              {mediaUploadSource === 'device' ? (
+                <div className="space-y-4">
+                  {/* Drag and Drop / Device File Picker */}
+                  <label className="relative border-2 border-dashed border-blue-200 hover:border-blue-400 bg-blue-50/40 hover:bg-blue-50/80 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all group">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      onChange={handleDeviceUpload}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                    />
+                    <div className="w-14 h-14 rounded-2xl bg-blue-600 text-white flex items-center justify-center shadow-lg shadow-blue-500/30 group-hover:scale-105 transition-transform mb-3">
+                      <Upload className="w-7 h-7" />
+                    </div>
+                    <h4 className="text-sm font-bold text-gray-900 mb-1">
+                      Choose Photos from Computer, Phone Gallery, or Camera
+                    </h4>
+                    <p className="text-xs text-gray-500 max-w-md">
+                      Drag &amp; drop files here or tap to open gallery/camera on your mobile device. Supports PNG, JPG, WebP, SVG, and GIF.
+                    </p>
+                    <div className="flex items-center gap-4 mt-3 text-[11px] font-semibold text-blue-700">
+                      <span className="flex items-center gap-1">
+                        <Laptop className="w-3.5 h-3.5" /> PC / Mac
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Smartphone className="w-3.5 h-3.5" /> Phone Photos
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Camera className="w-3.5 h-3.5" /> Direct Camera
+                      </span>
+                    </div>
                   </label>
-                  <input
-                    type="text"
-                    value={newMediaAlt}
-                    onChange={(e) => setNewMediaAlt(e.target.value)}
-                    placeholder="Descriptive text for search engine crawlers..."
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black"
-                  />
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">
-                    Media Tags (comma-separated)
-                  </label>
-                  <input
-                    type="text"
-                    value={newMediaTags}
-                    onChange={(e) => setNewMediaTags(e.target.value)}
-                    placeholder="Logo, Transparent, Header"
-                    className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black"
-                  />
-                </div>
-              </div>
+                  {isUploadingMedia && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-xl flex items-center gap-3 text-xs text-blue-800">
+                      <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                      <span>Processing and storing media asset...</span>
+                    </div>
+                  )}
 
-              <div className="pt-2 flex justify-end">
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 bg-black text-white hover:bg-gray-800 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Register Asset</span>
-                </button>
-              </div>
-            </form>
+                  {mediaPreview && (
+                    <div className="flex items-center gap-4 p-3 bg-white border border-gray-200 rounded-xl">
+                      <img
+                        src={mediaPreview}
+                        alt="Preview"
+                        className="w-16 h-16 rounded-lg object-cover border border-gray-200"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold text-gray-900 truncate">{newMediaName || 'Uploaded Asset'}</p>
+                        <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Registered in Media Gallery
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setMediaPreview(null)}
+                        className="text-xs text-gray-500 hover:text-black px-2 py-1 rounded-md"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <form onSubmit={handleAddMedia} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Asset Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={newMediaName}
+                        onChange={(e) => setNewMediaName(e.target.value)}
+                        placeholder="e.g. ORBIT-I Transparent Banner"
+                        className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs font-bold text-black focus:outline-none focus:border-black"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Asset URL or Path *
+                      </label>
+                      <input
+                        type="text"
+                        value={newMediaUrl}
+                        onChange={(e) => setNewMediaUrl(e.target.value)}
+                        placeholder="/orbit-i-logo.png or https://..."
+                        className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black font-mono"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        SEO Alt Text (Accessibility &amp; Image Ranking)
+                      </label>
+                      <input
+                        type="text"
+                        value={newMediaAlt}
+                        onChange={(e) => setNewMediaAlt(e.target.value)}
+                        placeholder="Descriptive text for search engine crawlers..."
+                        className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-gray-700 mb-1">
+                        Media Tags (comma-separated)
+                      </label>
+                      <input
+                        type="text"
+                        value={newMediaTags}
+                        onChange={(e) => setNewMediaTags(e.target.value)}
+                        placeholder="Logo, Transparent, Header"
+                        className="w-full px-3.5 py-2.5 bg-white border border-gray-300 rounded-lg text-xs text-black focus:outline-none focus:border-black"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex justify-end">
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 bg-black text-white hover:bg-gray-800 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Register Asset</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
 
             {/* Media Gallery Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">

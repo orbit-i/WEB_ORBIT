@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useCms } from '../context/CmsContext';
+import { SeoHead } from './common/SeoHead';
 import {
   Briefcase,
   GraduationCap,
@@ -28,7 +29,9 @@ interface CareersSectionProps {
 export const CareersSection: React.FC<CareersSectionProps> = ({
   onSelectRoleForApplication,
 }) => {
-  const { jobs } = useCms();
+  const { jobs, pageContents } = useCms();
+  const careerData = pageContents?.careers;
+
   const [activeFilter, setActiveFilter] = useState<
     'all' | 'jobs' | 'paid_internships' | 'unpaid_internships' | 'remote'
   >('all');
@@ -84,19 +87,23 @@ export const CareersSection: React.FC<CareersSectionProps> = ({
 
   return (
     <section className="py-16 md:py-24 bg-[#fafbfc] min-h-[80vh]">
+      <SeoHead
+        title={careerData?.metaTitle || 'Careers & Internships | ORBIT-I Private Limited'}
+        description={careerData?.metaDescription || careerData?.subheadline || 'Explore engineering careers and certified internship cohorts at ORBIT-I Private Limited.'}
+        canonicalUrl="https://orbit-i.tech/#careers"
+      />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
         {/* Header Zone */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-blue-700 text-xs font-semibold">
             <Sparkles className="h-3.5 w-3.5" />
-            <span>Join the ORBIT-I Engineering Team</span>
+            <span>{careerData?.badge || 'Join the ORBIT-I Engineering Team'}</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
-            Careers &amp; Internship Opportunities
+            {careerData?.headline || 'Careers & Internship Opportunities'}
           </h1>
           <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-            Build enterprise digital systems, mission-critical mobile platforms, and advanced cloud infrastructure.
-            Explore full-time engineering roles, paid industry internships with competitive stipends, and university-recognized certified internships.
+            {careerData?.subheadline || careerData?.description || 'Build enterprise digital systems, mission-critical mobile platforms, and advanced cloud infrastructure. Explore full-time engineering roles, paid industry internships with competitive stipends, and university-recognized certified internships.'}
           </p>
         </div>
 

@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { COMPANY_INFO, FREQUENTLY_ASKED_QUESTIONS } from '../data/orbitData';
 import { useCms } from '../context/CmsContext';
+import { SeoHead } from './common/SeoHead';
 import { ChevronDown, ChevronUp, CheckCircle, MapPin, ShieldCheck, Award } from 'lucide-react';
 
 export const AboutSection: React.FC = () => {
-  const { teamMembers, companyInfo } = useCms();
+  const { teamMembers, companyInfo, pageContents } = useCms();
   const info = companyInfo || COMPANY_INFO;
+  const aboutData = pageContents?.about;
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
   const leadership = [
@@ -73,29 +75,40 @@ export const AboutSection: React.FC = () => {
 
   return (
     <section className="bg-white text-black py-16 md:py-24">
+      <SeoHead
+        title={aboutData?.metaTitle || `About ${info.legalName} | SECP Registered Engineering Firm`}
+        description={aboutData?.metaDescription || aboutData?.subheadline || 'Corporate profile, SECP incorporation, executive leadership, and engineering standards of ORBIT-I Private Limited.'}
+        canonicalUrl="https://orbit-i.tech/#about"
+      />
       <div className="max-w-7xl mx-auto px-6">
         {/* About Overview with Official ORBIT-I Picture Showcase */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center mb-20">
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-xs font-mono font-medium text-gray-700">
               <ShieldCheck className="h-3.5 w-3.5 text-black" />
-              <span>CORPORATE PROFILE &amp; MISSION</span>
+              <span>{aboutData?.badge || 'CORPORATE PROFILE & MISSION'}</span>
             </div>
 
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black tracking-tight leading-tight">
-              About {COMPANY_INFO.legalName}
+              {aboutData?.headline || `About ${info.legalName}`}
             </h2>
 
             <div className="space-y-4 text-base md:text-lg text-gray-800 leading-relaxed">
-              <p>
-                At {COMPANY_INFO.legalName}, we believe reliable engineering is the foundation of enduring technology. Digital systems must be dependable, secure, and built to evolve without accumulated technical debt.
-              </p>
-              <p>
-                Founded by <strong>Abdul Samad Rind</strong>, <strong>Maria Almani</strong>, and <strong>Muhammad Muneeb Ur Rahman Shahzad</strong>, and headquartered in <strong>Nawabshah, Sindh, Pakistan</strong>, we design, build, and support enterprise web platforms, mobile applications, and custom business software for organizations across regional and global markets.
-              </p>
-              <p>
-                We operate as dedicated engineering partners committed to your long-term success — delivering clean modular codebases, 100% intellectual property ownership, and rigorous security verification.
-              </p>
+              {aboutData?.description ? (
+                <p className="whitespace-pre-line">{aboutData.description}</p>
+              ) : (
+                <>
+                  <p>
+                    At {info.legalName}, we believe reliable engineering is the foundation of enduring technology. Digital systems must be dependable, secure, and built to evolve without accumulated technical debt.
+                  </p>
+                  <p>
+                    Founded by <strong>Abdul Samad Rind</strong>, <strong>Maria Almani</strong>, and <strong>Muhammad Muneeb Ur Rahman Shahzad</strong>, and headquartered in <strong>Nawabshah, Sindh, Pakistan</strong>, we design, build, and support enterprise web platforms, mobile applications, and custom business software for organizations across regional and global markets.
+                  </p>
+                  <p>
+                    We operate as dedicated engineering partners committed to your long-term success — delivering clean modular codebases, 100% intellectual property ownership, and rigorous security verification.
+                  </p>
+                </>
+              )}
             </div>
 
             <div className="pt-2 flex flex-wrap gap-4 text-xs font-mono text-gray-600">

@@ -41,17 +41,19 @@ var COMPANY_INFO = {
 var VERIFIED_SERVICES = [
   {
     id: "srv-1",
-    title: "Web Application Development",
+    title: "Web Application & Custom Software Development",
     slug: "web-application-development",
-    summary: "Fast, secure, and maintainable enterprise web applications built on modern frameworks.",
-    description: "We design and build full-stack web applications end-to-end \u2014 from interactive design systems to high-throughput REST APIs and production deployments that your internal team can easily maintain and extend.",
+    summary: "High-performance web platforms, enterprise headless WordPress, and custom coded applications.",
+    description: "We design and build full-stack web applications end-to-end \u2014 from interactive design systems to high-throughput REST APIs, WordPress headless CMS architectures, and custom coded scalable platforms.",
+    detailedDescription: "Our web engineering division builds enterprise-grade digital systems tailored to your specific workflow. Whether leveraging modern full-stack frameworks (React, Next.js, Node.js, TypeScript) or enterprise WordPress CMS development and custom PHP integrations, we ensure clean architecture, SEO readiness, sub-second latency, and complete source code ownership.",
     benefits: [
       "Strict type-safety across client and server layers",
       "Modular design systems that accelerate feature velocity",
       "Sub-second initial load times with built-in performance budgets",
-      "Automated testing pipelines with continuous integration"
+      "Automated testing pipelines with continuous integration",
+      "Full SEO optimization with OpenGraph and Schema.org integration"
     ],
-    technologies: ["React", "TypeScript", "Node.js", "MySQL", "TailwindCSS", "Vite"],
+    technologies: ["WordPress", "Custom Coding", "React", "Next.js", "Node.js", "PHP", "TypeScript", "TailwindCSS", "MySQL"],
     processSteps: [
       {
         title: "01. Technical Discovery",
@@ -70,7 +72,9 @@ var VERIFIED_SERVICES = [
         description: "Security audit, load testing, automated backups, and 30-day post-launch warranty."
       }
     ],
-    iconName: "Code2"
+    iconName: "Code2",
+    imageUrl: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "Full Stack Web Development, Custom Coding, and WordPress Architecture by ORBIT-I"
   },
   {
     id: "srv-2",
@@ -78,13 +82,14 @@ var VERIFIED_SERVICES = [
     slug: "mobile-application-development",
     summary: "High-performance cross-platform apps for iOS and Android from a unified codebase.",
     description: "We engineer native-feeling mobile applications that operate smoothly on both iOS and Android, sharing reliable backend services and secure authentication with your web infrastructure.",
+    detailedDescription: "Deliver fluid, 60fps mobile experiences to App Store and Google Play users. Using React Native and Flutter, we provide unified multi-platform engineering that cuts time-to-market in half while guaranteeing native performance, offline data synchronization, biometric authentication, and enterprise push notifications.",
     benefits: [
       "Single maintainable codebase for iOS and Android",
       "Offline-first synchronization with secure local storage",
       "Optimized 60fps animations and native hardware integration",
       "Turnkey App Store and Google Play compliance & deployment"
     ],
-    technologies: ["React Native", "TypeScript", "Expo", "TailwindCSS", "REST APIs"],
+    technologies: ["React Native", "Flutter", "iOS / Swift", "Android / Kotlin", "Expo", "TypeScript", "REST APIs"],
     processSteps: [
       {
         title: "01. Device & UX Scoping",
@@ -103,21 +108,24 @@ var VERIFIED_SERVICES = [
         description: "Store asset preparation, metadata optimization, and approval handling."
       }
     ],
-    iconName: "Smartphone"
+    iconName: "Smartphone",
+    imageUrl: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "Native and Cross Platform Mobile Application Development for iOS and Android"
   },
   {
     id: "srv-3",
-    title: "Custom Software Solutions",
+    title: "Custom Software & Enterprise ERP Systems",
     slug: "custom-software-solutions",
     summary: "Tailor-made internal business platforms that automate complex organizational workflows.",
     description: "When commercial off-the-shelf software restricts your operations, we build purpose-fit tools: custom ERPs, internal portals, billing systems, and automated data pipelines designed around your unique workflow.",
+    detailedDescription: "Eliminate software license bottlenecks and rigid spreadsheet dependencies. We construct bespoke business platforms, warehouse inventory tracking, real-time client management portals, multi-tier staff permissions, and accounting ledger integrations built directly against your operating procedures.",
     benefits: [
       "Exact alignment with existing business processes",
       "Zero recurring per-seat SaaS licensing costs",
       "Complete intellectual property and source code ownership",
       "Seamless integration with your legacy ERPs and third-party APIs"
     ],
-    technologies: ["Node.js", "TypeScript", "MySQL", "Docker", "Redis", "Express"],
+    technologies: ["Custom Coding", "Node.js", "Python", "TypeScript", "MySQL", "PostgreSQL", "Docker", "Redis"],
     processSteps: [
       {
         title: "01. Workflow Audit",
@@ -136,21 +144,24 @@ var VERIFIED_SERVICES = [
         description: "Comprehensive technical documentation and internal staff onboarding."
       }
     ],
-    iconName: "Wrench"
+    iconName: "Wrench",
+    imageUrl: "https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "Custom Software Development and Enterprise ERP Architecture by ORBIT-I"
   },
   {
     id: "srv-4",
-    title: "UI/UX Design Systems",
+    title: "UI/UX Design Systems & Brand Strategy",
     slug: "ui-ux-design",
     summary: "Human-centered interfaces engineered for cognitive clarity and high task completion rates.",
     description: "Our UI/UX design practice combines behavioral psychology, accessibility standards, and clean design tokens. We build interactive prototypes and scalable design systems that developers can implement without friction.",
+    detailedDescription: "Elevate user engagement with refined digital aesthetics. From user journey mapping, wireframing, and interactive Figma prototypes to WCAG AA accessibility compliance and direct CSS design token pipelines, we create digital products that look stunning and convert reliably.",
     benefits: [
       "WCAG AA/AAA accessible color palettes and typography scales",
       "Comprehensive Figma component libraries and design tokens",
       "Reduced user drop-off and friction across complex workflows",
       "Seamless handoff with pixel-accurate CSS specifications"
     ],
-    technologies: ["Figma", "Design Tokens", "TailwindCSS", "CSS Architecture"],
+    technologies: ["Figma", "Design Systems", "Interactive Prototyping", "TailwindCSS", "Wireframing", "WCAG Accessibility"],
     processSteps: [
       {
         title: "01. User Research",
@@ -169,21 +180,24 @@ var VERIFIED_SERVICES = [
         description: "Direct token export to CSS variables for frictionless dev implementation."
       }
     ],
-    iconName: "PenTool"
+    iconName: "Sparkles",
+    imageUrl: "https://images.unsplash.com/photo-1581291518857-4e27b48ff24e?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "UI UX Design Systems and Interactive Prototyping by ORBIT-I"
   },
   {
     id: "srv-5",
-    title: "Cloud & DevOps Engineering",
+    title: "Cloud & DevOps Infrastructure",
     slug: "cloud-devops",
     summary: "Resilient cloud infrastructure, automated CI/CD pipelines, and zero-downtime deployments.",
     description: "We configure cloud environments, containerized deployments, automated database backups, and health monitoring so your production systems remain online, fast, and secure under peak traffic.",
+    detailedDescription: "Architect robust server architectures that never crash under load. We provision Linux cloud servers, Docker container stacks, automated GitHub Actions CI/CD workflows, Cloudflare enterprise edge caching, and offsite encrypted MySQL backups guaranteed to achieve 99.9% uptime SLA.",
     benefits: [
       "Automated zero-downtime CI/CD deployment pipelines",
       "Isolated staging and production environments",
       "Automated daily offsite MySQL database backups",
       "Real-time uptime monitoring and incident alerting"
     ],
-    technologies: ["Docker", "Linux", "AWS Cloud", "Cloudflare", "GitHub Actions", "Nginx"],
+    technologies: ["Linux", "Docker", "AWS Cloud", "Kubernetes", "Nginx", "CI/CD Pipelines", "Cloudflare", "MySQL Clusters"],
     processSteps: [
       {
         title: "01. Infrastructure Audit",
@@ -202,21 +216,24 @@ var VERIFIED_SERVICES = [
         description: "Disaster recovery protocols and system access provided to client."
       }
     ],
-    iconName: "Cloud"
+    iconName: "Cloud",
+    imageUrl: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "Enterprise Cloud Infrastructure and DevOps Automation by ORBIT-I"
   },
   {
     id: "srv-6",
-    title: "Enterprise API & Integrations",
+    title: "Enterprise API & Payment Gateway Integrations",
     slug: "enterprise-integrations",
     summary: "Secure payment gateways, banking APIs, ERP connectors, and webhooks architecture.",
     description: "Connect your core platform with critical third-party ecosystems: payment processing, ERPs, accounting software, SMS/Email notification rails, and webhooks with guaranteed delivery and idempotency.",
+    detailedDescription: "Ensure frictionless financial and data interoperability. We integrate international and local payment rails (Stripe, PayPal, PayFast, Banking APIs), ERP synchronization, CRM webhooks, and SMS notification gateways with cryptographic signature verification and idempotent delivery.",
     benefits: [
       "Idempotent webhook handlers preventing duplicate transactions",
       "Enterprise-grade cryptographic signature verification",
       "High-throughput rate limiting and anti-abuse safeguards",
       "Structured audit logging for full regulatory compliance"
     ],
-    technologies: ["Node.js", "TypeScript", "REST", "Webhooks", "JWT", "Stripe", "Banking Rails"],
+    technologies: ["Node.js", "REST APIs", "Webhooks", "Stripe / Payment Rails", "GraphQL", "HMAC Verification", "OAuth2"],
     processSteps: [
       {
         title: "01. API Contract Design",
@@ -235,7 +252,9 @@ var VERIFIED_SERVICES = [
         description: "Live transaction verification and monitoring dashboards."
       }
     ],
-    iconName: "Server"
+    iconName: "Cpu",
+    imageUrl: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=1200&q=80",
+    imageAlt: "Secure Enterprise API and Payment Gateway Integrations by ORBIT-I"
   }
 ];
 var DEPARTMENTS_DATA = [
@@ -623,6 +642,159 @@ var CLIENT_PROJECTS = [
       { name: "Handover_Runbook_and_Credentials.pdf", date: "2026-01-22", type: "Runbook", size: "4.2 MB" },
       { name: "Final_Architecture_As_Built.pdf", date: "2026-01-20", type: "Architecture", size: "5.6 MB" }
     ]
+  }
+];
+var INITIAL_CLIENTS = [
+  {
+    id: "cli-001",
+    name: "Tariq Mansoor",
+    organization: "Apex Global Logistics",
+    email: "tariq@apexholdings.com",
+    phone: "+971 50 892 4110",
+    country: "United Arab Emirates",
+    status: "Active",
+    totalContractValue: 28500,
+    paidAmount: 22e3,
+    currency: "USD",
+    projects: [CLIENT_PROJECTS[0]],
+    queries: [
+      {
+        id: "qry-1",
+        subject: "Staging API Webhook Rate Limiting",
+        message: "Could you please confirm the webhook retry backoff policy on the driver tracking cluster?",
+        date: "2026-03-29",
+        status: "Answered",
+        response: "Configured exponential backoff with 5 retry limits and HMAC SHA-256 signature verification."
+      },
+      {
+        id: "qry-2",
+        subject: "Driver Portal Multilingual Support",
+        message: "We are requesting Arabic / Urdu localized labels for the warehouse dispatchers in sprint 7.",
+        date: "2026-04-01",
+        status: "In Review"
+      }
+    ],
+    payments: [
+      {
+        id: "pay-01",
+        title: "Phase 1 Architecture & Wireframe Signoff",
+        amount: 8500,
+        currency: "USD",
+        status: "Paid",
+        date: "2026-01-20",
+        invoiceNumber: "INV-2026-001"
+      },
+      {
+        id: "pay-02",
+        title: "Phase 2 Core API & Telemetry Pipeline",
+        amount: 13500,
+        currency: "USD",
+        status: "Paid",
+        date: "2026-03-05",
+        invoiceNumber: "INV-2026-042"
+      },
+      {
+        id: "pay-03",
+        title: "Phase 3 Driver Portal & Release Milestone",
+        amount: 6500,
+        currency: "USD",
+        status: "Pending",
+        date: "2026-04-15",
+        invoiceNumber: "INV-2026-089"
+      }
+    ],
+    notes: "Key enterprise logistics retainer. Sprints running on schedule.",
+    joinedDate: "2026-01-12"
+  },
+  {
+    id: "cli-002",
+    name: "Dr. Sarah Collins",
+    organization: "Medisphere Systems",
+    email: "scollins@medispheresys.org",
+    phone: "+1 415 670 9180",
+    country: "United States",
+    status: "Active",
+    totalContractValue: 36e3,
+    paidAmount: 32e3,
+    currency: "USD",
+    projects: [CLIENT_PROJECTS[1]],
+    queries: [
+      {
+        id: "qry-3",
+        subject: "HIPAA Cloud Architecture Audit Sign-off",
+        message: "Reviewing the HIPAA data interface security audit report before UAT signoff.",
+        date: "2026-03-31",
+        status: "Answered",
+        response: "Penetration testing report passed with zero critical CVE vulnerabilities."
+      }
+    ],
+    payments: [
+      {
+        id: "pay-04",
+        title: "Diagnostic Ingestion Engine Delivery",
+        amount: 18e3,
+        currency: "USD",
+        status: "Paid",
+        date: "2025-12-10",
+        invoiceNumber: "INV-2025-912"
+      },
+      {
+        id: "pay-05",
+        title: "HIPAA Security Hardening & HL7 Gateway",
+        amount: 14e3,
+        currency: "USD",
+        status: "Paid",
+        date: "2026-02-28",
+        invoiceNumber: "INV-2026-021"
+      },
+      {
+        id: "pay-06",
+        title: "Final Penetration Test & Deployment Retainer",
+        amount: 4e3,
+        currency: "USD",
+        status: "Pending",
+        date: "2026-04-30",
+        invoiceNumber: "INV-2026-102"
+      }
+    ],
+    notes: "Healthcare compliance contract. Final UAT milestone in progress.",
+    joinedDate: "2025-11-01"
+  },
+  {
+    id: "cli-003",
+    name: "Khurram Jamil",
+    organization: "AgriCold Warehouses",
+    email: "kjamil@agricold.pk",
+    phone: "+92 300 829 1102",
+    country: "Pakistan",
+    status: "Completed",
+    totalContractValue: 18500,
+    paidAmount: 18500,
+    currency: "USD",
+    projects: [CLIENT_PROJECTS[2]],
+    queries: [
+      {
+        id: "qry-4",
+        subject: "Q2 SLA Monitoring Maintenance Window",
+        message: "Confirmed SLA monitoring window for the upcoming quarter without downtime.",
+        date: "2026-03-25",
+        status: "Closed",
+        response: "Maintenance window scheduled on Sunday 02:00 UTC with zero client impact."
+      }
+    ],
+    payments: [
+      {
+        id: "pay-07",
+        title: "Full Platform Handover & SLA Settlement",
+        amount: 18500,
+        currency: "USD",
+        status: "Paid",
+        date: "2026-01-20",
+        invoiceNumber: "INV-2026-011"
+      }
+    ],
+    notes: "Completed project under annual maintenance & infrastructure SLA.",
+    joinedDate: "2025-08-15"
   }
 ];
 
@@ -2274,8 +2446,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"]
   })
 );
-app.use(express.json({ limit: "2mb" }));
-app.use(express.urlencoded({ extended: true, limit: "2mb" }));
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(express.static(path2.resolve(__dirname2, "public")));
 var apiRouter = express.Router();
 apiRouter.use(apiRateLimiter);
@@ -2731,6 +2903,51 @@ apiRouter.delete("/contact/:id", requireAuth(["admin"]), async (req, res) => {
     res.json({ success: true, message: "Inquiry deleted." });
   } catch (err) {
     res.status(500).json({ error: "Failed to delete inquiry." });
+  }
+});
+apiRouter.post("/upload", optionalAuth, async (req, res) => {
+  try {
+    const { filename, base64Data, contentType, altText, tags } = req.body;
+    if (!base64Data) {
+      res.status(400).json({ error: "base64Data is required for file upload." });
+      return;
+    }
+    const uploadsDir = path2.resolve(__dirname2, "public", "uploads");
+    if (!fs2.existsSync(uploadsDir)) {
+      fs2.mkdirSync(uploadsDir, { recursive: true });
+    }
+    const cleanExt = (filename?.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeName = `orbit_media_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${cleanExt}`;
+    const filePath = path2.join(uploadsDir, safeName);
+    const base64Pure = base64Data.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, "");
+    const buffer = Buffer.from(base64Pure, "base64");
+    fs2.writeFileSync(filePath, buffer);
+    const publicUrl = `/uploads/${safeName}`;
+    const sizeKB = (buffer.length / 1024).toFixed(1);
+    const assetName = filename ? filename.replace(/\.[^/.]+$/, "") : `Asset ${(/* @__PURE__ */ new Date()).toLocaleDateString()}`;
+    const assetRecord = {
+      name: sanitizeString(assetName),
+      url: publicUrl,
+      type: contentType || `image/${cleanExt}`,
+      size: `${sizeKB} KB`,
+      altText: sanitizeString(altText || assetName.replace(/[-_]/g, " ")),
+      tags: Array.isArray(tags) ? tags : ["Upload", "Media"]
+    };
+    try {
+      await addMediaAsset(assetRecord);
+    } catch (e) {
+      console.warn("Media asset local record save notice:", e);
+    }
+    res.json({
+      success: true,
+      url: publicUrl,
+      name: assetRecord.name,
+      size: assetRecord.size,
+      asset: assetRecord
+    });
+  } catch (err) {
+    console.error("File upload error:", err);
+    res.status(500).json({ error: "Failed to process file upload." });
   }
 });
 apiRouter.get("/media", async (_req, res) => {

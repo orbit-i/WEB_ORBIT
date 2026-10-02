@@ -1,211 +1,100 @@
-import React, { useState, useRef } from 'react';
-import { Menu, X, ChevronDown, ArrowRight } from 'lucide-react';
-import { COMPANY_INFO, VERIFIED_SERVICES } from '../data/orbitData';
+import React, { useState } from 'react';
+import { Menu, X, ArrowRight, Sparkles } from 'lucide-react';
+import { COMPANY_INFO } from '../data/orbitData';
 
 interface NavbarProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  portalRole: string;
+  portalRole?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
-  activeTab,
-  setActiveTab,
-  portalRole,
-}) => {
+export const Navbar: React.FC<NavbarProps> = ({ activeTab, setActiveTab }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = (menuId: string) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpenDropdown(menuId);
-  };
-
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setOpenDropdown(null);
-    }, 200);
-  };
 
   const handleNav = (tabId: string) => {
     setActiveTab(tabId);
-    setOpenDropdown(null);
     setMobileMenuOpen(false);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const navItems = [
+    { id: 'home', label: 'Home' },
+    { id: 'about', label: 'About' },
+    { id: 'services', label: 'Services' },
+    { id: 'blog', label: 'Blogs' },
+    { id: 'careers', label: 'Careers' },
+    { id: 'contact', label: 'Contact' },
+  ];
+
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm text-black">
-      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
-        {/* Brand Zone - Clean transparent logo and company title */}
+    <header className="sticky top-0 z-50 w-full border-b border-gray-200/90 bg-white/95 backdrop-blur-md text-black">
+      <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Brand Logo & Name */}
         <button
           onClick={() => handleNav('home')}
-          className="flex items-center gap-2.5 sm:gap-3 text-left focus:outline-none"
+          className="flex items-center gap-3 text-left focus:outline-none group"
+          aria-label="ORBIT-I Home"
         >
           <img
             src="/orbit-i-logo.png"
             alt="ORBIT-I"
-            className="h-9 sm:h-10 w-auto object-contain bg-transparent"
+            className="h-9 sm:h-10 w-auto object-contain transition-transform group-hover:scale-105"
             onError={(e) => {
               e.currentTarget.style.display = 'none';
             }}
           />
           <div className="flex flex-col">
-            <span className="text-base sm:text-lg font-bold tracking-tight text-black">
+            <span className="text-base sm:text-lg font-bold tracking-tight text-gray-900 group-hover:text-blue-600 transition-colors">
               {COMPANY_INFO.name}
             </span>
-            <span className="text-[10px] sm:text-[11px] font-medium tracking-wider text-gray-500 uppercase">
+            <span className="text-[10px] sm:text-[11px] font-semibold tracking-wider text-gray-500 uppercase">
               Private Limited
             </span>
           </div>
         </button>
 
-        {/* Navigation Links (Desktop) */}
-        <nav className="hidden lg:flex items-center gap-7 text-sm font-medium text-gray-700">
-          {/* 1. Home */}
-          <button
-            onClick={() => handleNav('home')}
-            className={`transition-colors hover:text-black py-2 ${
-              activeTab === 'home' ? 'text-black font-semibold' : 'text-gray-700'
-            }`}
-          >
-            Home
-          </button>
+        {/* Clean, Decent Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-8 text-sm font-semibold">
+          {navItems.map((item) => {
+            const isActive =
+              activeTab === item.id ||
+              (item.id === 'blog' && activeTab === 'article') ||
+              (item.id === 'careers' && activeTab === 'jobs');
 
-          {/* 2. About Us with Submenu */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('about')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              onClick={() => handleNav('about')}
-              className={`flex items-center gap-1.5 py-2 transition-colors hover:text-black ${
-                activeTab === 'about' ? 'text-black font-semibold' : 'text-gray-700'
-              }`}
-            >
-              <span>About Us</span>
-              <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
-            </button>
-
-            {openDropdown === 'about' && (
-              <div className="absolute top-full left-0 w-56 bg-white border border-gray-200 rounded-xl shadow-lg p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                <button
-                  onClick={() => handleNav('about')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-100 font-semibold text-black"
-                >
-                  About ORBIT-I
-                </button>
-                <button
-                  onClick={() => handleNav('about')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-100 text-gray-700"
-                >
-                  Operating Principles
-                </button>
-                <button
-                  onClick={() => handleNav('team')}
-                  className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-100 text-gray-700"
-                >
-                  Meet the Team
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* 3. Services with Submenu */}
-          <div
-            className="relative"
-            onMouseEnter={() => handleMouseEnter('services')}
-            onMouseLeave={handleMouseLeave}
-          >
-            <button
-              onClick={() => handleNav('services')}
-              className={`flex items-center gap-1.5 py-2 transition-colors hover:text-black ${
-                activeTab === 'services' ? 'text-black font-semibold' : 'text-gray-700'
-              }`}
-            >
-              <span>Services</span>
-              <ChevronDown className="h-3.5 w-3.5 text-gray-500" />
-            </button>
-
-            {openDropdown === 'services' && (
-              <div className="absolute top-full left-0 w-72 bg-white border border-gray-200 rounded-xl shadow-lg p-2 z-50 animate-in fade-in slide-in-from-top-1 duration-150">
-                <div className="text-[10px] font-bold text-gray-400 uppercase px-3 py-1 font-mono">
-                  Verified Engineering Services
-                </div>
-                {VERIFIED_SERVICES.map((s) => (
-                  <button
-                    key={s.id}
-                    onClick={() => handleNav('services')}
-                    className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-100 font-medium text-gray-800 hover:text-black flex items-center justify-between"
-                  >
-                    <span>{s.title}</span>
-                    <ArrowRight className="h-3 w-3 text-gray-400" />
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* 4. Team (Direct single link, NO DROPDOWN - "Just only team ho bs") */}
-          <button
-            onClick={() => handleNav('team')}
-            className={`transition-colors hover:text-black py-2 ${
-              activeTab === 'team' ? 'text-black font-semibold' : 'text-gray-700'
-            }`}
-          >
-            Team
-          </button>
-
-          {/* 5. Intern Verification */}
-          <button
-            onClick={() => handleNav('verify')}
-            className={`transition-colors hover:text-black py-2 ${
-              activeTab === 'verify' ? 'text-black font-semibold' : 'text-gray-700'
-            }`}
-          >
-            Intern Verification
-          </button>
-
-          {/* 6. Insights & Engineering Blog */}
-          <button
-            onClick={() => handleNav('blog')}
-            className={`transition-colors hover:text-black py-2 flex items-center gap-1.5 ${
-              activeTab === 'blog' || activeTab === 'article' ? 'text-black font-semibold' : 'text-gray-700'
-            }`}
-          >
-            <span>Insights</span>
-            <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded-full">
-              New
-            </span>
-          </button>
-
-          {/* 7. Client Portal */}
-          <button
-            onClick={() => handleNav('client-portal')}
-            className={`transition-colors hover:text-black py-2 ${
-              activeTab === 'client-portal' ? 'text-black font-semibold' : 'text-gray-700'
-            }`}
-          >
-            Client Portal
-          </button>
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNav(item.id)}
+                className={`transition-colors py-2 relative ${
+                  isActive
+                    ? 'text-blue-600 font-bold'
+                    : 'text-gray-700 hover:text-black'
+                }`}
+              >
+                <span>{item.label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-full animate-in fade-in" />
+                )}
+              </button>
+            );
+          })}
         </nav>
 
-        {/* Right Cluster: Contact Us Button + Mobile Hamburger (Placed Directly Side-by-Side) */}
-        <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Right Action: Clean Contact Us CTA + Mobile Hamburger */}
+        <div className="flex items-center gap-3">
           <button
             onClick={() => handleNav('contact')}
-            className="bg-black text-white hover:bg-white hover:text-black px-4 sm:px-6 py-2 rounded-full font-medium transition-all duration-200 text-xs sm:text-sm border-2 border-black whitespace-nowrap shadow-sm"
+            className="hidden sm:inline-flex items-center gap-2 bg-black text-white hover:bg-blue-600 hover:text-white px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all duration-200 shadow-sm"
           >
-            Contact Us
+            <span>Get in Touch</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </button>
 
-          {/* Mobile menu button directly next to Contact Us */}
+          {/* Mobile menu hamburger toggle button */}
           <div className="flex items-center lg:hidden">
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 text-gray-800 hover:text-black rounded border border-gray-300 focus:outline-none bg-white transition-colors"
+              className="p-2.5 text-gray-800 hover:text-black rounded-xl border border-gray-300 focus:outline-none bg-gray-50 hover:bg-gray-100 transition-colors"
               aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -214,109 +103,52 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Decent, Clean Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="lg:hidden border-b border-gray-200 bg-white/95 backdrop-blur-md px-4 py-6 space-y-4 max-h-[85vh] overflow-y-auto animate-in slide-in-from-top-2 duration-150 shadow-xl">
-          <div>
-            <button
-              onClick={() => handleNav('home')}
-              className={`w-full text-left py-3 px-4 text-base font-bold rounded-xl transition-colors flex items-center justify-between ${
-                activeTab === 'home'
-                  ? 'bg-black text-white'
-                  : 'text-black hover:bg-gray-100'
-              }`}
-            >
-              <span>Home</span>
-              <ArrowRight className="h-4 w-4" />
-            </button>
-          </div>
+        <div className="lg:hidden border-b border-gray-200 bg-white/98 backdrop-blur-xl px-5 py-6 space-y-2 animate-in slide-in-from-top-2 duration-150 shadow-2xl">
+          <div className="space-y-1">
+            {navItems.map((item) => {
+              const isActive =
+                activeTab === item.id ||
+                (item.id === 'blog' && activeTab === 'article') ||
+                (item.id === 'careers' && activeTab === 'jobs');
 
-          <div className="pt-2 border-t border-gray-100">
-            <div className="text-[11px] font-bold text-gray-400 uppercase px-3 py-1 font-mono tracking-wider">
-              Company
-            </div>
-            <button
-              onClick={() => handleNav('about')}
-              className={`w-full text-left py-2.5 px-3 text-sm rounded-lg transition-colors ${
-                activeTab === 'about'
-                  ? 'bg-gray-100 text-black font-bold'
-                  : 'text-gray-700 hover:text-black hover:bg-gray-50'
-              }`}
-            >
-              About ORBIT-I &amp; Principles
-            </button>
-            <button
-              onClick={() => handleNav('team')}
-              className={`w-full text-left py-2.5 px-3 text-sm rounded-lg transition-colors flex items-center justify-between ${
-                activeTab === 'team'
-                  ? 'bg-gray-100 text-black font-bold'
-                  : 'text-gray-700 hover:text-black hover:bg-gray-50'
-              }`}
-            >
-              <span>Our Team &amp; Leadership</span>
-              <span className="text-[10px] font-mono text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">HQ</span>
-            </button>
-          </div>
-
-          <div className="pt-2 border-t border-gray-100">
-            <div className="text-[11px] font-bold text-gray-400 uppercase px-3 py-1 font-mono tracking-wider">
-              Engineering Services
-            </div>
-            <div className="space-y-1">
-              {VERIFIED_SERVICES.map((s) => (
+              return (
                 <button
-                  key={s.id}
-                  onClick={() => handleNav('services')}
-                  className="w-full text-left py-2 px-3 text-xs sm:text-sm text-gray-700 hover:text-black hover:bg-gray-50 rounded-lg flex items-center justify-between"
+                  key={item.id}
+                  onClick={() => handleNav(item.id)}
+                  className={`w-full text-left py-3 px-4 text-base font-bold rounded-2xl transition-all flex items-center justify-between ${
+                    isActive
+                      ? 'bg-blue-600 text-white shadow-md'
+                      : 'text-gray-800 hover:bg-gray-100'
+                  }`}
                 >
-                  <span className="truncate">{s.title}</span>
-                  <ArrowRight className="h-3 w-3 text-gray-400 shrink-0" />
+                  <span>{item.label}</span>
+                  <ArrowRight
+                    className={`h-4 w-4 ${
+                      isActive ? 'text-white' : 'text-gray-400'
+                    }`}
+                  />
                 </button>
-              ))}
-            </div>
+              );
+            })}
           </div>
 
-          <div className="pt-2 border-t border-gray-100">
-            <div className="text-[11px] font-bold text-gray-400 uppercase px-3 py-1 font-mono tracking-wider">
-              Publications &amp; Insights
-            </div>
+          {/* Mobile Footer CTAs */}
+          <div className="pt-4 border-t border-gray-100 flex flex-col gap-2.5">
             <button
-              onClick={() => handleNav('blog')}
-              className={`w-full text-left py-2.5 px-3 text-sm rounded-lg transition-colors flex items-center justify-between ${
-                activeTab === 'blog' || activeTab === 'article'
-                  ? 'bg-black text-white font-bold'
-                  : 'text-gray-800 font-semibold hover:bg-gray-100'
-              }`}
+              onClick={() => handleNav('contact')}
+              className="w-full py-3 px-4 bg-black text-white hover:bg-gray-800 text-center rounded-2xl text-sm font-bold shadow-md transition-colors"
             >
-              <span>Insights &amp; Engineering Blog</span>
-              <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full font-bold">New</span>
+              Contact Us
             </button>
-          </div>
 
-          <div className="pt-2 border-t border-gray-100">
-            <div className="text-[11px] font-bold text-gray-400 uppercase px-3 py-1 font-mono tracking-wider">
-              Credentials &amp; Access
-            </div>
-            <button
-              onClick={() => handleNav('verify')}
-              className={`w-full text-left py-2.5 px-3 text-sm rounded-lg transition-colors ${
-                activeTab === 'verify'
-                  ? 'bg-gray-100 text-black font-bold'
-                  : 'text-gray-700 hover:text-black hover:bg-gray-50'
-              }`}
-            >
-              Intern Verification
-            </button>
             <button
               onClick={() => handleNav('client-portal')}
-              className={`w-full text-left py-2.5 px-3 text-sm rounded-lg transition-colors flex items-center justify-between ${
-                activeTab === 'client-portal'
-                  ? 'bg-black text-white font-bold'
-                  : 'text-gray-800 font-semibold hover:bg-gray-100'
-              }`}
+              className="w-full py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 text-center rounded-2xl text-xs font-semibold transition-colors flex items-center justify-center gap-1.5"
             >
-              <span>Client Project Portal</span>
-              <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">Secure</span>
+              <span>Client Portal Access</span>
+              <span className="text-[10px] font-mono bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">Secure</span>
             </button>
           </div>
         </div>

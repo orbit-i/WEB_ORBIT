@@ -7,6 +7,7 @@ import {
   CompanyInfo,
   VerifiedCertificate,
   JobOpening,
+  PageContentItem,
 } from '../types';
 import {
   COMPANY_INFO,
@@ -14,6 +15,7 @@ import {
   INITIAL_TEAM_MEMBERS,
   VERIFIED_CERTIFICATES,
   INITIAL_JOB_OPENINGS,
+  DEFAULT_PAGE_CONTENTS,
 } from '../data/orbitData';
 
 export interface LegalSection {
@@ -195,6 +197,11 @@ interface CmsContextType {
 
   notFoundSettings: NotFoundPageSettings;
   updateNotFoundSettings: (settings: NotFoundPageSettings) => void;
+
+  // Dynamic Editable Page Contents
+  pageContents: Record<string, PageContentItem>;
+  updatePageContent: (pageKey: string, data: Partial<PageContentItem>) => void;
+  resetPageContentsToDefault: () => void;
 }
 
 const DEFAULT_LEGAL_PAGES: Record<string, LegalPageDoc> = {
@@ -709,6 +716,40 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return DEFAULT_NOT_FOUND_SETTINGS;
   });
+
+  const [pageContents, setPageContents] = useState<Record<string, PageContentItem>>(() => {
+    const saved = localStorage.getItem('orbit_cms_page_contents_v2');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch {}
+    }
+    return DEFAULT_PAGE_CONTENTS;
+  });
+
+  const updatePageContent = useCallback((pageKey: string, data: Partial<PageContentItem>) => {
+    setPageContents((prev) => {
+      const current = prev[pageKey] || DEFAULT_PAGE_CONTENTS[pageKey] || { id: `page-${pageKey}`, pageKey: pageKey as any, title: pageKey };
+      const updated = {
+        ...prev,
+        [pageKey]: {
+          ...current,
+          ...data,
+        },
+      };
+      try {
+        localStorage.setItem('orbit_cms_page_contents_v2', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  }, []);
+
+  const resetPageContentsToDefault = useCallback(() => {
+    setPageContents(DEFAULT_PAGE_CONTENTS);
+    try {
+      localStorage.setItem('orbit_cms_page_contents_v2', JSON.stringify(DEFAULT_PAGE_CONTENTS));
+    } catch {}
+  }, []);
 
   const [legalPages, setLegalPages] = useState<Record<string, LegalPageDoc>>(() => {
     const saved = localStorage.getItem('orbit_cms_legal_pages_v2');
@@ -1459,6 +1500,9 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateMaintenanceSettings,
       notFoundSettings,
       updateNotFoundSettings,
+      pageContents,
+      updatePageContent,
+      resetPageContentsToDefault,
     }),
     [
       legalPages,
@@ -1517,6 +1561,9 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       updateMaintenanceSettings,
       notFoundSettings,
       updateNotFoundSettings,
+      pageContents,
+      updatePageContent,
+      resetPageContentsToDefault,
     ]
   );
 

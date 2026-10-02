@@ -1,6 +1,7 @@
 import React from 'react';
-import { ShieldAlert, Home, Mail, ArrowRight, Lock, Key, Terminal } from 'lucide-react';
+import { ShieldAlert, Home, Mail, Lock, KeyRound, ArrowRight, ShieldCheck, Sparkles } from 'lucide-react';
 import { COMPANY_INFO } from '../data/orbitData';
+import { SeoHead } from './common/SeoHead';
 
 interface ForbiddenPageProps {
   setActiveTab: (tab: string) => void;
@@ -18,15 +19,22 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({
   onExitPreview,
 }) => {
   return (
-    <div className="min-h-screen bg-gray-950 text-white flex flex-col justify-between py-12 md:py-20 font-sans selection:bg-red-600 selection:text-white relative overflow-hidden">
-      {/* Background Subtle Security Matrix Grid */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]"></div>
+    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-slate-900 to-black text-white flex flex-col justify-between py-12 md:py-16 font-sans selection:bg-red-500 selection:text-white relative overflow-hidden">
+      <SeoHead
+        title="403 - Forbidden Access | Security Perimeter"
+        description="Access to this partition is restricted to authenticated ORBIT-I corporate officers and security engineers."
+      />
+
+      {/* Decorative Star Dust / Subtle Cyber Grid */}
+      <div className="absolute inset-0 opacity-[0.05] pointer-events-none bg-[radial-gradient(#ffffff_1px,transparent_1px)] [background-size:24px_24px]" />
+      <div className="absolute top-20 right-20 w-72 h-72 rounded-full bg-red-600/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-20 left-20 w-80 h-80 rounded-full bg-blue-600/10 blur-3xl pointer-events-none" />
 
       {/* Top Banner if in preview mode from Admin Portal */}
       {isPreview && (
         <div className="bg-red-600 text-white py-2.5 px-6 text-xs font-mono font-bold flex items-center justify-between mb-8 shadow-sm relative z-50">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse"></span>
+            <span className="w-2.5 h-2.5 rounded-full bg-white animate-pulse" />
             <span>ADMINISTRATIVE PREVIEW MODE — Configured 403 Forbidden Access Screen</span>
           </div>
           {onExitPreview && (
@@ -40,73 +48,90 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({
         </div>
       )}
 
-      <div className="max-w-3xl mx-auto px-6 w-full text-center space-y-10 my-auto relative z-10">
-        {/* Security Shield Icon */}
-        <div className="mx-auto w-24 h-24 rounded-full bg-red-500/10 border-2 border-red-500/30 flex items-center justify-center relative">
-          <div className="absolute inset-0 rounded-full bg-red-500/20 blur-xl"></div>
-          <ShieldAlert className="h-10 w-10 text-red-500 relative z-10" />
+      <div className="max-w-2xl mx-auto px-6 w-full text-center space-y-8 my-auto relative z-10">
+        {/* Cute Futuristic Hologram Shield Graphic */}
+        <div className="relative mx-auto w-32 h-32 sm:w-36 sm:h-36 flex items-center justify-center">
+          {/* Pulsing Red/Rose Glow */}
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-rose-500/30 to-amber-500/20 blur-2xl animate-pulse" />
+
+          {/* Rotating Digital Perimeter Ring */}
+          <div className="absolute inset-1 rounded-full border-2 border-dashed border-rose-500/40 animate-[spin_12s_linear_infinite]" />
+
+          {/* Cute Holographic Shield Badge */}
+          <div className="relative w-24 h-24 rounded-3xl bg-gradient-to-tr from-rose-600 to-red-700 flex items-center justify-center text-white shadow-2xl shadow-rose-900/50 border-2 border-rose-400/40">
+            <Lock className="h-10 w-10 text-white animate-bounce" />
+          </div>
         </div>
 
         {/* Error Code & Details */}
-        <div className="space-y-4">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-red-950/80 border border-red-800/60 text-xs font-mono font-bold text-red-400">
-            <Lock className="h-3.5 w-3.5 text-red-400" />
+        <div className="space-y-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-rose-950/80 border border-rose-700/60 text-xs font-mono font-bold text-rose-300">
+            <ShieldAlert className="h-3.5 w-3.5 text-rose-400" />
             <span>ERR_403_ACCESS_RESTRICTED</span>
-            <span className="text-red-700">|</span>
-            <span className="truncate max-w-xs">{requestedRoute}</span>
+            <span className="text-rose-600">|</span>
+            <span className="truncate max-w-[160px] text-rose-200">{requestedRoute}</span>
           </div>
 
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white">
-            403 · Access Prohibited
+          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white">
+            Restricted Security Perimeter
           </h1>
 
-          <p className="text-base sm:text-lg text-gray-300 max-w-xl mx-auto leading-relaxed">
+          <p className="text-sm sm:text-base text-gray-300 max-w-lg mx-auto leading-relaxed">
             {reason ||
-              'Access to this administrative partition is restricted to authenticated ORBIT-I corporate officers and security engineers. Public access to this resource is strictly disallowed.'}
+              'Access to this partition is restricted to authenticated ORBIT-I corporate officers and security staff. If you are an authorized team member, please sign in.'}
           </p>
         </div>
 
-        {/* Diagnostic Security Console Box */}
-        <div className="bg-black/60 border border-white/10 rounded-2xl p-6 max-w-xl mx-auto text-left font-mono text-xs space-y-3">
+        {/* Cute Diagnostic Security Card */}
+        <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-5 max-w-md mx-auto text-left font-mono text-xs space-y-2.5 shadow-xl">
           <div className="flex items-center justify-between pb-2 border-b border-white/10 text-[11px] text-gray-400">
-            <span className="flex items-center gap-1.5">
-              <Terminal className="h-3.5 w-3.5 text-red-400" />
-              <span>ORBIT-I FIREWALL LOG · ACCESS VIOLATION</span>
+            <span className="flex items-center gap-1.5 text-rose-300 font-semibold">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              <span>ORBIT-I ZERO-TRUST GATEWAY</span>
             </span>
-            <span className="text-red-400 font-bold">BLOCKED</span>
+            <span className="text-rose-400 font-bold px-1.5 py-0.5 rounded bg-rose-950/60 border border-rose-800">
+              BLOCKED
+            </span>
           </div>
 
-          <div className="space-y-1.5 text-gray-400 text-[11px]">
+          <div className="space-y-1 text-gray-400 text-[11px]">
             <div className="flex justify-between">
-              <span>Authorization Scheme:</span>
-              <span className="text-white">Role-Based Multi-Factor Token</span>
+              <span>Security Event:</span>
+              <span className="text-white">SEC-403-{Date.now().toString().slice(-6)}</span>
             </div>
             <div className="flex justify-between">
-              <span>Requested Partition:</span>
-              <span className="text-red-400">{requestedRoute}</span>
+              <span>Authorization Mode:</span>
+              <span className="text-white">Role-Based RBAC</span>
             </div>
             <div className="flex justify-between">
-              <span>Security Event ID:</span>
-              <span className="text-white font-bold">SEC-403-{Date.now().toString().slice(-6)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span>Client Incident Logging:</span>
-              <span className="text-emerald-400">Persisted in Telemetry Registry</span>
+              <span>System Response:</span>
+              <span className="text-emerald-400">Request Safely Neutralized</span>
             </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <button
             onClick={() => {
               setActiveTab('home');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-8 py-3.5 bg-white text-black hover:bg-gray-100 rounded-full text-xs sm:text-sm font-bold transition-all flex items-center justify-center gap-2 shadow-lg"
+            className="px-6 py-3 bg-white text-gray-900 hover:bg-gray-100 rounded-full text-xs font-bold transition-all shadow-lg flex items-center gap-2"
           >
             <Home className="h-4 w-4" />
-            <span>Return to Safe Public Ground</span>
+            <span>Return to Public Website</span>
+          </button>
+
+          <button
+            onClick={() => {
+              setActiveTab('admin-portal');
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            }}
+            className="px-6 py-3 bg-rose-600 hover:bg-rose-700 text-white rounded-full text-xs font-bold transition-all shadow-lg flex items-center gap-2"
+          >
+            <KeyRound className="h-4 w-4" />
+            <span>Admin Sign In</span>
           </button>
 
           <button
@@ -114,17 +139,17 @@ export const ForbiddenPage: React.FC<ForbiddenPageProps> = ({
               setActiveTab('contact');
               window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
-            className="w-full sm:w-auto px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs sm:text-sm font-semibold border border-white/20 transition-all flex items-center justify-center gap-2"
+            className="px-6 py-3 bg-white/10 hover:bg-white/15 text-white border border-white/20 rounded-full text-xs font-semibold transition-all flex items-center gap-2"
           >
             <Mail className="h-4 w-4" />
-            <span>Request Security Clearance</span>
+            <span>Request Assistance</span>
           </button>
         </div>
       </div>
 
       {/* Footer */}
-      <footer className="w-full border-t border-white/10 py-6 px-6 text-center text-xs text-gray-500 font-mono relative z-10">
-        &copy; {new Date().getFullYear()} {COMPANY_INFO.legalName} Security Infrastructure. Unauthorized penetration attempts are actively monitored.
+      <footer className="w-full border-t border-white/10 py-4 px-6 text-center text-xs text-gray-500 font-mono relative z-10">
+        &copy; {new Date().getFullYear()} {COMPANY_INFO.legalName} · Security Infrastructure Sentinel
       </footer>
     </div>
   );

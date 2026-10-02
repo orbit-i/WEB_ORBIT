@@ -65,6 +65,7 @@ export interface ServiceDetail {
   slug: string;
   summary: string;
   description: string;
+  detailedDescription?: string;
   benefits: string[];
   technologies: string[];
   processSteps: {
@@ -72,6 +73,60 @@ export interface ServiceDetail {
     description: string;
   }[];
   iconName: string;
+  imageUrl?: string;
+  imageAlt?: string;
+}
+
+export interface ClientPaymentRecord {
+  id: string;
+  title: string;
+  amount: number;
+  currency: string;
+  status: 'Paid' | 'Pending' | 'Overdue' | 'Milestone Escrow';
+  date: string;
+  invoiceNumber?: string;
+}
+
+export interface ClientQueryRecord {
+  id: string;
+  subject: string;
+  message: string;
+  date: string;
+  status: 'New' | 'In Review' | 'Answered' | 'Closed';
+  response?: string;
+}
+
+export interface ClientRecord {
+  id: string;
+  name: string;
+  organization: string;
+  email: string;
+  phone?: string;
+  country?: string;
+  status: 'Active' | 'Onboarding' | 'Completed' | 'Prospect';
+  totalContractValue: number;
+  paidAmount: number;
+  currency: string;
+  projects: ClientProject[];
+  queries: ClientQueryRecord[];
+  payments: ClientPaymentRecord[];
+  notes?: string;
+  joinedDate: string;
+}
+
+export interface PageContentItem {
+  id: string;
+  pageKey: 'home' | 'about' | 'services' | 'contact' | 'careers' | 'blogs';
+  title: string;
+  badge?: string;
+  headline?: string;
+  subheadline?: string;
+  description?: string;
+  primaryCtaText?: string;
+  secondaryCtaText?: string;
+  metaTitle?: string;
+  metaDescription?: string;
+  customFields?: Record<string, string>;
 }
 
 export interface VerifiedCertificate {

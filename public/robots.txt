@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin-portal
+Disallow: /client-portal
+Disallow: /superadmin
+Disallow: /api/
+
+Sitemap: https://orbit-i.tech/sitemap.xml

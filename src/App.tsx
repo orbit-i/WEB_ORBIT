@@ -20,6 +20,7 @@ import { ForbiddenPage } from './components/ForbiddenPage';
 import { BlogSection } from './components/BlogSection';
 import { ArticleDetailView } from './components/ArticleDetailView';
 import { CareersSection } from './components/CareersSection';
+import { OrbitLoader } from './components/common/OrbitLoader';
 import { useCms } from './context/CmsContext';
 
 export function App() {
@@ -28,6 +29,14 @@ export function App() {
   const [portalRole, setPortalRole] = useState<string>('Client');
   const [selectedConsultationService, setSelectedConsultationService] = useState<string>('');
   const [currentArticleSlug, setCurrentArticleSlug] = useState<string>('');
+  const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitialLoading(false);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, []);
 
   const VALID_ROUTES = [
     'home',
@@ -131,6 +140,11 @@ export function App() {
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // 0. Cute Initial App Loader
+  if (isInitialLoading) {
+    return <OrbitLoader size="fullscreen" label="Launching ORBIT-I Universe..." />;
+  }
 
   // 1. Maintenance Mode Interceptor:
   // When enabled from Admin Console, public traffic sees Maintenance Screen

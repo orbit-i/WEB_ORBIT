@@ -99,9 +99,9 @@ app.use(
   })
 );
 
-// Payload size limit to prevent Denial of Service (DoS) via memory exhaustion
-app.use(express.json({ limit: '2mb' }));
-app.use(express.urlencoded({ extended: true, limit: '2mb' }));
+// Payload size limit to accommodate image uploads from phones and devices
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Serve static assets from public folder
 app.use(express.static(path.resolve(__dirname, 'public')));
@@ -662,8 +662,62 @@ apiRouter.delete('/contact/:id', requireAuth(['admin']), async (req: Request, re
 });
 
 // -----------------------------------------------------------------------------
-// MEDIA ASSETS (GET is Public, POST/DELETE require Admin Auth)
 // -----------------------------------------------------------------------------
+// MEDIA ASSET UPLOAD & REPOSITORY (Supports Phone, Computer & Direct URLs)
+// -----------------------------------------------------------------------------
+
+apiRouter.post('/upload', optionalAuth, async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { filename, base64Data, contentType, altText, tags } = req.body;
+    if (!base64Data) {
+      res.status(400).json({ error: 'base64Data is required for file upload.' });
+      return;
+    }
+
+    const uploadsDir = path.resolve(__dirname, 'public', 'uploads');
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
+
+    const cleanExt = (filename?.split('.').pop() || 'png').toLowerCase().replace(/[^a-z0-9]/g, '');
+    const safeName = `orbit_media_${Date.now()}_${Math.random().toString(36).slice(2, 8)}.${cleanExt}`;
+    const filePath = path.join(uploadsDir, safeName);
+
+    const base64Pure = base64Data.replace(/^data:image\/[a-zA-Z0-9.+_-]+;base64,/, '');
+    const buffer = Buffer.from(base64Pure, 'base64');
+    fs.writeFileSync(filePath, buffer);
+
+    const publicUrl = `/uploads/${safeName}`;
+    const sizeKB = (buffer.length / 1024).toFixed(1);
+    const assetName = filename ? filename.replace(/\.[^/.]+$/, '') : `Asset ${new Date().toLocaleDateString()}`;
+
+    const assetRecord = {
+      name: sanitizeString(assetName),
+      url: publicUrl,
+      type: contentType || `image/${cleanExt}`,
+      size: `${sizeKB} KB`,
+      altText: sanitizeString(altText || assetName.replace(/[-_]/g, ' ')),
+      tags: Array.isArray(tags) ? tags : ['Upload', 'Media'],
+    };
+
+    try {
+      await addMediaAsset(assetRecord);
+    } catch (e) {
+      console.warn('Media asset local record save notice:', e);
+    }
+
+    res.json({
+      success: true,
+      url: publicUrl,
+      name: assetRecord.name,
+      size: assetRecord.size,
+      asset: assetRecord,
+    });
+  } catch (err: any) {
+    console.error('File upload error:', err);
+    res.status(500).json({ error: 'Failed to process file upload.' });
+  }
+});
 
 apiRouter.get('/media', async (_req: Request, res: Response) => {
   try {

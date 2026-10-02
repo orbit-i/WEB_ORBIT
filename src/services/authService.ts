@@ -250,6 +250,22 @@ export const registerClientAccount = (
 };
 
 /**
+ * Update Profile Details (Name, Password, etc.)
+ */
+export const updateAccountProfile = (
+  email: string,
+  updates: { name?: string; phone?: string; avatar?: string; password?: string }
+): { success: boolean; error?: string } => {
+  const accounts = getStoredAccounts();
+  const acc = accounts.find((a) => a.email.toLowerCase() === email.toLowerCase());
+  if (!acc) return { success: false, error: 'Account not found.' };
+  if (updates.name) acc.name = updates.name.trim();
+  if (updates.password) acc.password = updates.password;
+  saveStoredAccounts(accounts);
+  return { success: true };
+};
+
+/**
  * Staff Provisioning from within Admin Panel
  * Superadmin can create: superadmin, admin, manager, content_writer
  * Admin can create: manager, content_writer
