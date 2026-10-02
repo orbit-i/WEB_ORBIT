@@ -2,8 +2,7 @@ module.exports = {
   apps: [
     {
       name: 'orbit-i-official',
-      script: 'node_modules/tsx/dist/cli.mjs',
-      args: 'server.ts',
+      script: 'server.js',
       instances: 'max',
       exec_mode: 'cluster',
       env: {

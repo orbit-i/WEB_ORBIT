@@ -847,7 +847,10 @@ app.use('/api', apiRouter);
 async function startServer() {
   await initDatabase();
 
-  if (process.env.NODE_ENV === 'production' && fs.existsSync(path.resolve(__dirname, 'dist'))) {
+  const hasDist = fs.existsSync(path.resolve(__dirname, 'dist'));
+  const isProd = process.env.NODE_ENV === 'production' || !process.env.NODE_ENV;
+
+  if (hasDist && isProd) {
     app.use(express.static(path.resolve(__dirname, 'dist')));
     app.get('*', (_req: Request, res: Response) => {
       res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
@@ -861,7 +864,7 @@ async function startServer() {
       });
       app.use(vite.middlewares);
     } catch (e) {
-      if (fs.existsSync(path.resolve(__dirname, 'dist'))) {
+      if (hasDist) {
         app.use(express.static(path.resolve(__dirname, 'dist')));
         app.get('*', (_req: Request, res: Response) => {
           res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
