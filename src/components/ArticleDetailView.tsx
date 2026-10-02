@@ -10,29 +10,90 @@ import {
   Check,
   Tag,
   BookOpen,
-  ArrowRight,
-  ShieldCheck,
-  Globe,
-  ExternalLink,
   ChevronRight,
-  Layers,
+  ThumbsUp,
+  MessageSquare,
+  Send,
+  Linkedin,
+  Twitter,
+  Instagram,
+  Mail,
+  ShieldCheck,
 } from 'lucide-react';
+
+interface CommentItem {
+  id: string;
+  name: string;
+  avatar: string;
+  date: string;
+  text: string;
+  likes: number;
+  commentsCount: number;
+  sharesCount: number;
+  isLiked?: boolean;
+}
 
 interface ArticleDetailViewProps {
   slug: string;
   onBackToBlog?: () => void;
   onSelectArticle?: (slug: string) => void;
+  onSelectCategory?: (category: string) => void;
 }
 
 export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   slug,
   onBackToBlog,
   onSelectArticle,
+  onSelectCategory,
 }) => {
   const { articles } = useCms();
   const [remoteArticle, setRemoteArticle] = useState<ContentArticle | null>(null);
   const [loading, setLoading] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
+
+  // Newsletter state
+  const [newsletterEmail, setNewsletterEmail] = useState('');
+  const [newsletterSubscribed, setNewsletterSubscribed] = useState(false);
+
+  // Comment composer state
+  const [isCommenting, setIsCommenting] = useState(false);
+  const [newCommentName, setNewCommentName] = useState('');
+  const [newCommentText, setNewCommentText] = useState('');
+  const [commentSuccess, setCommentSuccess] = useState(false);
+
+  // Initial comments matching user provided screenshot style
+  const [comments, setComments] = useState<CommentItem[]>([
+    {
+      id: 'c-1',
+      name: 'Mike David',
+      avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80',
+      date: '27 Dec, 2026 at 7:36 am',
+      text: 'I really found this architectural breakdown insightful. Especially how connection pool reuse and strict types eliminate cascading failovers under concurrent enterprise spikes.',
+      likes: 7,
+      commentsCount: 3,
+      sharesCount: 1,
+    },
+    {
+      id: 'c-2',
+      name: 'Rabeka Benfigar',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80',
+      date: '27 Dec, 2026 at 10:15 pm',
+      text: 'The approach to schema validation across client and server layers completely transformed our deployment speed and test coverage. Super clean presentation!',
+      likes: 5,
+      commentsCount: 2,
+      sharesCount: 0,
+    },
+    {
+      id: 'c-3',
+      name: 'Tim Hudson',
+      avatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=150&q=80',
+      date: '28 Dec, 2026 at 12:48 am',
+      text: 'Clean, elegant implementation and very practical for real-world production environments. Would love to see more whitepapers on this.',
+      likes: 9,
+      commentsCount: 5,
+      sharesCount: 1,
+    },
+  ]);
 
   // Find article in local CMS context state
   const localArticle = useMemo(() => {
@@ -59,11 +120,9 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   useEffect(() => {
     if (!article) return;
 
-    // Document Title
     const ogTitle = article.metaTitle || `${article.title} | ORBIT-I Technical Briefing`;
     document.title = ogTitle;
 
-    // Meta Description
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
@@ -72,25 +131,22 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     }
     metaDesc.setAttribute('content', article.metaDescription || article.excerpt);
 
-    // Canonical link
     let canonical = document.querySelector('link[rel="canonical"]');
     if (!canonical) {
       canonical = document.createElement('link');
       canonical.setAttribute('rel', 'canonical');
       document.head.appendChild(canonical);
     }
-    const currentUrl = article.canonicalUrl || `https://orbit-i.tech/blog/${article.slug}`;
+    const currentUrl = article.canonicalUrl || `https://orbit-i.tech/article/${article.slug}`;
     canonical.setAttribute('href', currentUrl);
 
-    // OpenGraph Title
+    // OpenGraph
     let ogTitleEl = document.querySelector('meta[property="og:title"]');
     if (ogTitleEl) ogTitleEl.setAttribute('content', ogTitle);
 
-    // OpenGraph Description
     let ogDescEl = document.querySelector('meta[property="og:description"]');
     if (ogDescEl) ogDescEl.setAttribute('content', article.metaDescription || article.excerpt);
 
-    // OpenGraph Image
     let ogImgEl = document.querySelector('meta[property="og:image"]');
     if (ogImgEl && article.featuredImage) {
       ogImgEl.setAttribute('content', article.featuredImage);
@@ -134,32 +190,22 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     schemaScript.text = JSON.stringify(structuredData);
 
     return () => {
-      // Cleanup schema script on unmount
       const el = document.getElementById(schemaScriptId);
       if (el) el.remove();
     };
   }, [article]);
 
-  // Related articles
-  const relatedArticles = useMemo(() => {
-    if (!article) return [];
-    return articles
-      .filter((a) => a.id !== article.id && a.status === 'published')
-      .filter((a) => a.category === article.category || a.tags.some((t) => article.tags.includes(t)))
-      .slice(0, 3);
-  }, [articles, article]);
-
   const handleCopyLink = () => {
-    const fullUrl = `${window.location.origin}/#article/${article?.slug}`;
+    const fullUrl = `${window.location.origin}/article/${article?.slug}`;
     navigator.clipboard.writeText(fullUrl).then(() => {
       setCopiedLink(true);
       setTimeout(() => setCopiedLink(false), 2500);
     });
   };
 
-  const handleShare = (platform: 'linkedin' | 'twitter' | 'whatsapp') => {
+  const handleShare = (platform: 'linkedin' | 'twitter' | 'whatsapp' | 'pinterest') => {
     if (!article) return;
-    const url = encodeURIComponent(`${window.location.origin}/#article/${article.slug}`);
+    const url = encodeURIComponent(`${window.location.origin}/article/${article.slug}`);
     const title = encodeURIComponent(article.title);
 
     let shareUrl = '';
@@ -169,6 +215,8 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
       shareUrl = `https://twitter.com/intent/tweet?text=${title}&url=${url}`;
     } else if (platform === 'whatsapp') {
       shareUrl = `https://api.whatsapp.com/send?text=${title}%20${url}`;
+    } else if (platform === 'pinterest') {
+      shareUrl = `https://pinterest.com/pin/create/button/?url=${url}&description=${title}`;
     }
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
   };
@@ -183,21 +231,74 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleSelectRelated = (relatedSlug: string) => {
-    if (onSelectArticle) {
-      onSelectArticle(relatedSlug);
+  const handleCategoryBreadcrumb = (cat: string) => {
+    if (onSelectCategory) {
+      onSelectCategory(cat);
+    }
+    if (onBackToBlog) {
+      onBackToBlog();
     } else {
-      window.history.pushState(null, '', `/article/${relatedSlug}`);
+      window.history.pushState(null, '', `/blog?category=${encodeURIComponent(cat)}`);
       window.dispatchEvent(new PopStateEvent('popstate'));
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLikeComment = (commentId: string) => {
+    setComments((prev) =>
+      prev.map((c) => {
+        if (c.id === commentId) {
+          const isLiked = !c.isLiked;
+          return {
+            ...c,
+            isLiked,
+            likes: isLiked ? c.likes + 1 : c.likes - 1,
+          };
+        }
+        return c;
+      })
+    );
+  };
+
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCommentName.trim() || !newCommentText.trim()) return;
+
+    const newEntry: CommentItem = {
+      id: `c-${Date.now()}`,
+      name: newCommentName.trim(),
+      avatar: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+        newCommentName
+      )}`,
+      date: 'Just now',
+      text: newCommentText.trim(),
+      likes: 1,
+      commentsCount: 0,
+      sharesCount: 0,
+      isLiked: true,
+    };
+
+    setComments([newEntry, ...comments]);
+    setNewCommentName('');
+    setNewCommentText('');
+    setCommentSuccess(true);
+    setIsCommenting(false);
+    setTimeout(() => setCommentSuccess(false), 3000);
+  };
+
+  const handleNewsletterSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newsletterEmail.trim() || !newsletterEmail.includes('@')) return;
+    setNewsletterSubscribed(true);
+    setNewsletterEmail('');
+    setTimeout(() => setNewsletterSubscribed(false), 5000);
   };
 
   if (loading) {
     return (
       <div className="min-h-screen py-24 bg-white flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="w-10 h-10 border-4 border-black border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <p className="text-xs font-mono text-gray-500 uppercase tracking-wider">
             Fetching verified engineering brief...
           </p>
@@ -209,15 +310,17 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
   if (!article) {
     return (
       <div className="min-h-screen py-24 bg-white flex items-center justify-center px-4">
-        <div className="max-w-md w-full bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10 text-center space-y-4">
+        <div className="max-w-md w-full bg-gray-50 border border-gray-200 rounded-3xl p-8 sm:p-10 text-center space-y-4 shadow-sm">
           <BookOpen className="h-12 w-12 text-gray-400 mx-auto" />
           <h2 className="text-2xl font-bold text-black">Article Not Found</h2>
           <p className="text-xs text-gray-600 leading-relaxed">
-            The technical report or insights document for slug <code className="bg-gray-200 px-1 py-0.5 rounded font-mono">/{slug}</code> does not exist or has been archived.
+            The technical report or insights document for slug{' '}
+            <code className="bg-gray-200 px-1 py-0.5 rounded font-mono">/{slug}</code> does not exist
+            or has been archived.
           </p>
           <button
             onClick={handleBack}
-            className="px-6 py-2.5 bg-black text-white rounded-full text-xs font-bold"
+            className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-bold transition-colors"
           >
             Return to Insights Archive
           </button>
@@ -226,245 +329,397 @@ export const ArticleDetailView: React.FC<ArticleDetailViewProps> = ({
     );
   }
 
+  // Get author avatar or fallback to Abdul Samad picture
+  const authorAvatar =
+    article.author?.toLowerCase().includes('samad') || !article.author
+      ? '/AbdulSamad.jpeg'
+      : `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(article.author)}`;
+
   return (
-    <article className="py-16 sm:py-20 bg-white text-black min-h-screen">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
-        {/* Top Navigation & Breadcrumbs */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-gray-200">
+    <article className="py-12 sm:py-16 bg-[#fafbfc] text-gray-900 min-h-screen selection:bg-blue-600 selection:text-white">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        {/* Top Minimalist Breadcrumb (matches: Blog > Category) */}
+        <div className="flex items-center justify-between pb-3 border-b border-gray-200/80">
+          <nav className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-500">
+            <button
+              onClick={handleBack}
+              className="hover:text-blue-600 transition-colors cursor-pointer"
+            >
+              Blog
+            </button>
+            <ChevronRight className="h-3.5 w-3.5 text-gray-400 shrink-0" />
+            <button
+              onClick={() => handleCategoryBreadcrumb(article.category)}
+              className="text-gray-900 hover:text-blue-600 font-semibold transition-colors cursor-pointer truncate max-w-[240px]"
+            >
+              {article.category}
+            </button>
+          </nav>
+
           <button
             onClick={handleBack}
-            className="inline-flex items-center gap-2 text-xs font-bold text-gray-700 hover:text-black group transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 hover:text-blue-600 transition-colors"
           >
-            <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to Insights Hub</span>
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline">Back to Archive</span>
           </button>
-
-          <nav className="flex items-center gap-1.5 text-[11px] font-mono text-gray-500 overflow-x-auto">
-            <a href="#home" className="hover:text-black">
-              Home
-            </a>
-            <ChevronRight className="h-3 w-3 text-gray-400 shrink-0" />
-            <a href="#blog" className="hover:text-black">
-              Insights
-            </a>
-            <ChevronRight className="h-3 w-3 text-gray-400 shrink-0" />
-            <span className="text-black font-semibold truncate max-w-[200px]">{article.category}</span>
-          </nav>
         </div>
 
-        {/* Article Header & Metadata */}
-        <header className="space-y-6">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="px-3.5 py-1 bg-black text-white text-xs font-mono font-bold uppercase rounded-full tracking-wider">
-              {article.category}
-            </span>
-            <span className="text-xs text-gray-400">·</span>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 font-mono">
-              <Calendar className="h-3.5 w-3.5" />
-              <span>{article.publishedDate}</span>
-            </div>
-            <span className="text-xs text-gray-400">·</span>
-            <div className="flex items-center gap-1.5 text-xs text-gray-500 font-mono">
-              <Clock className="h-3.5 w-3.5" />
-              <span>{article.readTime}</span>
-            </div>
-            {article.seoScore && (
-              <>
-                <span className="text-xs text-gray-400">·</span>
-                <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-100 text-emerald-800">
-                  <ShieldCheck className="h-3 w-3" />
-                  <span>Verified Architecture</span>
-                </span>
-              </>
-            )}
+        {/* Featured Cover Image (Proportional, Centered, Elegant - Not Blown Out) */}
+        <div className="max-w-3xl mx-auto">
+          <div className="relative rounded-2xl sm:rounded-3xl overflow-hidden bg-gray-900 shadow-md border border-gray-200 aspect-[16/10] sm:aspect-[16/9]">
+            <img
+              src={
+                article.featuredImage ||
+                'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80'
+              }
+              alt={article.imageAlt || article.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src =
+                  'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=1200&q=80';
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Author Avatar, Name & Meta Header (Centered underneath image matching layout) */}
+        <div className="text-center space-y-3 pt-2">
+          {/* Centered Author Circle Avatar */}
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full overflow-hidden border-2 border-white shadow-md mx-auto bg-gray-200">
+            <img
+              src={authorAvatar}
+              alt={article.author}
+              className="w-full h-full object-cover object-top"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = '/AbdulSamad.jpeg';
+              }}
+            />
           </div>
 
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-black tracking-tight leading-tight">
+          {/* Author Name */}
+          <div className="text-sm sm:text-base font-bold text-gray-900 tracking-tight">
+            {article.author}
+          </div>
+
+          {/* Article Title (Large Editorial Typography) */}
+          <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-tight max-w-3xl mx-auto px-2">
             {article.title}
           </h1>
 
-          {/* Excerpt Lead */}
+          {/* Date & Read Time */}
+          <div className="flex items-center justify-center gap-2 text-xs sm:text-sm text-gray-500 font-mono">
+            <span>{article.publishedDate}</span>
+            <span>·</span>
+            <span>{article.readTime}</span>
+          </div>
+        </div>
+
+        {/* Main Editorial Content & Pullquote */}
+        <div className="max-w-3xl mx-auto space-y-6 pt-4">
+          {/* Excerpt Lead / Intro */}
           {article.excerpt && (
-            <p className="text-lg sm:text-xl text-gray-600 font-serif italic border-l-4 border-black pl-5 py-1 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-700 font-serif leading-relaxed text-center sm:text-left italic border-l-4 border-amber-500 pl-4 py-1.5 bg-amber-50/50 rounded-r-xl">
               {article.excerpt}
             </p>
           )}
 
-          {/* Author Card & Social Share Bar */}
-          <div className="pt-4 pb-4 border-y border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-full bg-black text-white flex items-center justify-center font-bold text-sm font-mono shadow-sm">
-                {article.author.slice(0, 2).toUpperCase()}
-              </div>
-              <div>
-                <div className="text-sm font-bold text-black">{article.author}</div>
-                <div className="text-xs text-gray-500 font-mono">
-                  ORBIT-I (PVT) LTD Engineering Board
-                </div>
-              </div>
-            </div>
+          {/* Body Content */}
+          <div
+            className="prose prose-base sm:prose-lg max-w-none text-gray-800 leading-relaxed space-y-5 prose-headings:font-bold prose-headings:text-gray-900 prose-p:leading-relaxed prose-a:text-blue-600 prose-a:underline hover:prose-a:text-blue-800 prose-blockquote:border-l-4 prose-blockquote:border-amber-500 prose-blockquote:bg-gray-50 prose-blockquote:py-2.5 prose-blockquote:px-5 prose-blockquote:italic prose-blockquote:rounded-r-xl prose-code:font-mono prose-code:text-blue-700 prose-pre:bg-gray-900 prose-pre:text-gray-100 prose-pre:rounded-2xl"
+            dangerouslySetInnerHTML={{ __html: article.content }}
+          />
 
-            {/* Social Share Suite */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleCopyLink}
-                className="px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-colors border border-gray-200"
-                title="Copy Article URL"
-              >
-                {copiedLink ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
-                <span>{copiedLink ? 'Copied Link!' : 'Copy Link'}</span>
-              </button>
-
-              <button
-                onClick={() => handleShare('linkedin')}
-                className="p-2 bg-gray-100 hover:bg-[#0077b5] hover:text-white rounded-xl text-gray-700 transition-colors"
-                title="Share to LinkedIn"
-              >
-                <Share2 className="h-3.5 w-3.5" />
-              </button>
-
-              <button
-                onClick={() => handleShare('twitter')}
-                className="p-2 bg-gray-100 hover:bg-black hover:text-white rounded-xl text-gray-700 transition-colors"
-                title="Share to X"
-              >
-                <Globe className="h-3.5 w-3.5" />
-              </button>
-            </div>
-          </div>
-        </header>
-
-        {/* Featured Cover Asset */}
-        {article.featuredImage && (
-          <figure className="rounded-3xl overflow-hidden border border-gray-200 shadow-xl bg-gray-950">
-            <img
-              src={article.featuredImage}
-              alt={article.imageAlt || article.title}
-              className="w-full max-h-[500px] object-cover"
-            />
-            {article.imageAlt && (
-              <figcaption className="text-xs font-mono text-gray-400 py-3 px-6 bg-gray-900 border-t border-gray-800 text-center">
-                {article.imageAlt}
-              </figcaption>
-            )}
-          </figure>
-        )}
-
-        {/* Article Body Content */}
-        <div
-          className="prose prose-lg max-w-none text-gray-800 leading-relaxed space-y-6 prose-headings:font-extrabold prose-headings:tracking-tight prose-headings:text-black prose-p:leading-relaxed prose-a:text-black prose-a:font-semibold prose-a:underline prose-a:decoration-emerald-500 hover:prose-a:text-emerald-700 prose-blockquote:border-l-4 prose-blockquote:border-black prose-blockquote:bg-gray-50 prose-blockquote:py-2 prose-blockquote:px-4 prose-blockquote:rounded-r-xl prose-code:font-mono prose-code:text-emerald-700 prose-pre:bg-gray-950 prose-pre:text-emerald-400 prose-pre:rounded-2xl prose-pre:border prose-pre:border-gray-800 prose-img:rounded-2xl prose-img:border prose-img:border-gray-200"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        />
-
-        {/* Tags Section */}
-        {article.tags && article.tags.length > 0 && (
-          <div className="pt-8 border-t border-gray-200 space-y-3">
-            <div className="flex items-center gap-2 text-xs font-mono font-bold uppercase text-gray-500">
-              <Tag className="h-3.5 w-3.5" />
-              <span>Categorized Topics &amp; Architecture Tags</span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {article.tags.map((tag) => (
+          {/* Tags */}
+          {article.tags && article.tags.length > 0 && (
+            <div className="pt-6 border-t border-gray-200 flex flex-wrap items-center gap-2">
+              <span className="text-xs font-mono uppercase text-gray-400 font-bold flex items-center gap-1">
+                <Tag className="h-3 w-3" />
+                <span>Tags:</span>
+              </span>
+              {article.tags.map((t) => (
                 <span
-                  key={tag}
-                  className="px-3.5 py-1.5 bg-gray-100 hover:bg-black hover:text-white rounded-xl text-xs font-mono text-gray-800 transition-colors cursor-pointer"
-                  onClick={handleBack}
+                  key={t}
+                  onClick={() => handleCategoryBreadcrumb(article.category)}
+                  className="px-3 py-1 bg-gray-100 hover:bg-blue-50 hover:text-blue-600 rounded-full text-xs font-mono text-gray-700 transition-colors cursor-pointer"
                 >
-                  #{tag}
+                  #{t}
                 </span>
               ))}
             </div>
-          </div>
-        )}
-
-        {/* Author Bio Card */}
-        <div className="bg-gray-50 border border-gray-200 rounded-3xl p-6 sm:p-8 space-y-4">
-          <div className="flex items-start gap-4">
-            <div className="w-14 h-14 rounded-2xl bg-black text-white flex items-center justify-center font-bold text-lg font-mono shrink-0 shadow-md">
-              {article.author.slice(0, 2).toUpperCase()}
-            </div>
-            <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <h4 className="text-base font-bold text-black">{article.author}</h4>
-                <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded text-[10px] font-mono font-bold">
-                  Verified Executive
-                </span>
-              </div>
-              <p className="text-xs text-gray-600 leading-relaxed">
-                Executive Leadership &amp; Engineering Directorate at ORBIT-I (PVT) LTD.
-                Specializing in distributed computing, generative AI pipelines, and enterprise-scale software architecture.
-              </p>
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Related Technical Articles */}
-        {relatedArticles.length > 0 && (
-          <div className="pt-10 border-t border-gray-200 space-y-6">
-            <div className="flex items-center justify-between">
-              <h3 className="text-2xl font-bold text-black flex items-center gap-2">
-                <Layers className="h-5 w-5 text-black" />
-                <span>Related Engineering Briefings</span>
-              </h3>
-              <button
-                onClick={handleBack}
-                className="text-xs font-bold text-black hover:underline flex items-center gap-1"
-              >
-                <span>View all insights</span>
-                <ChevronRight className="h-3 w-3" />
-              </button>
+        {/* Two-Column Bottom Area: Left (Share + Comments) | Right (Newsletter Widget) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pt-8 border-t border-gray-200 max-w-5xl mx-auto">
+          {/* LEFT ZONE: Share Bar + Comments Section */}
+          <div className="lg:col-span-8 space-y-8">
+            {/* Share This Post Bar (matches: Share this post with round icons) */}
+            <div className="space-y-2.5">
+              <div className="text-xs font-bold text-gray-800 uppercase tracking-wider font-mono">
+                Share this post
+              </div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                {/* Copy Link */}
+                <button
+                  onClick={handleCopyLink}
+                  className="w-9 h-9 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-700 flex items-center justify-center transition-colors border border-gray-200 relative group"
+                  title="Copy Link"
+                  aria-label="Copy Link"
+                >
+                  {copiedLink ? (
+                    <Check className="h-4 w-4 text-emerald-600" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
+                  {copiedLink && (
+                    <span className="absolute -top-7 left-1/2 -translate-x-1/2 text-[10px] bg-black text-white px-2 py-0.5 rounded whitespace-nowrap">
+                      Copied!
+                    </span>
+                  )}
+                </button>
+
+                {/* Pinterest */}
+                <button
+                  onClick={() => handleShare('pinterest')}
+                  className="w-9 h-9 rounded-full bg-red-50 hover:bg-red-600 text-red-600 hover:text-white flex items-center justify-center transition-colors border border-red-200 text-xs font-bold"
+                  title="Share to Pinterest"
+                  aria-label="Share to Pinterest"
+                >
+                  P
+                </button>
+
+                {/* LinkedIn */}
+                <button
+                  onClick={() => handleShare('linkedin')}
+                  className="w-9 h-9 rounded-full bg-blue-50 hover:bg-[#0077b5] text-[#0077b5] hover:text-white flex items-center justify-center transition-colors border border-blue-200"
+                  title="Share to LinkedIn"
+                  aria-label="Share to LinkedIn"
+                >
+                  <Linkedin className="h-4 w-4" />
+                </button>
+
+                {/* Twitter / X */}
+                <button
+                  onClick={() => handleShare('twitter')}
+                  className="w-9 h-9 rounded-full bg-gray-100 hover:bg-black text-gray-800 hover:text-white flex items-center justify-center transition-colors border border-gray-300"
+                  title="Share to X"
+                  aria-label="Share to Twitter"
+                >
+                  <Twitter className="h-4 w-4" />
+                </button>
+
+                {/* WhatsApp */}
+                <button
+                  onClick={() => handleShare('whatsapp')}
+                  className="w-9 h-9 rounded-full bg-emerald-50 hover:bg-emerald-600 text-emerald-600 hover:text-white flex items-center justify-center transition-colors border border-emerald-200"
+                  title="Share via WhatsApp"
+                  aria-label="Share via WhatsApp"
+                >
+                  <Share2 className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-              {relatedArticles.map((rel) => (
-                <div
-                  key={rel.id}
-                  onClick={() => handleSelectRelated(rel.slug)}
-                  className="group cursor-pointer bg-white border border-gray-200 hover:border-black rounded-2xl p-5 shadow-xs hover:shadow-lg transition-all duration-300 flex flex-col justify-between"
+            {/* Comments Header Bar (matches: Gold Comment Button + Note: You must login for comment) */}
+            <div className="space-y-4 pt-4 border-t border-gray-200">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setIsCommenting(!isCommenting)}
+                  className="px-5 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                 >
-                  <div className="space-y-3">
-                    <span className="text-[10px] font-mono uppercase font-bold text-emerald-600">
-                      {rel.category}
-                    </span>
-                    <h5 className="text-sm font-bold text-black group-hover:text-emerald-700 leading-snug line-clamp-2">
-                      {rel.title}
-                    </h5>
-                    <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
-                      {rel.excerpt}
-                    </p>
-                  </div>
-                  <div className="pt-4 border-t border-gray-100 flex items-center justify-between text-[11px] font-mono text-gray-400 mt-4">
-                    <span>{rel.readTime}</span>
-                    <span className="font-bold text-black group-hover:translate-x-1 transition-transform flex items-center gap-0.5">
-                      Read &rarr;
-                    </span>
-                  </div>
+                  <MessageSquare className="h-3.5 w-3.5" />
+                  <span>{isCommenting ? 'Cancel Comment' : 'Comment'}</span>
+                </button>
+                <span className="text-xs text-gray-500 italic">
+                  Note: Verified community discussion
+                </span>
+              </div>
+
+              {commentSuccess && (
+                <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold border border-emerald-200 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>Thank you! Your comment has been published to the thread.</span>
                 </div>
-              ))}
+              )}
+
+              {/* Interactive Comment Composer Form */}
+              {isCommenting && (
+                <form
+                  onSubmit={handleAddComment}
+                  className="p-4 bg-white rounded-2xl border border-amber-300 shadow-sm space-y-3 animate-in fade-in"
+                >
+                  <div className="text-xs font-bold text-gray-900">Leave a Verified Response</div>
+                  <div>
+                    <input
+                      type="text"
+                      required
+                      placeholder="Your Name / Organization"
+                      value={newCommentName}
+                      onChange={(e) => setNewCommentName(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <textarea
+                      required
+                      rows={3}
+                      placeholder="Share your thoughts on this architecture briefing..."
+                      value={newCommentText}
+                      onChange={(e) => setNewCommentText(e.target.value)}
+                      className="w-full px-3.5 py-2 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:outline-none focus:border-amber-500 leading-relaxed"
+                    />
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setIsCommenting(false)}
+                      className="px-3 py-1.5 text-xs text-gray-600 hover:bg-gray-100 rounded-lg"
+                    >
+                      Dismiss
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-bold flex items-center gap-1 shadow-xs"
+                    >
+                      <Send className="h-3 w-3" />
+                      <span>Post Comment</span>
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {/* Comments Feed (matches Mike David, Rabeka Benfigar, Tim Hudson layout) */}
+              <div className="space-y-3.5">
+                {comments.map((comment) => (
+                  <div
+                    key={comment.id}
+                    className="p-4 bg-white rounded-2xl border border-gray-200 shadow-xs space-y-2.5 transition-all hover:border-gray-300"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-200 shrink-0 bg-gray-100">
+                        <img
+                          src={comment.avatar}
+                          alt={comment.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+                              comment.name
+                            )}`;
+                          }}
+                        />
+                      </div>
+                      <div>
+                        <div className="text-xs font-bold text-gray-900">{comment.name}</div>
+                        <div className="text-[11px] text-gray-400 font-mono">{comment.date}</div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-700 leading-relaxed pl-13">
+                      {comment.text}
+                    </p>
+
+                    {/* Social interaction metrics: Like, Comment, Share */}
+                    <div className="pl-13 pt-1 flex items-center gap-4 text-[11px] text-gray-500 font-medium">
+                      <button
+                        onClick={() => handleLikeComment(comment.id)}
+                        className={`inline-flex items-center gap-1 hover:text-amber-600 transition-colors ${
+                          comment.isLiked ? 'text-amber-600 font-bold' : ''
+                        }`}
+                      >
+                        <ThumbsUp className="h-3.5 w-3.5" />
+                        <span>{comment.likes} Like</span>
+                      </button>
+
+                      <span className="text-gray-300">·</span>
+
+                      <button
+                        onClick={() => setIsCommenting(true)}
+                        className="inline-flex items-center gap-1 hover:text-blue-600 transition-colors"
+                      >
+                        <MessageSquare className="h-3.5 w-3.5" />
+                        <span>{comment.commentsCount} Comment</span>
+                      </button>
+
+                      <span className="text-gray-300">·</span>
+
+                      <button
+                        onClick={handleCopyLink}
+                        className="inline-flex items-center gap-1 hover:text-gray-900 transition-colors"
+                      >
+                        <Share2 className="h-3.5 w-3.5" />
+                        <span>{comment.sharesCount} Share</span>
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-        )}
 
-        {/* Consultation Callout */}
-        <div className="bg-black text-white rounded-3xl p-8 sm:p-12 text-center space-y-4 shadow-2xl">
-          <span className="px-3.5 py-1 bg-white/10 text-emerald-400 rounded-full text-xs font-mono uppercase tracking-wider font-bold">
-            Enterprise Architecture Services
-          </span>
-          <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-            Need Expert Architectural Guidance on Your Tech Stack?
-          </h3>
-          <p className="text-xs sm:text-sm text-gray-300 max-w-xl mx-auto leading-relaxed">
-            Our engineering team designs, audits, and deploys high-scale software infrastructures,
-            AI pipelines, and secure cloud platforms tailored to your business needs.
-          </p>
-          <div className="pt-2">
-            <a
-              href="#contact"
-              className="inline-flex items-center gap-2 px-8 py-3.5 bg-white text-black hover:bg-gray-200 rounded-full text-xs font-bold transition-all shadow-lg"
-            >
-              <span>Schedule Architecture Review</span>
-              <ArrowRight className="h-4 w-4" />
-            </a>
+          {/* RIGHT ZONE: Subscribe to Newsletter Card (Matches exact screenshot layout) */}
+          <div className="lg:col-span-4 space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-200 p-5 sm:p-6 shadow-xs space-y-4 sticky top-28">
+              <div className="space-y-1">
+                <h3 className="text-sm sm:text-base font-extrabold text-gray-900 tracking-tight">
+                  Subscribe to newsletter
+                </h3>
+                <p className="text-xs text-gray-500 leading-relaxed">
+                  Subscribe to receive the latest blog posts to your inbox every week.
+                </p>
+              </div>
+
+              {newsletterSubscribed ? (
+                <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-semibold border border-emerald-200 flex items-center gap-2">
+                  <Check className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>Subscribed! You will receive weekly engineering briefings.</span>
+                </div>
+              ) : (
+                <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                  <div>
+                    <input
+                      type="email"
+                      required
+                      placeholder="Enter your email address"
+                      value={newsletterEmail}
+                      onChange={(e) => setNewsletterEmail(e.target.value)}
+                      className="w-full px-3.5 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 placeholder:text-gray-400 focus:bg-white focus:outline-none focus:border-amber-500"
+                    />
+                  </div>
+
+                  {/* Gold Amber Subscribe Button (matches screenshot) */}
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-colors shadow-xs"
+                  >
+                    SUBSCRIBE
+                  </button>
+
+                  <p className="text-[10px] text-gray-400 text-center leading-normal">
+                    By subscribing you agree with our{' '}
+                    <span className="text-gray-600 underline">Privacy Policy</span>.
+                  </p>
+                </form>
+              )}
+
+              {/* Author Leadership Quick Badge */}
+              <div className="pt-3 border-t border-gray-100 flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full overflow-hidden border border-gray-200 shrink-0">
+                  <img
+                    src="/AbdulSamad.jpeg"
+                    alt="Abdul Samad Rind"
+                    className="w-full h-full object-cover object-top"
+                  />
+                </div>
+                <div>
+                  <div className="text-xs font-bold text-gray-900">Abdul Samad Rind</div>
+                  <div className="text-[10px] text-gray-500 font-mono">Founder &amp; CEO, ORBIT-I</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

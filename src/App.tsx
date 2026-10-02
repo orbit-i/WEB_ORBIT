@@ -29,6 +29,7 @@ export function App() {
   const [portalRole, setPortalRole] = useState<string>('Client');
   const [selectedConsultationService, setSelectedConsultationService] = useState<string>('');
   const [currentArticleSlug, setCurrentArticleSlug] = useState<string>('');
+  const [selectedBlogCategory, setSelectedBlogCategory] = useState<string>('All');
   const [isInitialLoading, setIsInitialLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function App() {
     'jobs',
     'contact',
     'blog',
+    'blogs',
     'article',
     'client-portal',
     'admin-portal',
@@ -62,16 +64,23 @@ export function App() {
   ];
 
   // Helper to resolve clean path from pathname or hash
-  const resolveRouteFromLocation = (): { tab: string; articleSlug?: string } => {
-    // 1. If someone arrives with an old # hash, extract and convert it to clean path
+  const resolveRouteFromLocation = (): {
+    tab: string;
+    articleSlug?: string;
+    category?: string;
+  } => {
     const hash = window.location.hash.replace(/^#\/?/, '').trim();
     let path = window.location.pathname.replace(/^\/+|\/+$/g, '').trim();
 
     if (hash) {
       path = hash;
-      const cleanPath = path === 'home' || !path ? '/' : `/${path}`;
+      const cleanPath = path === 'home' || !path ? '/home' : `/${path}`;
       window.history.replaceState(null, '', cleanPath);
     }
+
+    // Check query params (e.g. ?category=Software+Architecture)
+    const urlParams = new URLSearchParams(window.location.search);
+    const categoryParam = urlParams.get('category');
 
     if (!path || path === 'home') {
       return { tab: 'home' };
@@ -88,8 +97,30 @@ export function App() {
       return { tab: 'article', articleSlug: slug };
     }
 
-    if (lower === 'blog') {
-      return { tab: 'blog' };
+    // Support both /blog/:slug and /article/:slug for deep article linking!
+    if (lower.startsWith('blog/') || lower.startsWith('blogs/')) {
+      const remainder = path.split('/').slice(1).join('/').trim();
+      if (remainder.toLowerCase().startsWith('category/')) {
+        const cat = remainder.slice(9).trim();
+        return { tab: 'blog', category: decodeURIComponent(cat) };
+      }
+      if (remainder) {
+        return { tab: 'article', articleSlug: remainder };
+      }
+      return { tab: 'blog', category: categoryParam || 'All' };
+    }
+
+    if (lower.startsWith('category/')) {
+      const cat = path.slice(9).trim();
+      return { tab: 'blog', category: decodeURIComponent(cat) };
+    }
+
+    if (lower.startsWith('services/')) {
+      return { tab: 'services' };
+    }
+
+    if (lower === 'blog' || lower === 'blogs') {
+      return { tab: 'blog', category: categoryParam || 'All' };
     }
 
     if (VALID_ROUTES.includes(lower)) {
@@ -101,10 +132,13 @@ export function App() {
 
   useEffect(() => {
     const handleNavigation = () => {
-      const { tab, articleSlug } = resolveRouteFromLocation();
+      const { tab, articleSlug, category } = resolveRouteFromLocation();
       setActiveTab(tab);
       if (articleSlug) {
         setCurrentArticleSlug(articleSlug);
+      }
+      if (category) {
+        setSelectedBlogCategory(category);
       }
     };
 
@@ -123,19 +157,32 @@ export function App() {
     handleTabChange('contact');
   };
 
-  const handleTabChange = (tab: string) => {
+  const handleTabChange = (tab: string, category?: string) => {
     let targetPath = '/';
     if (tab.startsWith('article/')) {
       const slug = tab.slice(8).trim();
       setCurrentArticleSlug(slug);
       setActiveTab('article');
       targetPath = `/article/${slug}`;
+    } else if (tab === 'blog') {
+      setActiveTab('blog');
+      if (category && category !== 'All') {
+        setSelectedBlogCategory(category);
+        targetPath = `/blog?category=${encodeURIComponent(category)}`;
+      } else {
+        setSelectedBlogCategory('All');
+        targetPath = '/blog';
+      }
     } else {
       setActiveTab(tab);
-      targetPath = tab === 'home' ? '/' : `/${tab}`;
+      targetPath = `/${tab}`;
     }
 
-    if (window.location.pathname !== targetPath || window.location.hash) {
+    if (
+      window.location.pathname !== targetPath ||
+      window.location.hash ||
+      (category && !window.location.search.includes(encodeURIComponent(category)))
+    ) {
       window.history.pushState(null, '', targetPath);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -189,7 +236,11 @@ export function App() {
       {!isPortalView && (
         <Navbar
           activeTab={activeTab}
-          setActiveTab={handleTabChange}
+          setActiveTab={(tab, cat) => handleTabChange(tab, cat)}
+          onSelectCategory={(cat) => {
+            setSelectedBlogCategory(cat);
+            handleTabChange('blog', cat);
+          }}
           portalRole={portalRole}
         />
       )}
@@ -244,6 +295,7 @@ export function App() {
         {/* 7. INSIGHTS & ENGINEERING BLOG ARCHIVE */}
         {activeTab === 'blog' && (
           <BlogSection
+            initialCategory={selectedBlogCategory}
             onSelectArticle={(slug) => {
               setCurrentArticleSlug(slug);
               handleTabChange(`article/${slug}`);
@@ -251,7 +303,7 @@ export function App() {
           />
         )}
 
-        {/* 8. ARTICLE READER (TECHNICAL DEEP DIVE) */}
+        {/* 8. ARTICLE READER (TECHNICAL DEEP DIVE MATCHING SCREENSHOT) */}
         {activeTab === 'article' && (
           <ArticleDetailView
             slug={currentArticleSlug}
@@ -259,6 +311,10 @@ export function App() {
             onSelectArticle={(slug) => {
               setCurrentArticleSlug(slug);
               handleTabChange(`article/${slug}`);
+            }}
+            onSelectCategory={(cat) => {
+              setSelectedBlogCategory(cat);
+              handleTabChange('blog', cat);
             }}
           />
         )}

@@ -18,13 +18,23 @@ import { SeoHead } from './common/SeoHead';
 
 interface BlogSectionProps {
   onSelectArticle?: (slug: string) => void;
+  initialCategory?: string;
 }
 
-export const BlogSection: React.FC<BlogSectionProps> = ({ onSelectArticle }) => {
+export const BlogSection: React.FC<BlogSectionProps> = ({
+  onSelectArticle,
+  initialCategory = 'All',
+}) => {
   const { articles } = useCms();
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || 'All');
   const [selectedTag, setSelectedTag] = useState<string>('All');
+
+  useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+  }, [initialCategory]);
 
   // Filter published articles
   const publishedArticles = useMemo(() => {
