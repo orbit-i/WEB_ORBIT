@@ -206,17 +206,14 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
         setAttempts(nextAttempts);
         localStorage.setItem(ATTEMPTS_KEY, nextAttempts.toString());
 
-        // Dispatch security anomaly alert to all admins on repeated failure or lockout
-        if (nextAttempts >= 2) {
+        // Only dispatch security alert to superadmins on full lockout (avoid nuisance on mistyped passwords)
+        if (nextAttempts >= MAX_ATTEMPTS) {
           dispatchSecurityAlert({
-            type: nextAttempts >= MAX_ATTEMPTS ? 'lockout' : 'brute_force',
-            severity: nextAttempts >= MAX_ATTEMPTS ? 'critical' : 'warning',
-            title:
-              nextAttempts >= MAX_ATTEMPTS
-                ? 'CRITICAL: Host Lockout Triggered on Portal Auth'
-                : `Security Anomaly: Failed Authentication Attempt (${nextAttempts}/${MAX_ATTEMPTS})`,
-            details: `Unauthorized login attempt on ${activeMode.toUpperCase()} portal using identifier "${email}". Alert automatically dispatched to all company administrators.`,
-            sourceIp: '182.180.124.90 (Nawabshah / PK)',
+            type: 'lockout',
+            severity: 'critical',
+            title: 'Security Alert: Host Lockout Triggered on Portal Auth',
+            details: `Repeated failed authentication attempts on ${activeMode.toUpperCase()} portal using identifier "${email}". Maximum attempts exceeded.`,
+            sourceIp: 'Client Network Host',
             userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.slice(0, 90) : undefined,
           });
         }

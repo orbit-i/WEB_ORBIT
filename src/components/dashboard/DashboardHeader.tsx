@@ -91,8 +91,8 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Real Clean Notifications (No fake anomalies or fake spam)
-  const notifications = [
+  // System / Project Notifications (Clean, isolated, no spam or fake anomalies)
+  const adminNotifications = [
     {
       id: 1,
       title: 'Infrastructure Telemetry Verified',
@@ -116,7 +116,33 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
     },
   ];
 
-  const recentMessages = [
+  const clientNotifications = [
+    {
+      id: 1,
+      title: 'Sprint Deliverables Verified',
+      desc: 'Phase 2 Architecture & Specifications document signed and verified.',
+      time: 'Just now',
+      unread: false,
+    },
+    {
+      id: 2,
+      title: '2h SLA Priority Active',
+      desc: 'ORBIT-I executive and engineering leads are on dedicated standby.',
+      time: '1h ago',
+      unread: false,
+    },
+    {
+      id: 3,
+      title: 'Private Git CI/CD Passing',
+      desc: 'Automated test suite and linting verified on private deployment branch.',
+      time: '3h ago',
+      unread: false,
+    },
+  ];
+
+  const activeNotifications = portalType === 'client' ? clientNotifications : adminNotifications;
+
+  const adminMessages = [
     {
       id: 1,
       sender: 'Tariq Mansoor',
@@ -139,6 +165,26 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
       time: 'Mar 25',
     },
   ];
+
+  const clientMessages = [
+    {
+      id: 1,
+      sender: 'Abdul Samad Rind',
+      org: 'Founder & CEO, ORBIT-I',
+      preview: 'Sprint milestone architecture documentation is ready for your review in Documents tab.',
+      time: '10:14 AM',
+    },
+    {
+      id: 2,
+      sender: 'Lead Solutions Architect',
+      org: 'ORBIT-I Engineering Core',
+      preview: 'Staging environment webhook endpoints deployed. Ready for team testing.',
+      time: 'Yesterday',
+    },
+  ];
+
+  const activeMessages = portalType === 'client' ? clientMessages : adminMessages;
+  const activeMessageCount = portalType === 'client' ? clientMessages.length : inquiryCount;
 
   const defaultAdminName = 'Abdul Samad Rind';
   const defaultAdminRole = 'Superadmin (Root)';
@@ -264,16 +310,18 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <div className="p-3.5 bg-gradient-to-r from-gray-50 to-blue-50/50 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                  <span className="font-bold text-xs text-gray-900">System Telemetry &amp; Alerts</span>
+                  <span className="font-bold text-xs text-gray-900">
+                    {portalType === 'client' ? 'Project Milestones & Status' : 'System Telemetry & Alerts'}
+                  </span>
                 </div>
                 <span className="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                  <span>100% Operational</span>
+                  <span>{portalType === 'client' ? 'SLA Guaranteed' : '100% Operational'}</span>
                 </span>
               </div>
 
               <div className="divide-y divide-gray-100 max-h-72 overflow-y-auto">
-                {notifications.map((item) => (
+                {activeNotifications.map((item) => (
                   <div key={item.id} className="p-3 hover:bg-gray-50 transition-colors text-xs space-y-0.5">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-gray-900 flex items-center gap-1.5">
@@ -288,7 +336,9 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               </div>
 
               <div className="p-2.5 bg-gray-50 border-t border-gray-200 flex items-center justify-between">
-                <span className="text-[10px] text-gray-500">Live Uptime SLA: 99.98%</span>
+                <span className="text-[10px] text-gray-500">
+                  {portalType === 'client' ? 'Direct Lead: Abdul Samad Rind' : 'Live Uptime SLA: 99.98%'}
+                </span>
                 <button
                   onClick={() => setNotificationsOpen(false)}
                   className="text-xs font-semibold text-blue-600 hover:text-blue-800"
@@ -305,12 +355,12 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
           <button
             onClick={() => setMessagesOpen(!messagesOpen)}
             className="p-2 hover:bg-white/15 rounded-full transition-colors relative text-white/90 hover:text-white focus:outline-none"
-            title="Messages & Client Inquiries"
+            title={portalType === 'client' ? 'Direct Channel with ORBIT-I Leadership' : 'Messages & Client Inquiries'}
             aria-label="Messages"
           >
             <Mail className="h-4.5 w-4.5" />
             <span className="absolute -top-0.5 -right-0.5 bg-red-500 text-white text-[10px] font-bold h-4 w-4 rounded-full flex items-center justify-center border-2 border-[#2f6fed] shadow-xs">
-              {inquiryCount}
+              {activeMessageCount}
             </span>
           </button>
 
@@ -320,15 +370,17 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
               <div className="p-3.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Mail className="h-4 w-4 text-blue-600" />
-                  <span className="font-bold text-xs text-gray-900">Direct Inquiries &amp; Transcripts</span>
+                  <span className="font-bold text-xs text-gray-900">
+                    {portalType === 'client' ? 'Direct Channel with ORBIT-I' : 'Direct Inquiries & Transcripts'}
+                  </span>
                 </div>
                 <span className="text-[10px] bg-blue-100 text-blue-600 font-bold px-2 py-0.5 rounded-full">
-                  {inquiryCount} Total
+                  {portalType === 'client' ? 'ORBIT-I Leads' : `${inquiryCount} Total`}
                 </span>
               </div>
 
               <div className="divide-y divide-gray-100 max-h-72 overflow-y-auto">
-                {recentMessages.map((msg) => (
+                {activeMessages.map((msg) => (
                   <div key={msg.id} className="p-3 hover:bg-blue-50/50 transition-colors text-xs">
                     <div className="flex items-center justify-between">
                       <span className="font-semibold text-gray-900">{msg.sender}</span>
@@ -345,7 +397,7 @@ export const DashboardHeader: React.FC<DashboardHeaderProps> = ({
                   onClick={() => setMessagesOpen(false)}
                   className="text-xs font-semibold text-blue-600 hover:text-blue-800"
                 >
-                  Manage Inquiries Hub →
+                  {portalType === 'client' ? 'Open Dedicated Support Hub →' : 'Manage Inquiries Hub →'}
                 </button>
               </div>
             </div>

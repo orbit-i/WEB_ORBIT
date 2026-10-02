@@ -1,29 +1,30 @@
 import React, { useState } from 'react';
 import {
-  TrendingUp,
-  MoreVertical,
-  Minus,
-  Maximize2,
-  X,
-  Info,
+  CheckCircle2,
+  Clock,
+  Download,
   FileText,
   ShieldCheck,
-  CheckCircle2,
-  Download,
-  Terminal,
-  GitBranch,
-  Layers,
-  Clock,
+  Send,
+  MessageSquare,
+  Upload,
+  ArrowRight,
   ExternalLink,
-  Cpu,
+  GitBranch,
+  CreditCard,
+  Building2,
+  Lock,
+  PhoneCall,
+  Mail,
+  Zap,
 } from 'lucide-react';
-import { WorldMapWidget } from './WorldMapWidget';
 import { ClientProject } from '../../types';
+import { COMPANY_INFO } from '../../data/orbitData';
 
 interface ClientDashboardViewProps {
   project: ClientProject;
   onDownloadDoc?: (docName: string) => void;
-  onNavigateTab?: (tab: 'overview' | 'repo' | 'docs' | 'support') => void;
+  onNavigateTab?: (tab: 'overview' | 'repo' | 'docs' | 'support' | 'invoices') => void;
 }
 
 export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
@@ -31,405 +32,323 @@ export const ClientDashboardView: React.FC<ClientDashboardViewProps> = ({
   onDownloadDoc,
   onNavigateTab,
 }) => {
-  const [hoveredSprint, setHoveredSprint] = useState<string | null>(null);
+  const [quickMessage, setQuickMessage] = useState('');
+  const [quickMsgSent, setQuickMsgSent] = useState(false);
 
-  // Client Sprint Velocity Data (Dual bars: Planned vs Completed Story Points)
-  const sprintData = [
-    { name: 'Spr 1', planned: 8.0, completed: 8.0, pts: '40/40 pts' },
-    { name: 'Spr 2', planned: 9.0, completed: 9.0, pts: '45/45 pts' },
-    { name: 'Spr 3', planned: 7.5, completed: 7.5, pts: '38/38 pts' },
-    { name: 'Spr 4', planned: 8.5, completed: 8.2, pts: '42/44 pts' },
-    { name: 'Spr 5', planned: 9.5, completed: 9.5, pts: '48/48 pts' },
-    { name: 'Spr 6', planned: 9.0, completed: 7.0, pts: '35/45 pts (Current)' },
-    { name: 'Spr 7', planned: 8.5, completed: 0.0, pts: 'Upcoming' },
-  ];
+  const handleQuickSend = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!quickMessage.trim()) return;
+    setQuickMsgSent(true);
+    setTimeout(() => {
+      setQuickMessage('');
+      setQuickMsgSent(false);
+    }, 4000);
+  };
 
-  // Milestone Progress bars
-  const milestoneProgress = [
-    { title: 'Phase 1: Architecture & Data Modeling', percent: 100, color: 'bg-[#2f6fed]', status: 'Completed' },
-    { title: 'Phase 2: Relational Schema & Core APIs', percent: 100, color: 'bg-[#10b981]', status: 'Completed' },
-    { title: 'Phase 3: Real-Time Ingestion & Driver Portal', percent: 78, color: 'bg-[#f59e0b]', status: 'In Progress' },
-    { title: 'Phase 4: Security Audit & Penetration Tests', percent: 45, color: 'bg-[#ef4444]', status: 'Scheduled' },
-  ];
-
-  // Artifact files
-  const artifacts = [
-    { name: 'System_Architecture_v2.4.pdf', size: '2.4 MB', type: 'PDF Spec', badge: 'ARCH' },
-    { name: 'Security_Penetration_Audit_Q1.pdf', size: '1.8 MB', type: 'Audit Report', badge: 'AUDIT' },
-    { name: 'Database_Schema_Migration_Plan.sql', size: '142 KB', type: 'SQL Schema', badge: 'SCHEMA' },
-    { name: 'Driver_Telemetry_Webhook_Contract.json', size: '94 KB', type: 'API Spec', badge: 'API' },
+  const phases = [
+    {
+      name: 'Phase 1: Technical Architecture & Domain Modeling',
+      status: 'Completed',
+      percent: 100,
+      badge: 'VERIFIED',
+      desc: 'System architecture blueprint, data dictionary, and tech stack provisioning.',
+    },
+    {
+      name: 'Phase 2: Relational Schema & Secure Backend APIs',
+      status: 'Completed',
+      percent: 100,
+      badge: 'VERIFIED',
+      desc: 'High-throughput RESTful endpoints, database migrations, and authentication.',
+    },
+    {
+      name: 'Phase 3: Core Business Features & Real-Time Engine',
+      status: 'In Progress',
+      percent: 78,
+      badge: 'CURRENT ACTIVE SPRINT',
+      desc: 'Front-end interfaces, state synchronization, and webhook integrations.',
+    },
+    {
+      name: 'Phase 4: Security Audit, Penetration Test & Deployment',
+      status: 'Scheduled',
+      percent: 30,
+      badge: 'NEXT MILESTONE',
+      desc: 'Vulnerability assessment, staging UAT sign-off, and production launch.',
+    },
   ];
 
   return (
     <div className="space-y-6">
-      {/* ========================================================================= */}
-      {/* TOP ROW: WEEKLY STATUS (CARD 1) + 2 VIBRANT STAT CARDS (CARDS 2 & 3)     */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* CARD 1: SPRINT VELOCITY & MILESTONE STATUS (8 COLUMNS) */}
-        <div className="lg:col-span-8 bg-white rounded-2xl p-6 border border-gray-150 shadow-xs flex flex-col justify-between">
-          {/* Card Window Header */}
-          <div className="flex items-center justify-between pb-4 border-b border-gray-100">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                  Sprint Velocity &amp; Milestone Velocity
-                </h3>
-                <span className="text-[10px] font-bold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
-                  {project.status} ({project.progressPercent}%)
-                </span>
-              </div>
-              <p className="text-xs text-gray-400 mt-0.5">
-                Contract: <span className="font-semibold text-gray-700">{project.title}</span> · {project.serviceType}
-              </p>
+      {/* 1. Project Header Banner - Clean & Solid */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 sm:p-8 shadow-xs">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold rounded-full font-mono">
+                ACTIVE CONTRACT
+              </span>
+              <span className="text-xs font-semibold text-gray-500">
+                Client: <strong className="text-gray-900">{project.clientOrg}</strong>
+              </span>
             </div>
-
-            {/* Window control buttons (_ [] X) */}
-            <div className="flex items-center gap-1.5 text-gray-400">
-              <button className="p-1 hover:text-black rounded" title="Minimize">
-                <Minus className="h-3.5 w-3.5" />
-              </button>
-              <button className="p-1 hover:text-black rounded" title="Maximize">
-                <Maximize2 className="h-3.5 w-3.5" />
-              </button>
-              <button className="p-1 hover:text-red-500 rounded" title="Close">
-                <X className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
+              {project.title}
+            </h2>
+            <p className="text-xs sm:text-sm text-gray-600 max-w-2xl leading-relaxed">
+              Engineering delivery for {project.serviceType}. All deliverables are built under dedicated sprint contracts with 100% intellectual property assignment to {project.clientOrg}.
+            </p>
           </div>
 
-          {/* Main Body: Dual Bar Chart on Left, Milestone Completion on Right */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 py-6 items-center">
-            {/* Left 60%: Dual Grouped Bar Chart (Sprint Points) */}
-            <div className="md:col-span-7">
-              <div className="flex items-center justify-between text-[11px] text-gray-500 mb-3 px-2">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#2f6fed]"></span>
-                    <span>Planned Points</span>
-                  </span>
-                  <span className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-sm bg-[#10b981]"></span>
-                    <span>Accepted Points</span>
-                  </span>
-                </div>
-                <span className="font-mono text-[10px] text-gray-400">Target: 10 pts</span>
+          <div className="flex flex-col sm:flex-row lg:flex-col items-start lg:items-end gap-3 shrink-0">
+            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-right min-w-[200px]">
+              <span className="text-[11px] font-mono text-gray-500 uppercase block font-semibold">
+                Overall Milestone Progress
+              </span>
+              <div className="text-3xl font-black text-blue-600 font-mono mt-0.5">
+                {project.progressPercent}%
               </div>
-
-              {/* Chart Grid Lines & Vertical Bars Container */}
-              <div className="relative h-52 sm:h-56 flex items-end justify-between px-3 pt-6 border-b border-gray-200">
-                {/* Horizontal reference lines */}
-                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-40">
-                  <div className="border-b border-gray-200 w-full flex items-center justify-end text-[9px] text-gray-400 pr-1">10</div>
-                  <div className="border-b border-gray-200 w-full flex items-center justify-end text-[9px] text-gray-400 pr-1">7.5</div>
-                  <div className="border-b border-gray-200 w-full flex items-center justify-end text-[9px] text-gray-400 pr-1">5.0</div>
-                  <div className="border-b border-gray-200 w-full flex items-center justify-end text-[9px] text-gray-400 pr-1">2.5</div>
-                  <div className="w-full flex items-center justify-end text-[9px] text-gray-400 pr-1">0</div>
-                </div>
-
-                {/* Sprint Columns */}
-                {sprintData.map((item) => {
-                  const blueHeight = (item.planned / 10) * 100;
-                  const tealHeight = (item.completed / 10) * 100;
-                  const isHovered = hoveredSprint === item.name;
-
-                  return (
-                    <div
-                      key={item.name}
-                      onMouseEnter={() => setHoveredSprint(item.name)}
-                      onMouseLeave={() => setHoveredSprint(null)}
-                      className="relative flex flex-col items-center justify-end h-full z-10 w-9 sm:w-11 cursor-pointer group"
-                    >
-                      {/* Tooltip */}
-                      {isHovered && (
-                        <div className="absolute -top-12 bg-gray-900 text-white text-[10px] font-mono py-1 px-2 rounded shadow-lg pointer-events-none z-20 whitespace-nowrap animate-in fade-in duration-100">
-                          {item.name}: {item.pts}
-                        </div>
-                      )}
-
-                      {/* Grouped Dual Bars */}
-                      <div className="flex items-end gap-1.5 h-full">
-                        {/* Blue Bar */}
-                        <div
-                          style={{ height: `${blueHeight}%` }}
-                          className="w-2.5 sm:w-3.5 bg-[#2f6fed] hover:bg-blue-600 rounded-t-sm transition-all duration-300"
-                        ></div>
-                        {/* Teal Bar */}
-                        <div
-                          style={{ height: `${tealHeight}%` }}
-                          className="w-2.5 sm:w-3.5 bg-[#10b981] hover:bg-emerald-600 rounded-t-sm transition-all duration-300"
-                        ></div>
-                      </div>
-
-                      {/* Label */}
-                      <span className="text-[10px] font-semibold text-gray-500 mt-2">
-                        {item.name}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Right 40%: Milestone Completion */}
-            <div className="md:col-span-5 md:border-l md:border-gray-150 md:pl-6 space-y-4">
-              <div className="flex items-center justify-between pb-1">
-                <h4 className="text-sm font-bold text-gray-800">Contract Milestones</h4>
-                <span className="text-[10px] text-emerald-600 font-bold font-mono">
-                  {project.progressPercent}% Signed
-                </span>
-              </div>
-
-              <div className="space-y-3.5">
-                {milestoneProgress.map((m) => (
-                  <div key={m.title} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs font-semibold">
-                      <span className="text-gray-700 text-[11px] truncate max-w-[130px]">
-                        {m.title}
-                      </span>
-                      <span className="text-gray-500 font-mono text-[10px]">
-                        {m.percent}%
-                      </span>
-                    </div>
-                    <div className="w-full bg-gray-100 rounded-full h-2 overflow-hidden">
-                      <div
-                        style={{ width: `${m.percent}%` }}
-                        className={`h-full rounded-full transition-all duration-500 ${m.color}`}
-                      ></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom KPI Metric Tickers (4 Columns from Image) */}
-          <div className="pt-4 border-t border-gray-100 grid grid-cols-2 sm:grid-cols-4 gap-4 text-left">
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-                <span>▲ 78%</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                Phase 3 Active
-              </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                Sprint Velocity
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-blue-600">
-                <span>▲ 99.98%</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                High SLA
-              </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                Infrastructure Uptime
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-purple-600">
-                <span>▲ 3/3</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                Grade A+
-              </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                Security Audits
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="flex items-center gap-1.5 text-[11px] font-semibold text-emerald-600">
-                <span>0 Open</span>
-              </div>
-              <div className="text-base sm:text-lg font-bold text-gray-900 tracking-tight">
-                Zero Blockers
-              </div>
-              <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold">
-                Critical Bugs
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* RIGHT COLUMN (4 COLUMNS): TWO VIBRANT SOLID STAT CARDS */}
-        <div className="lg:col-span-4 flex flex-col justify-between gap-6">
-          {/* CARD 2: VIBRANT SOLID BLUE STAT CARD */}
-          <div className="bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[170px]">
-            <div className="flex items-center justify-between text-white/90">
-              <span className="text-xs font-bold tracking-wide uppercase">Staging VPS Node</span>
-              <button className="text-white/70 hover:text-white">
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="my-2">
-              <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                99.98%
-              </div>
-              <div className="text-xs text-white/80 mt-0.5 font-medium">
-                Live environment availability
-              </div>
-            </div>
-
-            {/* White Mini Vertical Bar Chart Graphic */}
-            <div className="flex items-end gap-1.5 h-10 pt-2">
-              {[40, 60, 50, 80, 55, 90, 70, 100, 85, 95].map((h, i) => (
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
                 <div
-                  key={i}
-                  style={{ height: `${h}%` }}
-                  className="w-1.5 bg-white/90 rounded-xs"
-                ></div>
-              ))}
-            </div>
-          </div>
-
-          {/* CARD 3: VIBRANT SOLID RED/CORAL STAT CARD */}
-          <div className="bg-gradient-to-br from-[#ef4444] to-[#dc2626] text-white rounded-2xl p-5 sm:p-6 shadow-md relative overflow-hidden flex flex-col justify-between min-h-[170px]">
-            <div className="flex items-center justify-between text-white/90">
-              <span className="text-xs font-bold tracking-wide uppercase">Sprint 6 Sign-Off</span>
-              <button className="text-white/70 hover:text-white">
-                <MoreVertical className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="my-2">
-              <div className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">
-                78% Completed
-              </div>
-              <div className="text-xs text-white/80 mt-0.5 font-medium">
-                Pending: Webhook Delivery &amp; UAT
-              </div>
-            </div>
-
-            {/* Stylized White Area/Spline Wave SVG Graphic */}
-            <div className="w-full h-10 relative overflow-hidden pt-1">
-              <svg
-                viewBox="0 0 300 60"
-                className="w-full h-full"
-                preserveAspectRatio="none"
-              >
-                <defs>
-                  <linearGradient id="clientWhiteWave" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
-                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0.05" />
-                  </linearGradient>
-                </defs>
-                <path
-                  d="M 0,40 Q 40,15 80,30 T 160,18 T 240,32 T 300,8 L 300,60 L 0,60 Z"
-                  fill="url(#clientWhiteWave)"
+                  style={{ width: `${project.progressPercent}%` }}
+                  className="bg-blue-600 h-full rounded-full transition-all duration-500"
                 />
-                <path
-                  d="M 0,40 Q 40,15 80,30 T 160,18 T 240,32 T 300,8"
-                  fill="none"
-                  stroke="#ffffff"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-              </svg>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ========================================================================= */}
-      {/* BOTTOM ROW: EARNINGS (CARD 4) + ARTIFACTS (CARD 5) + TELEMETRY MAP (CARD 6) */}
-      {/* ========================================================================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* CARD 4: CONTRACT ALLOCATION & HOURS */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-150 shadow-xs flex flex-col justify-between">
+      {/* 2. Key Action Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <button
+          onClick={() => onNavigateTab && onNavigateTab('support')}
+          className="p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-600 transition-all text-left group shadow-xs"
+        >
+          <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:bg-blue-600 group-hover:text-white transition-colors">
+            <MessageSquare className="w-5 h-5" />
+          </div>
+          <h4 className="text-sm font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+            Talk to ORBIT-I Leads
+          </h4>
+          <p className="text-xs text-gray-500 mt-1">
+            Direct priority dispatch with 2-hour SLA response from senior architects.
+          </p>
+        </button>
+
+        <button
+          onClick={() => onNavigateTab && onNavigateTab('docs')}
+          className="p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-600 transition-all text-left group shadow-xs"
+        >
+          <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
+            <Download className="w-5 h-5" />
+          </div>
+          <h4 className="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors">
+            Download Deliverables
+          </h4>
+          <p className="text-xs text-gray-500 mt-1">
+            {project.documents.length} verified technical blueprints, schemas, and SLA artifacts.
+          </p>
+        </button>
+
+        <button
+          onClick={() => onNavigateTab && onNavigateTab('repo')}
+          className="p-5 bg-white border border-gray-200 rounded-2xl hover:border-blue-600 transition-all text-left group shadow-xs"
+        >
+          <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center mb-3 group-hover:bg-purple-600 group-hover:text-white transition-colors">
+            <GitBranch className="w-5 h-5" />
+          </div>
+          <h4 className="text-sm font-bold text-gray-900 group-hover:text-purple-600 transition-colors">
+            Private Git &amp; Source Code
+          </h4>
+          <p className="text-xs text-gray-500 mt-1">
+            Protected repository access, staging deployments, and CI/CD pipelines.
+          </p>
+        </button>
+      </div>
+
+      {/* 3. Milestone Delivery Roadmap & Quick Message Hub */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Milestone Progress (7 Cols) */}
+        <div className="lg:col-span-7 bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-4">
+          <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+            <h3 className="text-base font-bold text-gray-900">
+              Contract Milestone Roadmap
+            </h3>
+            <span className="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+              On Schedule
+            </span>
+          </div>
+
+          <div className="space-y-4">
+            {phases.map((ph, idx) => (
+              <div key={idx} className="p-4 bg-gray-50/70 rounded-xl border border-gray-200/80 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {ph.percent === 100 ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                    ) : (
+                      <Clock className="w-4 h-4 text-blue-600 shrink-0" />
+                    )}
+                    <span className="text-xs font-bold text-gray-900">{ph.name}</span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded-full ${
+                      ph.percent === 100
+                        ? 'bg-emerald-100 text-emerald-800'
+                        : ph.percent > 0
+                        ? 'bg-blue-100 text-blue-800'
+                        : 'bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {ph.percent}%
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-500 pl-6">{ph.desc}</p>
+                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden ml-6 max-w-[calc(100%-1.5rem)]">
+                  <div
+                    style={{ width: `${ph.percent}%` }}
+                    className={`h-full rounded-full ${
+                      ph.percent === 100 ? 'bg-emerald-500' : 'bg-blue-600'
+                    }`}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Right Column: Direct Dispatch to ORBIT-I Company (5 Cols) */}
+        <div className="lg:col-span-5 bg-white rounded-2xl border border-gray-200 p-6 shadow-xs flex flex-col justify-between space-y-4">
           <div>
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm sm:text-base font-bold text-gray-800 tracking-tight">Contract Retainer</h4>
-              <button className="text-gray-400 hover:text-gray-600" title="Retainer Details">
-                <Info className="h-4 w-4" />
+            <div className="pb-3 border-b border-gray-100">
+              <span className="text-[10px] font-mono uppercase font-bold text-blue-600 tracking-wider block">
+                Direct Communication Rail
+              </span>
+              <h3 className="text-base font-bold text-gray-900 mt-0.5">
+                Send Note to ORBIT-I Team
+              </h3>
+              <p className="text-xs text-gray-500 mt-1">
+                Your message is received directly by Abdul Samad Rind (Founder &amp; CEO) and the assigned lead engineers.
+              </p>
+            </div>
+
+            {quickMsgSent ? (
+              <div className="my-6 p-4 bg-emerald-50 border border-emerald-200 rounded-xl text-center space-y-1">
+                <CheckCircle2 className="w-6 h-6 text-emerald-600 mx-auto" />
+                <h4 className="text-xs font-bold text-emerald-900">Message Received</h4>
+                <p className="text-[11px] text-emerald-700">
+                  Abdul Samad Rind and the team have been notified. Response incoming shortly.
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleQuickSend} className="space-y-3 mt-4">
+                <div>
+                  <label className="block text-[11px] font-semibold text-gray-700 mb-1">
+                    Quick Specification or Question
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={quickMessage}
+                    onChange={(e) => setQuickMessage(e.target.value)}
+                    placeholder="Type requirements, revision request, or schedule question..."
+                    className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl text-xs text-gray-900 focus:bg-white focus:border-blue-600 focus:outline-none transition-colors"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>Send to Company Leads</span>
+                </button>
+              </form>
+            )}
+          </div>
+
+          {/* Assigned Executive Lead Info */}
+          <div className="pt-4 border-t border-gray-100 bg-gray-50/80 -mx-6 -mb-6 p-5 rounded-b-2xl flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full overflow-hidden border border-gray-300 shrink-0 bg-blue-600">
+                <img
+                  src="/AbdulSamad.jpeg"
+                  alt="Abdul Samad Rind"
+                  className="w-full h-full object-cover object-top"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              </div>
+              <div>
+                <span className="text-[10px] uppercase font-bold text-gray-400 font-mono block">
+                  Lead Executive Assigned
+                </span>
+                <span className="text-xs font-bold text-gray-900 block">Abdul Samad Rind</span>
+                <span className="text-[11px] text-blue-600 font-semibold block">Founder &amp; CEO</span>
+              </div>
+            </div>
+
+            <a
+              href={`https://wa.me/923190375751`}
+              target="_blank"
+              rel="noreferrer"
+              className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors shadow-xs"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>WhatsApp</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {/* 4. Verified Deliverables Section */}
+      <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-xs space-y-4">
+        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+          <div>
+            <h3 className="text-base font-bold text-gray-900">
+              Verified Project Deliverables
+            </h3>
+            <p className="text-xs text-gray-500 mt-0.5">
+              Official technical specifications, architecture blueprints, and cryptographic sign-offs.
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigateTab && onNavigateTab('docs')}
+            className="text-xs font-bold text-blue-600 hover:text-blue-700 flex items-center gap-1"
+          >
+            <span>View All Documents</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          {project.documents.map((doc, idx) => (
+            <div
+              key={idx}
+              className="p-4 bg-gray-50 border border-gray-200 rounded-xl flex items-center justify-between hover:border-blue-500 transition-colors group"
+            >
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2.5 bg-white border border-gray-200 rounded-lg text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition-colors shrink-0">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div className="truncate min-w-0">
+                  <span className="text-xs font-bold text-gray-900 block truncate group-hover:text-blue-600 transition-colors">
+                    {doc.name}
+                  </span>
+                  <span className="text-[11px] text-gray-500 font-mono">
+                    {doc.type} · {doc.size}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => onDownloadDoc && onDownloadDoc(doc.name)}
+                className="p-2 bg-white hover:bg-blue-600 hover:text-white text-gray-700 rounded-lg border border-gray-300 transition-colors ml-2 shrink-0 shadow-2xs"
+                title="Download Deliverable"
+              >
+                <Download className="w-3.5 h-3.5" />
               </button>
             </div>
-            <p className="text-[11px] text-gray-400 mt-0.5">Disbursed milestone allocations</p>
-          </div>
-
-          <div className="my-4">
-            <div className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
-              $34,500.00
-            </div>
-            <div className="flex items-center gap-1.5 text-xs text-emerald-600 font-bold mt-1">
-              <span>78% Disbursed of Milestone</span>
-              <span>▲</span>
-            </div>
-          </div>
-
-          {/* Mini Purple Bar Chart */}
-          <div className="pt-2 border-t border-gray-100">
-            <div className="flex items-end justify-between gap-1 h-12 pt-2">
-              {[35, 50, 40, 70, 55, 85, 65, 95, 75, 90, 80, 85, 92, 88, 70].map((h, i) => (
-                <div
-                  key={i}
-                  style={{ height: `${h}%` }}
-                  className="w-full rounded-xs bg-[#8b5cf6] hover:bg-purple-600 transition-all duration-200"
-                ></div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* CARD 5: RECENTLY DELIVERED ARTIFACTS */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-150 shadow-xs flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <div>
-                <h4 className="text-sm sm:text-base font-bold text-gray-800 tracking-tight">
-                  Recently Delivered Artifacts
-                </h4>
-                <p className="text-[11px] text-gray-400 mt-0.5">Signed deliverables &amp; SHA-256 specs</p>
-              </div>
-              <span className="text-[10px] text-emerald-600 font-bold">Verified</span>
-            </div>
-
-            <div className="divide-y divide-gray-100">
-              {artifacts.map((art) => (
-                <div key={art.name} className="py-2.5 flex items-center justify-between gap-3 group">
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
-                      <FileText className="h-4 w-4" />
-                    </div>
-                    <div className="truncate">
-                      <div className="text-xs font-bold text-gray-900 truncate">
-                        {art.name}
-                      </div>
-                      <div className="text-[10px] text-gray-400">
-                        {art.size} · {art.type}
-                      </div>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => onDownloadDoc && onDownloadDoc(art.name)}
-                    className="p-1.5 hover:bg-gray-100 text-gray-600 hover:text-black rounded-lg transition-colors shrink-0"
-                    title={`Download ${art.name}`}
-                  >
-                    <Download className="h-3.5 w-3.5" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="pt-2 border-t border-gray-100 text-center">
-            <button
-              onClick={() => onNavigateTab && onNavigateTab('docs')}
-              className="text-[11px] font-semibold text-blue-600 hover:text-blue-800"
-            >
-              Open Documents Center →
-            </button>
-          </div>
-        </div>
-
-        {/* CARD 6: VISITORS & CLUSTER TELEMETRY MAP */}
-        <div className="h-full">
-          <WorldMapWidget title="Live Node Telemetry" />
+          ))}
         </div>
       </div>
     </div>

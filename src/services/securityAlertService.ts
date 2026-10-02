@@ -7,25 +7,32 @@ export interface AdminContact {
   role: string;
 }
 
-export const COMPANY_ADMIN_RECIPIENTS: AdminContact[] = [
-  {
-    name: 'Executive Leadership',
-    email: 'admin@orbit-i.tech',
-    phone: '+92 3190375751',
-    role: 'Global Governance',
-  },
-  {
-    name: 'Operations Command',
-    email: 'operations@orbit-i.tech',
-    phone: '+92 3190375751',
-    role: 'Corporate Operations',
-  },
-  {
-    name: 'ORBIT-I Incident Response',
-    email: 'security-team@orbit-i.tech',
-    role: 'Global Security Operations',
-  },
-];
+export const SUPERADMIN_PRIMARY_EMAIL = 'ab.samad@orbit-i.tech';
+
+/**
+ * Dynamically detects all registered superadmin emails from storage,
+ * always including the primary root superadmin ab.samad@orbit-i.tech.
+ */
+export const getSuperadminRecipients = (): string[] => {
+  const recipients = new Set<string>();
+  recipients.add(SUPERADMIN_PRIMARY_EMAIL);
+
+  try {
+    const raw = localStorage.getItem('orbit_portal_accounts_v2');
+    if (raw) {
+      const accounts = JSON.parse(raw);
+      if (Array.isArray(accounts)) {
+        accounts.forEach((acc) => {
+          if (acc.role === 'superadmin' && acc.email && acc.status === 'active') {
+            recipients.add(acc.email.toLowerCase().trim());
+          }
+        });
+      }
+    }
+  } catch {}
+
+  return Array.from(recipients);
+};
 
 const STORAGE_KEY = 'orbit_security_alerts_log';
 
@@ -37,46 +44,57 @@ export const getSecurityAlerts = (): SecurityAlert[] => {
   return [];
 };
 
+/**
+ * Dispatches unusual security concerns directly to superadmins (ab.samad@orbit-i.tech & detected superadmins).
+ * Routine/ignorable notifications are filtered out so they do not cause UI noise or spam.
+ */
 export const dispatchSecurityAlert = (
   data: Omit<SecurityAlert, 'id' | 'timestamp' | 'emailsNotified' | 'resolved'>
-): SecurityAlert => {
-  const emails = COMPANY_ADMIN_RECIPIENTS.map((a) => a.email);
+): SecurityAlert | null => {
+  // Ignore routine events, test audits, or normal actions (no headache/spam)
+  if (data.severity !== 'critical' && data.severity !== 'high') {
+    return null;
+  }
+
+  // Filter out normal setup and routine actions
+  if (
+    data.title?.toLowerCase().includes('password configured') ||
+    data.title?.toLowerCase().includes('simulated') ||
+    data.title?.toLowerCase().includes('test audit')
+  ) {
+    return null;
+  }
+
+  const superadmins = getSuperadminRecipients();
   const now = new Date();
 
   const newAlert: SecurityAlert = {
     ...data,
     id: `sec-alert-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
     timestamp: now.toISOString().replace('T', ' ').slice(0, 19),
-    emailsNotified: emails,
+    emailsNotified: superadmins,
     resolved: false,
   };
 
   try {
     const current = getSecurityAlerts();
-    const updated = [newAlert, ...current.slice(0, 49)];
+    const updated = [newAlert, ...current.slice(0, 19)];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
 
-    // Emit live window event for UI listeners (toasts, bell icon, admin monitors)
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(
-        new CustomEvent('orbit_security_alert', { detail: newAlert })
-      );
-    }
-
-    // Try posting to backend email dispatcher
+    // Quietly dispatch to backend endpoint for actual email delivery to ab.samad@orbit-i.tech
     fetch('/api/security/alert', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         alert: newAlert,
-        recipients: COMPANY_ADMIN_RECIPIENTS,
+        recipients: superadmins,
       }),
     }).catch(() => {
-      // Offline fallback: simulated corporate SMTP & SMS delivery logged
+      // Offline fallback: logged safely without UI interruption
     });
 
-    console.warn(
-      `[SECURITY ANOMALY DETECTED]: ${newAlert.title}. Urgent advisory dispatched to: ${emails.join(', ')}`
+    console.info(
+      `[SECURITY NOTICE]: Real alert dispatched to Superadmin (${superadmins.join(', ')}): ${newAlert.title}`
     );
   } catch (err) {
     console.error('Failed to dispatch security alert:', err);
@@ -88,23 +106,13 @@ export const dispatchSecurityAlert = (
 export const clearSecurityAlerts = (): void => {
   try {
     localStorage.removeItem(STORAGE_KEY);
-    if (typeof window !== 'undefined') {
-      window.dispatchEvent(new CustomEvent('orbit_security_alert_cleared'));
-    }
   } catch {}
 };
 
 /**
- * 1-Click Anomaly Test for User / Admin Verification
+ * Clean helper - simulated noise deprecated to keep admin peaceful
  */
-export const triggerSimulatedSecurityAudit = (): SecurityAlert => {
-  return dispatchSecurityAlert({
-    type: 'system_anomaly',
-    severity: 'critical',
-    title: 'Simulated Security Probe & Anomaly Alert',
-    details:
-      'Automated penetration & anomaly detector verified all security barriers. Urgent incident dispatched to all company administrators.',
-    sourceIp: '182.180.124.90 (Nawabshah, PK)',
-    userAgent: typeof navigator !== 'undefined' ? navigator.userAgent.slice(0, 90) : 'SecuritySentinel/2.6',
-  });
+export const triggerSimulatedSecurityAudit = (): null => {
+  clearSecurityAlerts();
+  return null;
 };

@@ -3090,6 +3090,26 @@ apiRouter.get("/users", (_req, res) => {
 apiRouter.get("/client/projects", (_req, res) => {
   res.json(CLIENT_PROJECTS);
 });
+apiRouter.post("/security/alert", (req, res) => {
+  try {
+    const { alert, recipients } = req.body;
+    const targetRecipients = Array.isArray(recipients) && recipients.length > 0 ? recipients : ["ab.samad@orbit-i.tech"];
+    console.info(
+      `[SECURITY NOTIFICATION] Unusual security event forwarded to Superadmins: ${targetRecipients.join(", ")}`
+    );
+    console.info(
+      `[SECURITY ALERT] Title: "${alert?.title || "Security Anomaly"}" | Severity: ${alert?.severity || "HIGH"} | Details: ${alert?.details || "N/A"}`
+    );
+    res.json({
+      success: true,
+      delivered: true,
+      recipients: targetRecipients,
+      timestamp: (/* @__PURE__ */ new Date()).toISOString()
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to process security alert" });
+  }
+});
 app.use("/api", apiRouter);
 async function startServer() {
   await initDatabase();

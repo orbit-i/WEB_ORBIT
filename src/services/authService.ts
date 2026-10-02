@@ -131,14 +131,6 @@ export const setupSuperadminPassword = (
 
   saveStoredAccounts(accounts);
 
-  dispatchSecurityAlert({
-    type: 'system_anomaly',
-    severity: 'warning',
-    title: 'Superadmin Master Password Configured',
-    details: `Root Superadmin account "${target.email}" configured permanent master credentials.`,
-    sourceIp: '182.180.124.90',
-  });
-
   return { success: true, user: target };
 };
 
@@ -178,13 +170,6 @@ export const authenticateUser = (
   if (targetPortal === 'admin') {
     // Only corporate staff roles can enter Admin portal
     if (account.role === 'client' || account.portalType !== 'admin') {
-      dispatchSecurityAlert({
-        type: 'unauthorized_access',
-        severity: 'high',
-        title: 'Unauthorized Cross-Portal Access Attempt',
-        details: `Client account "${normalizedEmail}" attempted to access Executive Admin Console. Request rejected.`,
-        sourceIp: '182.180.124.90',
-      });
       return {
         success: false,
         error:

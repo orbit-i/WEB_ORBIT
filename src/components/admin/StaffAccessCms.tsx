@@ -113,10 +113,10 @@ export const StaffAccessCms: React.FC<StaffAccessCmsProps> = ({
       if (role === 'superadmin') {
         dispatchSecurityAlert({
           type: 'system_anomaly',
-          severity: 'warning',
+          severity: 'high',
           title: 'New Superadmin Role Provisioned',
           details: `A new Superadmin account "${email}" was created by ${currentUser?.name || 'Administrator'}.`,
-          sourceIp: '182.180.124.90',
+          sourceIp: 'Admin Console Session',
         });
       }
     } else {
