@@ -72,17 +72,6 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   <TwitterXIcon className="h-4 w-4" />
                 </a>
               )}
-              {companyInfo.socialLinks?.github && (
-                <a
-                  href={companyInfo.socialLinks.github}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-900 hover:text-white text-gray-700 flex items-center justify-center transition-all"
-                  title="GitHub"
-                >
-                  <GitHubIcon className="h-4 w-4" />
-                </a>
-              )}
               {companyInfo.socialLinks?.youtube && (
                 <a
                   href={companyInfo.socialLinks.youtube}
@@ -264,17 +253,6 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                 >
                   <span>Insights &amp; Engineering Blog</span>
                   <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">New</span>
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() => {
-                    setActiveTab('client-portal');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors font-medium"
-                >
-                  Client Portal
                 </button>
               </li>
               <li>

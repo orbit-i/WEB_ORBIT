@@ -25,12 +25,14 @@ import {
 } from 'lucide-react';
 import { INITIAL_CLIENTS } from '../../data/orbitData';
 import { ClientRecord, ClientProject, ClientQueryRecord, ClientPaymentRecord } from '../../types';
+import { isClientPortalEnabled, setClientPortalEnabled } from '../../services/portalConfigService';
 
 interface ClientsCmsProps {
   showNotification: (msg: string) => void;
 }
 
 export const ClientsCms: React.FC<ClientsCmsProps> = ({ showNotification }) => {
+  const [portalEnabled, setPortalEnabled] = useState<boolean>(isClientPortalEnabled());
   const [clients, setClients] = useState<ClientRecord[]>(() => {
     try {
       const saved = localStorage.getItem('orbit_admin_clients_v2');
@@ -38,6 +40,17 @@ export const ClientsCms: React.FC<ClientsCmsProps> = ({ showNotification }) => {
     } catch {}
     return INITIAL_CLIENTS;
   });
+
+  const handleTogglePortal = () => {
+    const next = !portalEnabled;
+    setPortalEnabled(next);
+    setClientPortalEnabled(next);
+    showNotification(
+      next
+        ? 'Client Organization Portal is now ONLINE & accessible.'
+        : 'Client Organization Portal is now RESTRICTED & hidden from public menus.'
+    );
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedClientId, setSelectedClientId] = useState<string>(clients[0]?.id || 'cli-001');
@@ -246,6 +259,54 @@ export const ClientsCms: React.FC<ClientsCmsProps> = ({ showNotification }) => {
           <Plus className="h-4 w-4" />
           <span>Register New Client</span>
         </button>
+      </div>
+
+      {/* Superadmin Client Portal Access Gate (ON / OFF Switch) */}
+      <div className="p-4 bg-gradient-to-r from-gray-900 to-blue-950 text-white rounded-2xl shadow-md flex flex-col sm:flex-row sm:items-center justify-between gap-4 border border-blue-900/50">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-mono font-bold uppercase tracking-wider text-blue-400">
+              Superadmin Gatekeeper
+            </span>
+            <span
+              className={`px-2 py-0.5 rounded-full text-[10px] font-mono font-bold ${
+                portalEnabled
+                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                  : 'bg-red-500/20 text-red-300 border border-red-500/40'
+              }`}
+            >
+              {portalEnabled ? 'ONLINE & ACTIVE' : 'OFFLINE & RESTRICTED'}
+            </span>
+          </div>
+          <h3 className="text-sm font-bold text-white">
+            Client Organization Portal Access Gate
+          </h3>
+          <p className="text-xs text-gray-300 max-w-xl">
+            When disabled (OFF), Client Portal links are hidden from public menus, and direct client workspace logins are restricted.
+          </p>
+        </div>
+
+        {/* ON / OFF Toggle Switch */}
+        <div className="flex items-center gap-3 shrink-0">
+          <span className="text-xs font-bold font-mono text-gray-300">
+            {portalEnabled ? 'PORTAL: ON' : 'PORTAL: OFF'}
+          </span>
+          <button
+            type="button"
+            onClick={handleTogglePortal}
+            className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+              portalEnabled ? 'bg-emerald-500' : 'bg-gray-600'
+            }`}
+            title={portalEnabled ? 'Click to Disable Client Portal' : 'Click to Enable Client Portal'}
+          >
+            <span
+              aria-hidden="true"
+              className={`pointer-events-none inline-block h-6 w-6 transform rounded-full bg-white shadow-lg ring-0 transition duration-200 ease-in-out ${
+                portalEnabled ? 'translate-x-7' : 'translate-x-0'
+              }`}
+            />
+          </button>
+        </div>
       </div>
 
       {/* Real Financial & Operations Metrics Strip */}

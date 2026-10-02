@@ -32,7 +32,6 @@ var COMPANY_INFO = {
     instagram: "https://www.instagram.com/orbiti_private_limited?utm_source=qr&stkn=ZnE1c25zdG96Y3Zp",
     tiktok: "https://www.tiktok.com/@orbitiprivatelimited",
     twitter: "https://x.com/orbit_i_ltd",
-    github: "https://github.com/orbit-i-ltd",
     youtube: "https://youtube.com/@orbit-i-ltd"
   },
   established: "2024",

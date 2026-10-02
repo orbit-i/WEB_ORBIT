@@ -22,6 +22,8 @@ import { ArticleDetailView } from './components/ArticleDetailView';
 import { CareersSection } from './components/CareersSection';
 import { OrbitLoader } from './components/common/OrbitLoader';
 import { useCms } from './context/CmsContext';
+import { isClientPortalEnabled } from './services/portalConfigService';
+import { Lock } from 'lucide-react';
 
 export function App() {
   const { maintenanceSettings } = useCms();
@@ -231,7 +233,7 @@ export function App() {
   const isPortalView = activeTab === 'admin-portal' || activeTab === 'client-portal' || activeTab === 'superadmin';
 
   return (
-    <div className="min-h-screen bg-white text-black flex flex-col font-sans selection:bg-black selection:text-white relative">
+    <div className="min-h-screen bg-white dark:bg-[#0b0f19] text-gray-900 dark:text-gray-100 flex flex-col font-sans selection:bg-blue-600 selection:text-white relative transition-colors duration-200">
       {/* Navbar with Contact Us placed directly beside hamburger menu button (Hidden inside executive portals) */}
       {!isPortalView && (
         <Navbar
@@ -319,11 +321,35 @@ export function App() {
           />
         )}
 
-        {/* 9. CLIENT PORTAL VIEW (Protected by PortalAuthGate with 3-attempt limit & time lockout) */}
+        {/* 9. CLIENT PORTAL VIEW (Controlled by Superadmin Gatekeeper ON/OFF) */}
         {activeTab === 'client-portal' && (
-          <PortalAuthGate portalType="client">
-            <ClientPortal setActiveTab={handleTabChange} />
-          </PortalAuthGate>
+          isClientPortalEnabled() ? (
+            <PortalAuthGate portalType="client">
+              <ClientPortal setActiveTab={handleTabChange} />
+            </PortalAuthGate>
+          ) : (
+            <div className="min-h-screen py-24 bg-[#fafbfc] dark:bg-gray-900 flex items-center justify-center px-4">
+              <div className="max-w-md w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-3xl p-8 sm:p-10 text-center space-y-4 shadow-sm">
+                <div className="w-14 h-14 rounded-2xl bg-amber-50 dark:bg-amber-950/40 text-amber-600 flex items-center justify-center mx-auto border border-amber-200 dark:border-amber-800">
+                  <Lock className="h-7 w-7" />
+                </div>
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  Client Portal Offline
+                </h2>
+                <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
+                  Client Organization workspaces are temporarily restricted by ORBIT-I System Administration. Please contact company executive leadership for access assistance.
+                </p>
+                <div className="pt-2">
+                  <button
+                    onClick={() => handleTabChange('home')}
+                    className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-full text-xs font-bold transition-colors"
+                  >
+                    Return to Homepage
+                  </button>
+                </div>
+              </div>
+            </div>
+          )
         )}
 
         {/* 8. ADMIN PORTAL VIEW (Hidden from public navigation, protected by strict PortalAuthGate) */}

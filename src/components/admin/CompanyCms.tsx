@@ -67,7 +67,6 @@ export const CompanyCms: React.FC<CompanyCmsProps> = ({ showNotification }) => {
   const standardSocialKeys = [
     'linkedin',
     'twitter',
-    'github',
     'youtube',
     'discord',
     'telegram',
@@ -333,25 +332,6 @@ export const CompanyCms: React.FC<CompanyCmsProps> = ({ showNotification }) => {
                   setForm({
                     ...form,
                     socialLinks: { ...form.socialLinks, twitter: e.target.value },
-                  })
-                }
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-[#2f6fed] focus:outline-none"
-              />
-            </div>
-
-            {/* GitHub */}
-            <div>
-              <label className="block text-xs font-mono font-semibold text-gray-700 mb-1.5">
-                GitHub Organization URL
-              </label>
-              <input
-                type="url"
-                placeholder="https://github.com/orbit-i-ltd"
-                value={form.socialLinks?.github || ''}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    socialLinks: { ...form.socialLinks, github: e.target.value },
                   })
                 }
                 className="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:border-[#2f6fed] focus:outline-none"

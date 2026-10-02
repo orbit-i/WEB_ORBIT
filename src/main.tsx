@@ -37,10 +37,13 @@ try {
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import { CmsProvider } from './context/CmsContext.tsx';
+import { ThemeProvider } from './context/ThemeContext.tsx';
 import './index.css';
 
 createRoot(document.getElementById('root')!).render(
-  <CmsProvider>
-    <App />
-  </CmsProvider>
+  <ThemeProvider>
+    <CmsProvider>
+      <App />
+    </CmsProvider>
+  </ThemeProvider>
 );

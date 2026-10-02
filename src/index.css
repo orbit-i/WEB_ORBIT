@@ -11,9 +11,111 @@
     background-color: #ffffff;
     color: #111827;
     letter-spacing: -0.011em;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   code, pre, .font-mono {
     font-family: var(--font-mono);
   }
+}
+
+/* -------------------------------------------------------------------------
+ * Comprehensive Dark Mode Theme Engine
+ * ------------------------------------------------------------------------- */
+html.dark {
+  color-scheme: dark;
+}
+
+html.dark body {
+  background-color: #0b0f19;
+  color: #f1f5f9;
+}
+
+/* Background surfaces */
+html.dark .bg-white {
+  background-color: #0f172a !important;
+}
+
+html.dark .bg-\[\#fafbfc\],
+html.dark .bg-gray-50 {
+  background-color: #0b0f19 !important;
+}
+
+html.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+html.dark .bg-gray-200 {
+  background-color: #334155 !important;
+}
+
+/* Text and typography */
+html.dark .text-black,
+html.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .text-gray-800 {
+  color: #e2e8f0 !important;
+}
+
+html.dark .text-gray-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-gray-600 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-gray-500 {
+  color: #64748b !important;
+}
+
+/* Borders and dividers */
+html.dark .border-gray-200,
+html.dark .border-gray-200\/90,
+html.dark .border-gray-200\/80,
+html.dark .border-gray-300,
+html.dark .border-gray-100 {
+  border-color: #1e293b !important;
+}
+
+/* Header and Navigation Bar */
+html.dark header.bg-white\/95,
+html.dark header.bg-white\/98 {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-bottom-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* Inputs and Forms */
+html.dark input,
+html.dark textarea,
+html.dark select {
+  background-color: #1e293b !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder {
+  color: #64748b !important;
+}
+
+/* Prose and articles */
+html.dark .prose {
+  color: #cbd5e1 !important;
+}
+
+html.dark .prose h1,
+html.dark .prose h2,
+html.dark .prose h3,
+html.dark .prose h4 {
+  color: #f8fafc !important;
+}
+
+html.dark .prose blockquote {
+  background-color: #1e293b !important;
+  color: #f1f5f9 !important;
+  border-left-color: #f59e0b !important;
 }
