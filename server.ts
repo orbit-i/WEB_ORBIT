@@ -34,6 +34,22 @@ import {
   addArticle,
   updateArticle,
   deleteArticle,
+  getAccounts,
+  setupSuperadmin,
+  createAccount,
+  updateAccount,
+  deleteAccount,
+  getClients,
+  saveClients,
+  getPortalConfig,
+  setPortalConfig,
+  getPartners,
+  savePartners,
+  addPartner,
+  updatePartner,
+  deletePartner,
+  getPartnersSettings,
+  updatePartnersSettings,
 } from './server/db.js';
 import {
   DEPARTMENTS_DATA,
@@ -114,7 +130,7 @@ apiRouter.use(apiRateLimiter);
 // AUTHENTICATION ENDPOINTS (Enterprise Role-Based Access Control)
 // -----------------------------------------------------------------------------
 
-apiRouter.post('/auth/login', authRateLimiter, (req: Request, res: Response): void => {
+apiRouter.post('/auth/login', authRateLimiter, async (req: Request, res: Response): Promise<void> => {
   const { email, password, portalType } = req.body;
 
   if (!email || !password) {
@@ -126,53 +142,99 @@ apiRouter.post('/auth/login', authRateLimiter, (req: Request, res: Response): vo
   const cleanPassword = String(password).trim();
   const targetMode = portalType === 'client' ? 'client' : 'admin';
 
-  // Configured Admin Credentials (reads from environment variables with secure fallback)
-  const ADMIN_ACCOUNTS = [
-    {
-      email: (process.env.ADMIN_EMAIL || 'admin@orbit-i.tech').toLowerCase(),
-      password: process.env.ADMIN_PASSWORD || 'OrbitAdmin#2026',
-      name: process.env.ADMIN_NAME || 'Executive Superadmin',
-    },
-    {
-      email: (process.env.SECONDARY_ADMIN_EMAIL || 'contactus@orbit-i.tech').toLowerCase(),
-      password: process.env.ADMIN_PASSWORD || 'OrbitAdmin#2026',
-      name: 'Corporate Administrator',
-    },
-  ];
-
-  const CLIENT_EMAIL = (process.env.CLIENT_EMAIL || 'client@orbit-i.tech').toLowerCase();
-  const CLIENT_PASSWORD = process.env.CLIENT_PASSWORD || 'Client#2026Secure';
+  // 1. Check dynamically registered / superadmin-setup accounts from storage
+  const storedAccounts = await getAccounts();
+  const matchedStored = storedAccounts.find(
+    (a) => a.email.toLowerCase() === cleanEmail && a.status === 'active'
+  );
 
   let isAuthenticated = false;
   let userName = '';
   let userRole: 'admin' | 'client' = 'client';
+  let accountRole = '';
 
-  if (targetMode === 'admin') {
-    const matched = ADMIN_ACCOUNTS.find(
-      (acc) =>
-        acc.email.toLowerCase() === cleanEmail &&
-        (timingSafeCompare(cleanPassword, acc.password) ||
-          timingSafeCompare(cleanPassword, process.env.ADMIN_PORTAL_KEY || 'orbit-i-admin-2026'))
-    );
-
-    if (matched) {
-      isAuthenticated = true;
-      userRole = 'admin';
-      userName = matched.name;
+  if (matchedStored) {
+    // If superadmin setup is pending
+    if (matchedStored.role === 'superadmin' && (matchedStored.isSetupRequired || !matchedStored.password)) {
+      res.status(200).json({
+        success: false,
+        requiresSetup: true,
+        error: 'Superadmin root account requires initial master setup. Please set your secure password.',
+      });
+      return;
     }
-  } else {
-    // Client Mode
-    const isEmailMatch =
-      cleanEmail === CLIENT_EMAIL ||
-      cleanEmail === 'client@orbit-i.tech' ||
-      cleanEmail === 'client';
 
-    const isPasswordMatch = timingSafeCompare(cleanPassword, CLIENT_PASSWORD);
+    // Role-portal separation check
+    if (targetMode === 'admin' && (matchedStored.portalType !== 'admin' || matchedStored.role === 'client')) {
+      res.status(403).json({
+        error: 'Security Policy Violation: Client accounts cannot access the Executive Admin Console.',
+      });
+      return;
+    }
 
-    if (isEmailMatch && isPasswordMatch) {
+    if (targetMode === 'client' && (matchedStored.portalType !== 'client' || matchedStored.role !== 'client')) {
+      res.status(403).json({
+        error: 'Corporate administrative staff cannot access client organization workspaces directly.',
+      });
+      return;
+    }
+
+    if (matchedStored.password && (timingSafeCompare(cleanPassword, matchedStored.password) || cleanPassword === matchedStored.password)) {
       isAuthenticated = true;
-      userRole = 'client';
-      userName = 'Tariq Mansoor (Apex Global Logistics)';
+      userName = matchedStored.name;
+      userRole = matchedStored.portalType === 'client' ? 'client' : 'admin';
+      accountRole = matchedStored.role;
+      matchedStored.lastLogin = new Date().toISOString();
+      await updateAccount(matchedStored.id, { lastLogin: matchedStored.lastLogin });
+    }
+  }
+
+  // 2. Fallback to configured Admin / Client environment credentials
+  if (!isAuthenticated) {
+    const ADMIN_ACCOUNTS = [
+      {
+        email: (process.env.ADMIN_EMAIL || 'admin@orbit-i.tech').toLowerCase(),
+        password: process.env.ADMIN_PASSWORD || 'OrbitAdmin#2026',
+        name: process.env.ADMIN_NAME || 'Executive Superadmin',
+      },
+      {
+        email: (process.env.SECONDARY_ADMIN_EMAIL || 'contactus@orbit-i.tech').toLowerCase(),
+        password: process.env.ADMIN_PASSWORD || 'OrbitAdmin#2026',
+        name: 'Corporate Administrator',
+      },
+    ];
+
+    const CLIENT_EMAIL = (process.env.CLIENT_EMAIL || 'client@orbit-i.tech').toLowerCase();
+    const CLIENT_PASSWORD = process.env.CLIENT_PASSWORD || 'Client#2026Secure';
+
+    if (targetMode === 'admin') {
+      const matched = ADMIN_ACCOUNTS.find(
+        (acc) =>
+          acc.email.toLowerCase() === cleanEmail &&
+          (timingSafeCompare(cleanPassword, acc.password) ||
+            timingSafeCompare(cleanPassword, process.env.ADMIN_PORTAL_KEY || 'orbit-i-admin-2026'))
+      );
+
+      if (matched) {
+        isAuthenticated = true;
+        userRole = 'admin';
+        userName = matched.name;
+        accountRole = 'superadmin';
+      }
+    } else {
+      const isEmailMatch =
+        cleanEmail === CLIENT_EMAIL ||
+        cleanEmail === 'client@orbit-i.tech' ||
+        cleanEmail === 'client';
+
+      const isPasswordMatch = timingSafeCompare(cleanPassword, CLIENT_PASSWORD);
+
+      if (isEmailMatch && isPasswordMatch) {
+        isAuthenticated = true;
+        userRole = 'client';
+        userName = 'Tariq Mansoor (Apex Global Logistics)';
+        accountRole = 'client';
+      }
     }
   }
 
@@ -197,7 +259,7 @@ apiRouter.post('/auth/login', authRateLimiter, (req: Request, res: Response): vo
     user: {
       name: session.name,
       email: session.email,
-      role: session.role === 'admin' ? 'Executive Administrator' : 'Authorized Enterprise Client',
+      role: accountRole || (session.role === 'admin' ? 'Executive Administrator' : 'Authorized Enterprise Client'),
       portalType: session.portalType,
       sessionStarted: new Date().toLocaleTimeString(),
     },
@@ -235,6 +297,203 @@ apiRouter.post('/auth/logout', (req: Request, res: Response): void => {
     revokeSession(token);
   }
   res.json({ success: true, message: 'Logged out successfully.' });
+});
+
+// -----------------------------------------------------------------------------
+// PORTAL GOVERNANCE & PERSISTENCE ENDPOINTS
+// -----------------------------------------------------------------------------
+
+// 1. Portal Status (Superadmin Setup Pending? Client Portal Online?)
+apiRouter.get('/portal/status', async (_req: Request, res: Response) => {
+  try {
+    const accounts = await getAccounts();
+    const rootAdmin = accounts.find((a) => a.role === 'superadmin');
+    const isSuperadminSetupPending = !rootAdmin || rootAdmin.isSetupRequired === true || !rootAdmin.password;
+    const config = await getPortalConfig();
+    res.json({
+      isSuperadminSetupPending,
+      clientPortalEnabled: !!config.clientPortalEnabled,
+      superadminEmail: rootAdmin?.email || 'ab.samad@orbit-i.tech',
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve portal status.' });
+  }
+});
+
+// 2. Setup Superadmin Master Password
+apiRouter.post('/portal/setup-superadmin', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password, name } = req.body;
+    if (!password || password.length < 8) {
+      res.status(400).json({ success: false, error: 'Password must be at least 8 characters long.' });
+      return;
+    }
+    const cleanEmail = sanitizeString(email || 'ab.samad@orbit-i.tech').toLowerCase();
+    const result = await setupSuperadmin(cleanEmail, String(password).trim(), name ? sanitizeString(name) : undefined);
+
+    if (result.success && result.user) {
+      const session = createSession({
+        name: result.user.name,
+        email: result.user.email,
+        role: 'admin',
+        portalType: 'admin',
+      });
+      res.json({
+        success: true,
+        user: result.user,
+        token: session.token,
+      });
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'Failed to initialize superadmin credentials.' });
+  }
+});
+
+// 3. Accounts List (GET)
+apiRouter.get('/portal/accounts', async (_req: Request, res: Response) => {
+  try {
+    const accounts = await getAccounts();
+    res.json(accounts);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve accounts.' });
+  }
+});
+
+// 4. Provision Account (POST)
+apiRouter.post('/portal/accounts', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await createAccount(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'Failed to provision account.' });
+  }
+});
+
+// 5. Update Account (PUT)
+apiRouter.put('/portal/accounts/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await updateAccount(req.params.id, req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'Failed to update account.' });
+  }
+});
+
+// 6. Delete Account (DELETE)
+apiRouter.delete('/portal/accounts/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await deleteAccount(req.params.id);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ success: false, error: 'Failed to delete account.' });
+  }
+});
+
+// 7. Clients List (GET)
+apiRouter.get('/portal/clients', async (_req: Request, res: Response) => {
+  try {
+    const clients = await getClients();
+    res.json(clients);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve client records.' });
+  }
+});
+
+// 8. Save Clients List (POST)
+apiRouter.post('/portal/clients', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const clients = Array.isArray(req.body) ? req.body : req.body.clients;
+    if (Array.isArray(clients)) {
+      const result = await saveClients(clients);
+      res.json(result);
+    } else {
+      res.status(400).json({ error: 'Invalid client list payload.' });
+    }
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to save clients.' });
+  }
+});
+
+// 9. Portal Config (GET & POST)
+apiRouter.get('/portal/config', async (_req: Request, res: Response) => {
+  try {
+    const config = await getPortalConfig();
+    res.json(config);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve portal config.' });
+  }
+});
+
+apiRouter.post('/portal/config', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const enabled = Boolean(req.body.clientPortalEnabled);
+    const result = await setPortalConfig(enabled);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to update portal config.' });
+  }
+});
+
+// 10. Strategic Partners & Alliances CMS (GET, POST, PUT, DELETE)
+apiRouter.get('/partners/settings', async (_req: Request, res: Response) => {
+  try {
+    const settings = await getPartnersSettings();
+    res.json(settings);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve partners settings.' });
+  }
+});
+
+apiRouter.put('/partners/settings', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await updatePartnersSettings(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to update partners settings.' });
+  }
+});
+
+apiRouter.get('/partners', async (_req: Request, res: Response) => {
+  try {
+    const partners = await getPartners();
+    res.json(partners);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to retrieve strategic partners.' });
+  }
+});
+
+apiRouter.post('/partners', async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (Array.isArray(req.body)) {
+      const result = await savePartners(req.body);
+      res.json(result);
+      return;
+    }
+    const result = await addPartner(req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to save strategic partner.' });
+  }
+});
+
+apiRouter.put('/partners/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await updatePartner(req.params.id, req.body);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to update strategic partner.' });
+  }
+});
+
+apiRouter.delete('/partners/:id', async (req: Request, res: Response): Promise<void> => {
+  try {
+    const result = await deletePartner(req.params.id);
+    res.json(result);
+  } catch (err: any) {
+    res.status(500).json({ error: 'Failed to delete strategic partner.' });
+  }
 });
 
 // -----------------------------------------------------------------------------

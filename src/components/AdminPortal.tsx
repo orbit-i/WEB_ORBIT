@@ -52,7 +52,7 @@ import {
 } from 'lucide-react';
 import { ServicesCms } from './admin/ServicesCms';
 import { OperationsCms } from './admin/OperationsCms';
-import { ClientsCms } from './admin/ClientsCms';
+import { PartnersCms } from './admin/PartnersCms';
 import { PagesCms } from './admin/PagesCms';
 import { WordPressEditor } from './admin/WordPressEditor';
 import { TeamCms } from './admin/TeamCms';
@@ -135,7 +135,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
     | 'tags_urls'
     | 'governance'
     | 'staff_access'
-    | 'clients'
+    | 'partners'
     | 'pages';
 
   const role = (authenticatedUser?.role || '').toLowerCase();
@@ -181,7 +181,7 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
   const tabTitles: Record<AdminTab, string> = {
     dashboard: 'Executive Overview',
     sales_report: 'Executive Overview',
-    clients: 'Client CRM, Projects & Payments',
+    partners: 'Partners & Technology Alliances CMS',
     pages: 'Website Pages Content Editor',
     team: 'Job Info & Team Members',
     services: 'Verified Enterprise Services',
@@ -604,10 +604,8 @@ export const AdminPortal: React.FC<AdminPortalProps> = ({
                 <OperationsCms showNotification={showNotification} setActiveTab={setActiveTab || (() => {})} />
               </div>
             )}
-            {activeAdminTab === 'clients' && (
-              <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-xs">
-                <ClientsCms showNotification={showNotification} />
-              </div>
+            {activeAdminTab === 'partners' && (
+              <PartnersCms showNotification={showNotification} />
             )}
             {activeAdminTab === 'pages' && (
               <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-150 shadow-xs">

@@ -1,9 +1,6 @@
 import React from 'react';
 import { useCms } from '../context/CmsContext';
-import {
-  Share2,
-  ExternalLink,
-} from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import {
   TikTokIcon,
   WhatsAppIcon,
@@ -13,7 +10,6 @@ import {
   InstagramIcon,
   YouTubeIcon,
   TelegramIcon,
-  GitHubIcon,
 } from './common/BrandIcons';
 
 interface FooterProps {
@@ -24,7 +20,7 @@ interface FooterProps {
 export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
   const { companyInfo, services } = useCms();
   return (
-    <footer className="bg-white text-gray-700 border-t border-gray-200">
+    <footer className="bg-white dark:bg-slate-950 text-slate-700 dark:text-slate-300 border-t border-slate-200 dark:border-slate-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12 mb-12">
           {/* Col 1: About & Dynamic Socials */}
@@ -39,11 +35,11 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   e.currentTarget.src = '/orbit-circular-logo.png';
                 }}
               />
-              <span className="font-bold text-black text-lg">
+              <span className="font-bold text-slate-950 dark:text-white text-lg">
                 {companyInfo.name}
               </span>
             </div>
-            <p className="text-sm text-gray-600 leading-relaxed">
+            <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
               {companyInfo.summary ||
                 `${companyInfo.legalName} is an engineering technology company delivering dependable software platforms, mobile applications, and custom digital systems.`}
             </p>
@@ -55,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.linkedin}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#0077b5] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#0077b5] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="LinkedIn"
                 >
                   <LinkedInIcon className="h-4 w-4" />
@@ -66,7 +62,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.twitter}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-black hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="Twitter / X"
                 >
                   <TwitterXIcon className="h-4 w-4" />
@@ -77,7 +73,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.youtube}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#FF0000] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#FF0000] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="YouTube"
                 >
                   <YouTubeIcon className="h-4 w-4" />
@@ -88,7 +84,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.whatsapp}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#25D366] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#25D366] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="WhatsApp"
                 >
                   <WhatsAppIcon className="h-4 w-4" />
@@ -99,7 +95,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.facebook}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#1877F2] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#1877F2] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="Facebook"
                 >
                   <FacebookIcon className="h-4 w-4" />
@@ -110,7 +106,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.instagram}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#E4405F] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#E4405F] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="Instagram"
                 >
                   <InstagramIcon className="h-4 w-4" />
@@ -121,7 +117,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.telegram}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-[#229ED9] hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-[#229ED9] hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="Telegram"
                 >
                   <TelegramIcon className="h-4 w-4" />
@@ -132,7 +128,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                   href={companyInfo.socialLinks.tiktok}
                   target="_blank"
                   rel="noreferrer"
-                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-700 flex items-center justify-center transition-all"
+                  className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-black hover:text-white text-slate-700 dark:text-slate-300 flex items-center justify-center transition-all border border-slate-200 dark:border-slate-800"
                   title="TikTok"
                 >
                   <TikTokIcon className="h-4 w-4" />
@@ -160,7 +156,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     href={url}
                     target="_blank"
                     rel="noreferrer"
-                    className="px-2.5 h-8 rounded-lg bg-gray-100 hover:bg-black hover:text-white text-gray-700 text-xs font-mono font-bold flex items-center gap-1 transition-all capitalize"
+                    className="px-2.5 h-8 rounded-lg bg-slate-100 dark:bg-slate-900 hover:bg-black hover:text-white text-slate-700 dark:text-slate-300 text-xs font-mono font-bold flex items-center gap-1 transition-all capitalize border border-slate-200 dark:border-slate-800"
                     title={platform}
                   >
                     <Share2 className="h-3 w-3" />
@@ -172,7 +168,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
 
           {/* Col 2: Services */}
           <div>
-            <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-wider mb-4">
               Services
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -183,7 +179,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                       setActiveTab('services');
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="text-gray-700 hover:text-black hover:underline transition-colors text-left"
+                    className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors text-left"
                   >
                     {s.title}
                   </button>
@@ -194,7 +190,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
 
           {/* Col 3: Company */}
           <div>
-            <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-wider mb-4">
               Company
             </h3>
             <ul className="space-y-2.5 text-sm">
@@ -204,7 +200,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('about');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                 >
                   About Us
                 </button>
@@ -215,7 +211,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('team');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                 >
                   Team &amp; Leadership
                 </button>
@@ -226,7 +222,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('verify');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                 >
                   Certificate Verification
                 </button>
@@ -237,10 +233,10 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('careers');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors font-medium flex items-center gap-1.5"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors font-medium flex items-center gap-1.5"
                 >
                   <span>Careers &amp; Internships</span>
-                  <span className="text-[10px] font-mono bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded-full font-bold">Hiring</span>
+                  <span className="text-[10px] font-mono bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 px-1.5 py-0.2 rounded-full font-bold">Hiring</span>
                 </button>
               </li>
               <li>
@@ -249,10 +245,10 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('blog');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors font-medium flex items-center gap-1.5"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors font-medium flex items-center gap-1.5"
                 >
                   <span>Insights &amp; Engineering Blog</span>
-                  <span className="text-[10px] font-mono bg-emerald-100 text-emerald-800 px-1.5 py-0.2 rounded-full">New</span>
+                  <span className="text-[10px] font-mono bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded-full">New</span>
                 </button>
               </li>
               <li>
@@ -261,7 +257,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                     setActiveTab('contact');
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="text-gray-700 hover:text-black hover:underline transition-colors"
+                  className="text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
                 >
                   Contact Us
                 </button>
@@ -271,47 +267,47 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
 
           {/* Col 4: Contact */}
           <div>
-            <h3 className="text-sm font-bold text-black uppercase tracking-wider mb-4">
+            <h3 className="text-sm font-bold text-slate-950 dark:text-white uppercase tracking-wider mb-4">
               Contact
             </h3>
-            <ul className="space-y-2.5 text-sm text-gray-700">
+            <ul className="space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <span className="block text-xs font-semibold text-gray-400">Email:</span>
+                <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">Email:</span>
                 <a
                   href={`mailto:${companyInfo.email}`}
-                  className="hover:text-black hover:underline text-black font-medium"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-slate-900 dark:text-white font-medium"
                 >
                   {companyInfo.email}
                 </a>
               </li>
               <li>
-                <span className="block text-xs font-semibold text-gray-400">Phone:</span>
+                <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">Phone:</span>
                 <a
                   href={`tel:${companyInfo.phone.replace(/\s+/g, '')}`}
-                  className="hover:text-black hover:underline text-black font-medium"
+                  className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline text-slate-900 dark:text-white font-medium"
                 >
                   {companyInfo.phone}
                 </a>
               </li>
               <li>
-                <span className="block text-xs font-semibold text-gray-400">Head Office:</span>
-                <span className="text-gray-800 font-semibold">{companyInfo.location}</span>
+                <span className="block text-xs font-semibold text-slate-400 dark:text-slate-500">Head Office:</span>
+                <span className="text-slate-900 dark:text-white font-semibold">{companyInfo.location}</span>
               </li>
             </ul>
           </div>
         </div>
 
         {/* Bottom Bar: Separated Legal Pages Routing */}
-        <div className="border-t border-gray-200 pt-8 text-center text-sm text-gray-600 space-y-3">
+        <div className="border-t border-slate-200 dark:border-slate-800 pt-8 text-center text-sm text-slate-600 dark:text-slate-400 space-y-3">
           <p>&copy; 2026 {companyInfo.legalName}. All rights reserved. Registered in Nawabshah, Sindh, Pakistan.</p>
 
-          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-gray-500">
+          <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
             <button
               onClick={() => {
                 setActiveTab('privacy');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-black hover:underline transition-colors"
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
             >
               Privacy Policy
             </button>
@@ -321,7 +317,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                 setActiveTab('cookies');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-black hover:underline transition-colors font-medium text-black"
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors font-medium text-slate-900 dark:text-white"
             >
               Cookie &amp; IP Data Policy
             </button>
@@ -331,7 +327,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                 setActiveTab('terms');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-black hover:underline transition-colors"
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
             >
               Terms &amp; Conditions
             </button>
@@ -341,7 +337,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                 setActiveTab('security');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-black hover:underline transition-colors"
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
             >
               Security Policy
             </button>
@@ -351,7 +347,7 @@ export const Footer: React.FC<FooterProps> = ({ setActiveTab }) => {
                 setActiveTab('refund');
                 window.scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="hover:text-black hover:underline transition-colors"
+              className="hover:text-blue-600 dark:hover:text-blue-400 hover:underline transition-colors"
             >
               Refund Policy
             </button>

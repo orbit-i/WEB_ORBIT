@@ -7,26 +7,30 @@ interface HomeIntroSplitProps {
 
 export const HomeIntroSplit: React.FC<HomeIntroSplitProps> = ({ setActiveTab }) => {
   return (
-    <section className="bg-white text-black py-16 md:py-24 border-b border-gray-200">
+    <section className="bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 py-16 md:py-24 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex flex-col lg:flex-row items-center gap-12 lg:gap-16">
           {/* Left Column: Narrative Copy & "Our Services" Button */}
           <div className="flex-1 w-full space-y-6">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-black tracking-tight leading-tight">
+            <div className="text-xs font-mono uppercase tracking-wider text-blue-600 dark:text-blue-400 font-semibold">
+              ENGINEERING PHILOSOPHY
+            </div>
+
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-950 dark:text-white tracking-tight leading-tight">
               {COMPANY_INFO.legalName}
             </h2>
 
-            <div className="space-y-4 text-base md:text-lg text-gray-800 leading-relaxed">
+            <div className="space-y-4 text-base md:text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
               <p>
-                At {COMPANY_INFO.legalName}, we believe that strong, dependable engineering is the foundation of a successful business. Digital systems and online platforms are growing every day, and organizations need software that performs reliably under peak demand. That's why we focus on precision engineering — designing modular architectures so your business stays one step ahead.
+                At {COMPANY_INFO.legalName}, we believe that strong, dependable engineering is the foundation of a successful business. Digital systems and online platforms are expanding rapidly, and organizations need software that performs reliably under peak demand. That&apos;s why we focus on precision engineering — designing modular architectures so your business stays one step ahead.
               </p>
 
               <p>
-                Our team of experienced software engineers, cloud architects, and systems specialists focuses on custom software solutions, enterprise web platforms, cross-platform mobile apps, cloud infrastructure, and secure API integrations. We don't just build basic prototypes — we engineer production systems, uncover operational bottlenecks, and provide clear, practical code that your team can maintain and scale.
+                Our engineering teams and systems architects focus on custom software solutions, enterprise web platforms, cross-platform mobile apps, cloud infrastructure, and secure API integrations. We engineer production systems, uncover operational bottlenecks, and provide clean, type-safe code that your team can maintain and scale without vendor lock-in.
               </p>
 
               <p>
-                What makes us different is our hands-on engineering approach. We simulate real-world concurrency and data workloads to ensure your applications remain fault-tolerant. Then, we help you build stronger systems to ensure your data, networks, and digital operations stay fast and secure.
+                What makes us different is our hands-on engineering approach. We simulate real-world concurrency and high data workloads to ensure your applications remain fault-tolerant. We help you build resilient systems ensuring your data, networks, and digital operations stay fast, secure, and always accessible.
               </p>
             </div>
 
@@ -36,7 +40,7 @@ export const HomeIntroSplit: React.FC<HomeIntroSplitProps> = ({ setActiveTab }) 
                   setActiveTab('services');
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="bg-black text-white hover:bg-white hover:text-black px-8 py-3 rounded-full font-medium transition-all duration-200 text-base border-2 border-black shadow-sm"
+                className="bg-slate-950 text-white hover:bg-slate-800 dark:bg-blue-600 dark:hover:bg-blue-700 px-8 py-3 rounded-full font-medium transition-all duration-200 text-base shadow-sm"
               >
                 Our Services
               </button>
@@ -45,11 +49,11 @@ export const HomeIntroSplit: React.FC<HomeIntroSplitProps> = ({ setActiveTab }) 
 
           {/* Right Column: Branded High-Tech Circuit Board featuring the Official ORBIT-I Circular Picture */}
           <div className="flex-1 w-full max-w-xl">
-            <div className="rounded-2xl bg-[#0b0f19] border-2 border-gray-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center aspect-4/3 group">
+            <div className="rounded-3xl bg-[#0b0f19] border-2 border-slate-800 p-6 sm:p-8 shadow-2xl relative overflow-hidden flex flex-col items-center justify-center aspect-4/3 group">
               {/* Circuit board traces SVG background */}
               <svg
                 viewBox="0 0 500 380"
-                className="absolute inset-0 w-full h-full text-gray-700/60 select-none pointer-events-none"
+                className="absolute inset-0 w-full h-full text-slate-700/60 select-none pointer-events-none"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
               >
@@ -121,7 +125,7 @@ export const HomeIntroSplit: React.FC<HomeIntroSplitProps> = ({ setActiveTab }) 
                 <span className="text-[11px] font-mono font-bold text-blue-400 uppercase tracking-widest block">
                   ORBIT-I Core Engineering Hub
                 </span>
-                <span className="text-[10px] text-gray-400 font-mono mt-0.5">
+                <span className="text-[10px] text-slate-400 font-mono mt-0.5">
                   High-Throughput Digital Systems · Nawabshah, Sindh
                 </span>
               </div>

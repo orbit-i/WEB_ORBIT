@@ -33,7 +33,7 @@ import { COMPANY_INFO } from '../../data/orbitData';
 export type AdminNavigationTab =
   | 'dashboard'
   | 'sales_report'
-  | 'clients'
+  | 'partners'
   | 'pages'
   | 'ecommerce'
   | 'analytics'
@@ -269,21 +269,21 @@ export const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
                     )}
                   </button>
 
-                  {/* CRM & Clients Hub */}
+                  {/* VERIFIED STRATEGIC ALLIANCES & PARTNERS HUB */}
                   <button
-                    onClick={() => handleTabClick('clients')}
+                    onClick={() => handleTabClick('partners')}
                     className={`w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg font-medium transition-all ${
-                      activeTab === 'clients'
+                      activeTab === 'partners'
                         ? 'bg-blue-600 text-white shadow-2xs font-bold'
                         : 'text-gray-700 hover:text-black hover:bg-gray-100/70'
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>CRM &amp; Clients Hub</span>
+                      <ShieldCheck className="h-3.5 w-3.5" />
+                      <span>Alliances &amp; Partners</span>
                     </div>
-                    <span className="text-[8px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-700">
-                      Projects
+                    <span className="text-[8px] font-bold px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700">
+                      Alliances
                     </span>
                   </button>
 

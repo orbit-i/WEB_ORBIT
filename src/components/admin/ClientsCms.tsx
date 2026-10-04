@@ -84,10 +84,30 @@ export const ClientsCms: React.FC<ClientsCmsProps> = ({ showNotification }) => {
   const [newPayStatus, setNewPayStatus] = useState<'Paid' | 'Pending' | 'Overdue'>('Paid');
   const [newPayInvoice, setNewPayInvoice] = useState(`INV-2026-${Math.floor(100 + Math.random() * 900)}`);
 
+  // Sync clients from backend server on mount
+  React.useEffect(() => {
+    fetch('/api/portal/clients')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setClients(data);
+          try {
+            localStorage.setItem('orbit_admin_clients_v2', JSON.stringify(data));
+          } catch {}
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const saveClients = (updated: ClientRecord[]) => {
     setClients(updated);
     try {
       localStorage.setItem('orbit_admin_clients_v2', JSON.stringify(updated));
+      fetch('/api/portal/clients', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated),
+      }).catch((err) => console.warn('[CLIENTS CMS] Offline sync fallback:', err));
     } catch {}
   };
 

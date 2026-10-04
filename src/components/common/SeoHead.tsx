@@ -26,13 +26,13 @@ export const SeoHead: React.FC<SeoProps> = ({
     // 1. Page Title
     const finalTitle = title
       ? `${title} | ORBIT-I Private Limited`
-      : 'ORBIT-I Private Limited | Enterprise Software & Cloud Engineering';
+      : 'ORBIT-I Private Limited | Leading Software House Nawabshah, Hyderabad, Karachi & Islamabad';
     document.title = finalTitle;
 
     // 2. Meta Description
     const finalDesc =
       description ||
-      'ORBIT-I Private Limited engineers custom enterprise software, scalable web platforms, cross-platform mobile apps, and robust cloud DevOps architecture with 99.9% uptime SLA.';
+      'SECP-registered software engineering company headquartered in Nawabshah, Sindh, with delivery operations in Karachi, Hyderabad, Sukkur, Islamabad & Lahore. We build enterprise web platforms, mobile apps, and cloud architectures for Pakistan, UK, US, and UAE businesses.';
     let metaDesc = document.querySelector('meta[name="description"]');
     if (!metaDesc) {
       metaDesc = document.createElement('meta');
@@ -41,21 +41,32 @@ export const SeoHead: React.FC<SeoProps> = ({
     }
     metaDesc.setAttribute('content', finalDesc);
 
-    // 3. Meta Keywords
+    // 3. Meta Keywords (Targeting Nawabshah, Hyderabad, Karachi, Sukkur, Islamabad, Lahore, Pakistan, plus UK, US, UAE)
     const defaultKeywords = [
-      'ORBIT-I',
-      'Software Company Pakistan',
-      'Enterprise Software Development',
-      'Web Development',
-      'Mobile App Development',
-      'Custom ERP Systems',
-      'WordPress CMS Development',
-      'Custom Coding',
-      'Cloud DevOps Infrastructure',
-      'React Native',
-      'Next.js',
-      'SECP Verified Company',
-      'Nawabshah Software House',
+      'ORBIT-I Private Limited',
+      'software house in nawabshah',
+      'best software company nawabshah',
+      'it company nawabshah sindh',
+      'software house hyderabad sindh',
+      'web development company hyderabad',
+      'software house karachi',
+      'custom software development karachi',
+      'software development company islamabad',
+      'it company islamabad rawalpindi',
+      'software company lahore',
+      'software company sukkur sindh',
+      'secp registered software company pakistan',
+      'top software house in pakistan',
+      'mobile app development pakistan',
+      'custom web application development',
+      'react developers pakistan',
+      'node.js development company',
+      'asp.net enterprise solutions',
+      'abdul samad rind software engineer',
+      'maria almani',
+      'muhammad muneeb ur rahman shahzad',
+      'offshore software engineering uk us uae',
+      'cloud devops infrastructure 99.9 uptime',
     ];
     const finalKeywords = keywords && keywords.length > 0 ? keywords : defaultKeywords;
     let metaKw = document.querySelector('meta[name="keywords"]');
@@ -113,6 +124,7 @@ export const SeoHead: React.FC<SeoProps> = ({
     };
 
     setMetaName('twitter:card', 'summary_large_image');
+    setMetaName('twitter:site', '@orbit_i_ltd');
     setMetaName('twitter:title', finalTitle);
     setMetaName('twitter:description', finalDesc);
     setMetaName(
@@ -133,22 +145,53 @@ export const SeoHead: React.FC<SeoProps> = ({
 
     const defaultSchema = {
       '@context': 'https://schema.org',
-      '@type': 'Organization',
+      '@type': ['ProfessionalService', 'Organization'],
       name: COMPANY_INFO.name,
       legalName: COMPANY_INFO.legalName,
       url: 'https://orbit-i.tech/',
       logo: 'https://orbit-i.tech/orbit-circular-logo.png',
       foundingDate: COMPANY_INFO.established,
-      founder: {
-        '@type': 'Person',
-        name: COMPANY_INFO.founder,
-      },
+      founder: [
+        {
+          '@type': 'Person',
+          name: COMPANY_INFO.founder,
+          jobTitle: 'Founder & CEO',
+        },
+        {
+          '@type': 'Person',
+          name: 'Maria Almani',
+          jobTitle: 'Co-Founder & COO',
+        },
+        {
+          '@type': 'Person',
+          name: 'Muhammad Muneeb Ur Rahman Shahzad',
+          jobTitle: 'Co-Founder & CTO',
+        },
+      ],
       address: {
         '@type': 'PostalAddress',
         addressLocality: 'Nawabshah',
         addressRegion: 'Sindh',
-        addressCountry: 'Pakistan',
+        postalCode: '67450',
+        addressCountry: 'PK',
       },
+      geo: {
+        '@type': 'GeoCoordinates',
+        latitude: 26.2483,
+        longitude: 68.4096,
+      },
+      areaServed: [
+        'Nawabshah',
+        'Hyderabad',
+        'Karachi',
+        'Sukkur',
+        'Islamabad',
+        'Lahore',
+        'Pakistan',
+        'United Kingdom',
+        'United States',
+        'United Arab Emirates',
+      ],
       contactPoint: {
         '@type': 'ContactPoint',
         telephone: COMPANY_INFO.phone,
@@ -160,10 +203,6 @@ export const SeoHead: React.FC<SeoProps> = ({
     };
 
     schemaScript.text = JSON.stringify(schemaJson || defaultSchema);
-
-    return () => {
-      // Clean up schema on unmount if needed
-    };
   }, [title, description, keywords, canonicalUrl, ogImage, ogType, schemaJson, author]);
 
   return null;

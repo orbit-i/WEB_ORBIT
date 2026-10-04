@@ -1085,6 +1085,150 @@ var INITIAL_ARTICLES = [
     canonicalUrl: "https://orbit-i.tech/blog/llm-orchestration-enterprise-automation-pakistan"
   }
 ];
+var INITIAL_ACCOUNTS = [
+  {
+    id: "usr-samad-root",
+    name: "Abdul Samad Rind",
+    email: "ab.samad@orbit-i.tech",
+    company: "ORBIT-I LTD",
+    role: "superadmin",
+    portalType: "admin",
+    password: "",
+    department: "Executive Governance",
+    createdAt: "2026-01-01",
+    status: "active",
+    isSetupRequired: true
+  },
+  {
+    id: "usr-writer-01",
+    name: "Danish Khan",
+    email: "writer@orbit-i.tech",
+    company: "ORBIT-I LTD",
+    role: "content_writer",
+    portalType: "admin",
+    password: "Writer#2026!",
+    department: "Content & Editorial",
+    createdAt: "2026-03-01",
+    status: "active",
+    isSetupRequired: false
+  },
+  {
+    id: "usr-seo-01",
+    name: "Ali Raza",
+    email: "seo@orbit-i.tech",
+    company: "ORBIT-I LTD",
+    role: "seo_specialist",
+    portalType: "admin",
+    password: "SeoExpert#2026!",
+    department: "Search Engine Optimization",
+    createdAt: "2026-03-15",
+    status: "active",
+    isSetupRequired: false
+  }
+];
+var DEFAULT_PARTNERS_SETTINGS = {
+  isEnabled: true,
+  badgeText: "TECHNOLOGY STACK & STRATEGIC ALLIANCES",
+  title: "Technology Ecosystem & Platform Alliances",
+  subtitle: "ORBIT-I Private Limited collaborates with enterprise cloud providers, open ecosystems, and modern software architectures to engineer reliable digital solutions.",
+  showTrustBadges: true,
+  trustBadges: [
+    { id: "tb-1", label: "256-Bit TLS Secured", color: "emerald", isActive: true },
+    { id: "tb-2", label: "Modern Cloud Architecture", color: "blue", isActive: true },
+    { id: "tb-3", label: "99.9% Uptime Engineering", color: "purple", isActive: true },
+    { id: "tb-4", label: "Enterprise Software Standards", color: "indigo", isActive: true }
+  ]
+};
+var INITIAL_PARTNERS = [
+  {
+    id: "aws",
+    name: "AWS Cloud Architecture",
+    category: "Cloud Infrastructure & EC2",
+    badge: "Cloud Platform",
+    iconType: "aws",
+    websiteUrl: "https://aws.amazon.com",
+    description: "Amazon Web Services enterprise cloud architectures and multi-region failover.",
+    displayOrder: 1,
+    isActive: true
+  },
+  {
+    id: "google-cloud",
+    name: "Google Cloud Platform",
+    category: "Cloud Build & BigQuery Ecosystem",
+    badge: "AI & Compute",
+    iconType: "google-cloud",
+    websiteUrl: "https://cloud.google.com",
+    description: "Google Cloud infrastructure, Vertex AI, and enterprise data analytics.",
+    displayOrder: 2,
+    isActive: true
+  },
+  {
+    id: "microsoft",
+    name: "Microsoft Azure",
+    category: "Azure & .NET Enterprise Solutions",
+    badge: "Enterprise Cloud",
+    iconType: "microsoft",
+    websiteUrl: "https://azure.microsoft.com",
+    description: "Microsoft Azure enterprise cloud, C# ASP.NET Core, and Microsoft server ecosystems.",
+    displayOrder: 3,
+    isActive: true
+  },
+  {
+    id: "cloudflare",
+    name: "Cloudflare Zero-Trust",
+    category: "Edge CDN & Threat Mitigation",
+    badge: "Edge & Security",
+    iconType: "cloudflare",
+    websiteUrl: "https://www.cloudflare.com",
+    description: "Global edge DNS, automated DDoS shielding, and Zero-Trust network gateways.",
+    displayOrder: 4,
+    isActive: true
+  },
+  {
+    id: "docker",
+    name: "Docker Containers",
+    category: "Containerization & Microservices",
+    badge: "DevOps",
+    iconType: "docker",
+    websiteUrl: "https://www.docker.com",
+    description: "Containerized deployment pipelines and reproducible staging environments.",
+    displayOrder: 5,
+    isActive: true
+  },
+  {
+    id: "linux-foundation",
+    name: "Linux Ecosystem",
+    category: "Enterprise Linux & Server Standards",
+    badge: "Open Standards",
+    iconType: "linux",
+    websiteUrl: "https://www.linuxfoundation.org",
+    description: "Open container standards, Linux kernel best practices, and microservice topologies.",
+    displayOrder: 6,
+    isActive: true
+  },
+  {
+    id: "react",
+    name: "React & Next.js Ecosystem",
+    category: "Modern Web Frontend & SPAs",
+    badge: "Frontend",
+    iconType: "react",
+    websiteUrl: "https://react.dev",
+    description: "High-performance interactive reactive user interfaces with modern TypeScript integration.",
+    displayOrder: 7,
+    isActive: true
+  },
+  {
+    id: "nodejs",
+    name: "Node.js & TypeScript",
+    category: "Backend Microservices & APIs",
+    badge: "Backend Engine",
+    iconType: "nodejs",
+    websiteUrl: "https://nodejs.org",
+    description: "Scalable event-driven asynchronous application runtimes and high-throughput REST APIs.",
+    displayOrder: 8,
+    isActive: true
+  }
+];
 var memoryStore = {
   company: { ...COMPANY_INFO },
   services: [...VERIFIED_SERVICES],
@@ -1093,7 +1237,12 @@ var memoryStore = {
   inquiries: [],
   media: [...INITIAL_MEDIA_ASSETS],
   settings: {},
-  articles: [...INITIAL_ARTICLES]
+  articles: [...INITIAL_ARTICLES],
+  accounts: [...INITIAL_ACCOUNTS],
+  clients: [],
+  partners: [...INITIAL_PARTNERS],
+  partnersSettings: { ...DEFAULT_PARTNERS_SETTINGS },
+  portalConfig: { clientPortalEnabled: false }
 };
 function loadLocalCache() {
   try {
@@ -1101,6 +1250,18 @@ function loadLocalCache() {
       const data = JSON.parse(fs.readFileSync(LOCAL_CACHE_PATH, "utf-8"));
       if (data && typeof data === "object") {
         memoryStore = { ...memoryStore, ...data };
+        if (!Array.isArray(memoryStore.accounts) || memoryStore.accounts.length === 0) {
+          memoryStore.accounts = [...INITIAL_ACCOUNTS];
+        }
+        if (!Array.isArray(memoryStore.partners)) {
+          memoryStore.partners = [...INITIAL_PARTNERS];
+        }
+        if (!memoryStore.partnersSettings) {
+          memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+        }
+        if (!memoryStore.portalConfig) {
+          memoryStore.portalConfig = { clientPortalEnabled: false };
+        }
       }
     }
   } catch (err) {
@@ -2234,6 +2395,168 @@ async function getDatabaseStatus() {
     timestamp: (/* @__PURE__ */ new Date()).toISOString()
   };
 }
+async function saveSettingToDb(key, value) {
+  if (pool && isMysqlConnected) {
+    try {
+      await pool.query(
+        `INSERT INTO \`site_settings\` (\`setting_key\`, \`setting_value\`)
+         VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE \`setting_value\` = VALUES(\`setting_value\`), \`updated_at\` = CURRENT_TIMESTAMP`,
+        [key, JSON.stringify(value)]
+      );
+    } catch (e) {
+      console.warn(`[DATABASE] Failed to save setting ${key} to MySQL:`, e);
+    }
+  }
+}
+async function getAccounts() {
+  return memoryStore.accounts;
+}
+async function setupSuperadmin(email, password, name) {
+  if (!password || password.length < 8) {
+    return { success: false, error: "Password must be at least 8 characters long." };
+  }
+  const normalized = email.trim().toLowerCase();
+  let target = memoryStore.accounts.find(
+    (a) => a.email.toLowerCase() === normalized && a.role === "superadmin"
+  );
+  if (!target) {
+    target = memoryStore.accounts.find((a) => a.role === "superadmin");
+  }
+  if (!target) {
+    target = {
+      id: "usr-samad-root",
+      name: name || "Abdul Samad Rind",
+      email: normalized || "ab.samad@orbit-i.tech",
+      company: "ORBIT-I LTD",
+      role: "superadmin",
+      portalType: "admin",
+      password,
+      department: "Executive Governance",
+      createdAt: (/* @__PURE__ */ new Date()).toISOString().split("T")[0],
+      status: "active",
+      isSetupRequired: false,
+      lastLogin: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    memoryStore.accounts.unshift(target);
+  } else {
+    target.email = normalized || target.email;
+    target.password = password;
+    target.isSetupRequired = false;
+    target.lastLogin = (/* @__PURE__ */ new Date()).toISOString();
+    if (name) target.name = name;
+  }
+  saveLocalCache();
+  await saveSettingToDb("portal_accounts", memoryStore.accounts);
+  return { success: true, user: target };
+}
+async function createAccount(account) {
+  const normalized = account.email.trim().toLowerCase();
+  if (memoryStore.accounts.some((a) => a.email.toLowerCase() === normalized)) {
+    return { success: false, error: "An account with this email address already exists." };
+  }
+  memoryStore.accounts.push(account);
+  saveLocalCache();
+  await saveSettingToDb("portal_accounts", memoryStore.accounts);
+  return { success: true, user: account };
+}
+async function updateAccount(id, updates) {
+  const target = memoryStore.accounts.find((a) => a.id === id);
+  if (!target) {
+    return { success: false, error: "Account not found." };
+  }
+  Object.assign(target, updates);
+  saveLocalCache();
+  await saveSettingToDb("portal_accounts", memoryStore.accounts);
+  return { success: true, user: target };
+}
+async function deleteAccount(id) {
+  const index = memoryStore.accounts.findIndex((a) => a.id === id);
+  if (index === -1) {
+    return { success: false, error: "Account not found." };
+  }
+  if (memoryStore.accounts[index].role === "superadmin") {
+    return { success: false, error: "Cannot delete the master Superadmin account." };
+  }
+  memoryStore.accounts.splice(index, 1);
+  saveLocalCache();
+  await saveSettingToDb("portal_accounts", memoryStore.accounts);
+  return { success: true };
+}
+async function getClients() {
+  return memoryStore.clients;
+}
+async function saveClients(clients) {
+  memoryStore.clients = clients;
+  saveLocalCache();
+  await saveSettingToDb("portal_clients", memoryStore.clients);
+  return { success: true };
+}
+async function getPortalConfig() {
+  return memoryStore.portalConfig || { clientPortalEnabled: false };
+}
+async function setPortalConfig(enabled) {
+  memoryStore.portalConfig = { clientPortalEnabled: enabled };
+  saveLocalCache();
+  await saveSettingToDb("portal_config", memoryStore.portalConfig);
+  return { success: true, portalConfig: memoryStore.portalConfig };
+}
+async function getPartners() {
+  if (!Array.isArray(memoryStore.partners)) {
+    memoryStore.partners = [...INITIAL_PARTNERS];
+  }
+  return memoryStore.partners;
+}
+async function savePartners(partners) {
+  memoryStore.partners = partners;
+  saveLocalCache();
+  await saveSettingToDb("strategic_partners", memoryStore.partners);
+  return { success: true, partners: memoryStore.partners };
+}
+async function addPartner(partner) {
+  if (!Array.isArray(memoryStore.partners)) {
+    memoryStore.partners = [];
+  }
+  memoryStore.partners.push(partner);
+  saveLocalCache();
+  await saveSettingToDb("strategic_partners", memoryStore.partners);
+  return { success: true, partner };
+}
+async function updatePartner(id, updates) {
+  const index = memoryStore.partners.findIndex((p) => p.id === id);
+  if (index === -1) {
+    return { success: false, error: "Partner alliance not found." };
+  }
+  memoryStore.partners[index] = { ...memoryStore.partners[index], ...updates };
+  saveLocalCache();
+  await saveSettingToDb("strategic_partners", memoryStore.partners);
+  return { success: true, partner: memoryStore.partners[index] };
+}
+async function deletePartner(id) {
+  const index = memoryStore.partners.findIndex((p) => p.id === id);
+  if (index === -1) {
+    return { success: false, error: "Partner alliance not found." };
+  }
+  memoryStore.partners.splice(index, 1);
+  saveLocalCache();
+  await saveSettingToDb("strategic_partners", memoryStore.partners);
+  return { success: true };
+}
+async function getPartnersSettings() {
+  if (!memoryStore.partnersSettings) {
+    memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+  }
+  return memoryStore.partnersSettings;
+}
+async function updatePartnersSettings(settings) {
+  if (!memoryStore.partnersSettings) {
+    memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+  }
+  memoryStore.partnersSettings = { ...memoryStore.partnersSettings, ...settings };
+  saveLocalCache();
+  await saveSettingToDb("partners_settings", memoryStore.partnersSettings);
+  return { success: true, settings: memoryStore.partnersSettings };
+}
 
 // server/security.ts
 import crypto from "crypto";
@@ -2450,7 +2773,7 @@ app.use(express.urlencoded({ extended: true, limit: "25mb" }));
 app.use(express.static(path2.resolve(__dirname2, "public")));
 var apiRouter = express.Router();
 apiRouter.use(apiRateLimiter);
-apiRouter.post("/auth/login", authRateLimiter, (req, res) => {
+apiRouter.post("/auth/login", authRateLimiter, async (req, res) => {
   const { email, password, portalType } = req.body;
   if (!email || !password) {
     res.status(400).json({ error: "Email and password are required." });
@@ -2459,39 +2782,78 @@ apiRouter.post("/auth/login", authRateLimiter, (req, res) => {
   const cleanEmail = sanitizeString(email).toLowerCase();
   const cleanPassword = String(password).trim();
   const targetMode = portalType === "client" ? "client" : "admin";
-  const ADMIN_ACCOUNTS = [
-    {
-      email: (process.env.ADMIN_EMAIL || "admin@orbit-i.tech").toLowerCase(),
-      password: process.env.ADMIN_PASSWORD || "OrbitAdmin#2026",
-      name: process.env.ADMIN_NAME || "Executive Superadmin"
-    },
-    {
-      email: (process.env.SECONDARY_ADMIN_EMAIL || "contactus@orbit-i.tech").toLowerCase(),
-      password: process.env.ADMIN_PASSWORD || "OrbitAdmin#2026",
-      name: "Corporate Administrator"
-    }
-  ];
-  const CLIENT_EMAIL = (process.env.CLIENT_EMAIL || "client@orbit-i.tech").toLowerCase();
-  const CLIENT_PASSWORD = process.env.CLIENT_PASSWORD || "Client#2026Secure";
+  const storedAccounts = await getAccounts();
+  const matchedStored = storedAccounts.find(
+    (a) => a.email.toLowerCase() === cleanEmail && a.status === "active"
+  );
   let isAuthenticated = false;
   let userName = "";
   let userRole = "client";
-  if (targetMode === "admin") {
-    const matched = ADMIN_ACCOUNTS.find(
-      (acc) => acc.email.toLowerCase() === cleanEmail && (timingSafeCompare(cleanPassword, acc.password) || timingSafeCompare(cleanPassword, process.env.ADMIN_PORTAL_KEY || "orbit-i-admin-2026"))
-    );
-    if (matched) {
-      isAuthenticated = true;
-      userRole = "admin";
-      userName = matched.name;
+  let accountRole = "";
+  if (matchedStored) {
+    if (matchedStored.role === "superadmin" && (matchedStored.isSetupRequired || !matchedStored.password)) {
+      res.status(200).json({
+        success: false,
+        requiresSetup: true,
+        error: "Superadmin root account requires initial master setup. Please set your secure password."
+      });
+      return;
     }
-  } else {
-    const isEmailMatch = cleanEmail === CLIENT_EMAIL || cleanEmail === "client@orbit-i.tech" || cleanEmail === "client";
-    const isPasswordMatch = timingSafeCompare(cleanPassword, CLIENT_PASSWORD);
-    if (isEmailMatch && isPasswordMatch) {
+    if (targetMode === "admin" && (matchedStored.portalType !== "admin" || matchedStored.role === "client")) {
+      res.status(403).json({
+        error: "Security Policy Violation: Client accounts cannot access the Executive Admin Console."
+      });
+      return;
+    }
+    if (targetMode === "client" && (matchedStored.portalType !== "client" || matchedStored.role !== "client")) {
+      res.status(403).json({
+        error: "Corporate administrative staff cannot access client organization workspaces directly."
+      });
+      return;
+    }
+    if (matchedStored.password && (timingSafeCompare(cleanPassword, matchedStored.password) || cleanPassword === matchedStored.password)) {
       isAuthenticated = true;
-      userRole = "client";
-      userName = "Tariq Mansoor (Apex Global Logistics)";
+      userName = matchedStored.name;
+      userRole = matchedStored.portalType === "client" ? "client" : "admin";
+      accountRole = matchedStored.role;
+      matchedStored.lastLogin = (/* @__PURE__ */ new Date()).toISOString();
+      await updateAccount(matchedStored.id, { lastLogin: matchedStored.lastLogin });
+    }
+  }
+  if (!isAuthenticated) {
+    const ADMIN_ACCOUNTS = [
+      {
+        email: (process.env.ADMIN_EMAIL || "admin@orbit-i.tech").toLowerCase(),
+        password: process.env.ADMIN_PASSWORD || "OrbitAdmin#2026",
+        name: process.env.ADMIN_NAME || "Executive Superadmin"
+      },
+      {
+        email: (process.env.SECONDARY_ADMIN_EMAIL || "contactus@orbit-i.tech").toLowerCase(),
+        password: process.env.ADMIN_PASSWORD || "OrbitAdmin#2026",
+        name: "Corporate Administrator"
+      }
+    ];
+    const CLIENT_EMAIL = (process.env.CLIENT_EMAIL || "client@orbit-i.tech").toLowerCase();
+    const CLIENT_PASSWORD = process.env.CLIENT_PASSWORD || "Client#2026Secure";
+    if (targetMode === "admin") {
+      const matched = ADMIN_ACCOUNTS.find(
+        (acc) => acc.email.toLowerCase() === cleanEmail && (timingSafeCompare(cleanPassword, acc.password) || timingSafeCompare(cleanPassword, process.env.ADMIN_PORTAL_KEY || "orbit-i-admin-2026"))
+      );
+      if (matched) {
+        isAuthenticated = true;
+        userRole = "admin";
+        userName = matched.name;
+        accountRole = "superadmin";
+      }
+    } else {
+      const isEmailMatch = cleanEmail === CLIENT_EMAIL || cleanEmail === "client@orbit-i.tech" || cleanEmail === "client";
+      const isPasswordMatch = timingSafeCompare(cleanPassword, CLIENT_PASSWORD);
+      if (isEmailMatch && isPasswordMatch) {
+        isAuthenticated = true;
+        userRole = "client";
+        userName = "Tariq Mansoor (Apex Global Logistics)";
+        accountRole = "client";
+      }
     }
   }
   if (!isAuthenticated) {
@@ -2513,7 +2875,7 @@ apiRouter.post("/auth/login", authRateLimiter, (req, res) => {
     user: {
       name: session.name,
       email: session.email,
-      role: session.role === "admin" ? "Executive Administrator" : "Authorized Enterprise Client",
+      role: accountRole || (session.role === "admin" ? "Executive Administrator" : "Authorized Enterprise Client"),
       portalType: session.portalType,
       sessionStarted: (/* @__PURE__ */ new Date()).toLocaleTimeString()
     }
@@ -2547,6 +2909,172 @@ apiRouter.post("/auth/logout", (req, res) => {
     revokeSession(token);
   }
   res.json({ success: true, message: "Logged out successfully." });
+});
+apiRouter.get("/portal/status", async (_req, res) => {
+  try {
+    const accounts = await getAccounts();
+    const rootAdmin = accounts.find((a) => a.role === "superadmin");
+    const isSuperadminSetupPending = !rootAdmin || rootAdmin.isSetupRequired === true || !rootAdmin.password;
+    const config = await getPortalConfig();
+    res.json({
+      isSuperadminSetupPending,
+      clientPortalEnabled: !!config.clientPortalEnabled,
+      superadminEmail: rootAdmin?.email || "ab.samad@orbit-i.tech"
+    });
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve portal status." });
+  }
+});
+apiRouter.post("/portal/setup-superadmin", async (req, res) => {
+  try {
+    const { email, password, name } = req.body;
+    if (!password || password.length < 8) {
+      res.status(400).json({ success: false, error: "Password must be at least 8 characters long." });
+      return;
+    }
+    const cleanEmail = sanitizeString(email || "ab.samad@orbit-i.tech").toLowerCase();
+    const result = await setupSuperadmin(cleanEmail, String(password).trim(), name ? sanitizeString(name) : void 0);
+    if (result.success && result.user) {
+      const session = createSession({
+        name: result.user.name,
+        email: result.user.email,
+        role: "admin",
+        portalType: "admin"
+      });
+      res.json({
+        success: true,
+        user: result.user,
+        token: session.token
+      });
+    } else {
+      res.status(400).json(result);
+    }
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to initialize superadmin credentials." });
+  }
+});
+apiRouter.get("/portal/accounts", async (_req, res) => {
+  try {
+    const accounts = await getAccounts();
+    res.json(accounts);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve accounts." });
+  }
+});
+apiRouter.post("/portal/accounts", async (req, res) => {
+  try {
+    const result = await createAccount(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to provision account." });
+  }
+});
+apiRouter.put("/portal/accounts/:id", async (req, res) => {
+  try {
+    const result = await updateAccount(req.params.id, req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to update account." });
+  }
+});
+apiRouter.delete("/portal/accounts/:id", async (req, res) => {
+  try {
+    const result = await deleteAccount(req.params.id);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ success: false, error: "Failed to delete account." });
+  }
+});
+apiRouter.get("/portal/clients", async (_req, res) => {
+  try {
+    const clients = await getClients();
+    res.json(clients);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve client records." });
+  }
+});
+apiRouter.post("/portal/clients", async (req, res) => {
+  try {
+    const clients = Array.isArray(req.body) ? req.body : req.body.clients;
+    if (Array.isArray(clients)) {
+      const result = await saveClients(clients);
+      res.json(result);
+    } else {
+      res.status(400).json({ error: "Invalid client list payload." });
+    }
+  } catch (err) {
+    res.status(500).json({ error: "Failed to save clients." });
+  }
+});
+apiRouter.get("/portal/config", async (_req, res) => {
+  try {
+    const config = await getPortalConfig();
+    res.json(config);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve portal config." });
+  }
+});
+apiRouter.post("/portal/config", async (req, res) => {
+  try {
+    const enabled = Boolean(req.body.clientPortalEnabled);
+    const result = await setPortalConfig(enabled);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update portal config." });
+  }
+});
+apiRouter.get("/partners/settings", async (_req, res) => {
+  try {
+    const settings = await getPartnersSettings();
+    res.json(settings);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve partners settings." });
+  }
+});
+apiRouter.put("/partners/settings", async (req, res) => {
+  try {
+    const result = await updatePartnersSettings(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update partners settings." });
+  }
+});
+apiRouter.get("/partners", async (_req, res) => {
+  try {
+    const partners = await getPartners();
+    res.json(partners);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to retrieve strategic partners." });
+  }
+});
+apiRouter.post("/partners", async (req, res) => {
+  try {
+    if (Array.isArray(req.body)) {
+      const result2 = await savePartners(req.body);
+      res.json(result2);
+      return;
+    }
+    const result = await addPartner(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to save strategic partner." });
+  }
+});
+apiRouter.put("/partners/:id", async (req, res) => {
+  try {
+    const result = await updatePartner(req.params.id, req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to update strategic partner." });
+  }
+});
+apiRouter.delete("/partners/:id", async (req, res) => {
+  try {
+    const result = await deletePartner(req.params.id);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to delete strategic partner." });
+  }
 });
 apiRouter.get("/health", async (_req, res) => {
   res.setHeader("Cache-Control", "no-store");

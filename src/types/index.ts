@@ -341,4 +341,34 @@ export interface AuthAccount {
   isSetupRequired?: boolean;
 }
 
+export interface PartnerAlliance {
+  id: string;
+  name: string;
+  category: string;
+  badge?: string;
+  iconType?: string;
+  logoUrl?: string;
+  websiteUrl?: string;
+  description?: string;
+  displayOrder?: number;
+  isActive?: boolean;
+}
+
+export interface TrustBadgeItem {
+  id: string;
+  label: string;
+  color?: string; // e.g. 'emerald' | 'blue' | 'purple' | 'indigo' | 'amber' | 'cyan' | 'rose' | 'slate'
+  isActive?: boolean;
+}
+
+export interface PartnersSectionSettings {
+  isEnabled: boolean;
+  badgeText: string;
+  title: string;
+  subtitle: string;
+  showTrustBadges: boolean;
+  trustBadges: TrustBadgeItem[];
+}
+
+
 

@@ -8,6 +8,9 @@ import {
   VerifiedCertificate,
   JobOpening,
   PageContentItem,
+  PartnerAlliance,
+  PartnersSectionSettings,
+  TrustBadgeItem,
 } from '../types';
 import {
   COMPANY_INFO,
@@ -16,6 +19,8 @@ import {
   VERIFIED_CERTIFICATES,
   INITIAL_JOB_OPENINGS,
   DEFAULT_PAGE_CONTENTS,
+  INITIAL_PARTNERS,
+  DEFAULT_PARTNERS_SETTINGS,
 } from '../data/orbitData';
 
 export interface LegalSection {
@@ -202,6 +207,16 @@ interface CmsContextType {
   pageContents: Record<string, PageContentItem>;
   updatePageContent: (pageKey: string, data: Partial<PageContentItem>) => void;
   resetPageContentsToDefault: () => void;
+
+  // Verified Strategic Alliances & Institutional Partners CMS
+  partners: PartnerAlliance[];
+  partnersSettings: PartnersSectionSettings;
+  addPartner: (partner: PartnerAlliance) => Promise<void>;
+  updatePartner: (id: string, updates: Partial<PartnerAlliance>) => Promise<void>;
+  deletePartner: (id: string) => Promise<void>;
+  resetPartnersToDefault: () => void;
+  updatePartnersSettings: (settings: Partial<PartnersSectionSettings>) => Promise<void>;
+  resetPartnersSettingsToDefault: () => void;
 }
 
 const DEFAULT_LEGAL_PAGES: Record<string, LegalPageDoc> = {
@@ -726,6 +741,50 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     }
     return DEFAULT_PAGE_CONTENTS;
   });
+
+  const [partners, setPartners] = useState<PartnerAlliance[]>(() => {
+    const saved = localStorage.getItem('orbit_partners_cms_v1');
+    if (saved !== null) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      } catch {}
+    }
+    return INITIAL_PARTNERS;
+  });
+
+  const [partnersSettings, setPartnersSettings] = useState<PartnersSectionSettings>(() => {
+    const saved = localStorage.getItem('orbit_partners_settings_v1');
+    if (saved !== null) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') return { ...DEFAULT_PARTNERS_SETTINGS, ...parsed };
+      } catch {}
+    }
+    return DEFAULT_PARTNERS_SETTINGS;
+  });
+
+  useEffect(() => {
+    fetch('/api/partners')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setPartners(data);
+          localStorage.setItem('orbit_partners_cms_v1', JSON.stringify(data));
+        }
+      })
+      .catch(() => {});
+
+    fetch('/api/partners/settings')
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data && typeof data === 'object') {
+          setPartnersSettings((prev) => ({ ...prev, ...data }));
+          localStorage.setItem('orbit_partners_settings_v1', JSON.stringify(data));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const updatePageContent = useCallback((pageKey: string, data: Partial<PageContentItem>) => {
     setPageContents((prev) => {
@@ -1442,6 +1501,95 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('orbit_cms_not_found_settings', JSON.stringify(settings));
   }, []);
 
+  // Verified Strategic Alliances & Institutional Partners CRUD
+  const addPartner = useCallback(async (partner: PartnerAlliance) => {
+    setPartners((prev) => {
+      const next = [...prev, partner];
+      try {
+        localStorage.setItem('orbit_partners_cms_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    try {
+      await fetch('/api/partners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(partner),
+      });
+    } catch {}
+  }, []);
+
+  const updatePartner = useCallback(async (id: string, updates: Partial<PartnerAlliance>) => {
+    setPartners((prev) => {
+      const next = prev.map((p) => (p.id === id ? { ...p, ...updates } : p));
+      try {
+        localStorage.setItem('orbit_partners_cms_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    try {
+      await fetch(`/api/partners/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updates),
+      });
+    } catch {}
+  }, []);
+
+  const deletePartner = useCallback(async (id: string) => {
+    setPartners((prev) => {
+      const next = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem('orbit_partners_cms_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    try {
+      await fetch(`/api/partners/${id}`, { method: 'DELETE' });
+    } catch {}
+  }, []);
+
+  const resetPartnersToDefault = useCallback(() => {
+    setPartners(INITIAL_PARTNERS);
+    try {
+      localStorage.setItem('orbit_partners_cms_v1', JSON.stringify(INITIAL_PARTNERS));
+    } catch {}
+    fetch('/api/partners', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(INITIAL_PARTNERS),
+    }).catch(() => {});
+  }, []);
+
+  const updatePartnersSettings = useCallback(async (settings: Partial<PartnersSectionSettings>) => {
+    setPartnersSettings((prev) => {
+      const next = { ...prev, ...settings };
+      try {
+        localStorage.setItem('orbit_partners_settings_v1', JSON.stringify(next));
+      } catch {}
+      return next;
+    });
+    try {
+      await fetch('/api/partners/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', ...getAdminAuthHeaders() },
+        body: JSON.stringify(settings),
+      });
+    } catch {}
+  }, [getAdminAuthHeaders]);
+
+  const resetPartnersSettingsToDefault = useCallback(() => {
+    setPartnersSettings(DEFAULT_PARTNERS_SETTINGS);
+    try {
+      localStorage.setItem('orbit_partners_settings_v1', JSON.stringify(DEFAULT_PARTNERS_SETTINGS));
+    } catch {}
+    fetch('/api/partners/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...getAdminAuthHeaders() },
+      body: JSON.stringify(DEFAULT_PARTNERS_SETTINGS),
+    }).catch(() => {});
+  }, [getAdminAuthHeaders]);
+
   const contextValue = useMemo(
     () => ({
       legalPages,
@@ -1503,6 +1651,14 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       pageContents,
       updatePageContent,
       resetPageContentsToDefault,
+      partners,
+      partnersSettings,
+      addPartner,
+      updatePartner,
+      deletePartner,
+      resetPartnersToDefault,
+      updatePartnersSettings,
+      resetPartnersSettingsToDefault,
     }),
     [
       legalPages,
@@ -1564,6 +1720,14 @@ export const CmsProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       pageContents,
       updatePageContent,
       resetPageContentsToDefault,
+      partners,
+      partnersSettings,
+      addPartner,
+      updatePartner,
+      deletePartner,
+      resetPartnersToDefault,
+      updatePartnersSettings,
+      resetPartnersSettingsToDefault,
     ]
   );
 

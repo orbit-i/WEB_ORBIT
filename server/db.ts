@@ -7,8 +7,20 @@ import {
   VERIFIED_SERVICES,
   INITIAL_USERS,
   VERIFIED_CERTIFICATES,
+  INITIAL_CLIENTS,
 } from '../src/data/orbitData.js';
-import { TeamMember, ServiceDetail, VerifiedCertificate, CompanyInfo, ContentArticle } from '../src/types/index.js';
+import {
+  TeamMember,
+  ServiceDetail,
+  VerifiedCertificate,
+  CompanyInfo,
+  ContentArticle,
+  AuthAccount,
+  ClientRecord,
+  PartnerAlliance,
+  PartnersSectionSettings,
+  TrustBadgeItem,
+} from '../src/types/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -310,6 +322,154 @@ export const INITIAL_ARTICLES: ContentArticle[] = [
   },
 ];
 
+export const INITIAL_ACCOUNTS: AuthAccount[] = [
+  {
+    id: 'usr-samad-root',
+    name: 'Abdul Samad Rind',
+    email: 'ab.samad@orbit-i.tech',
+    company: 'ORBIT-I LTD',
+    role: 'superadmin',
+    portalType: 'admin',
+    password: '',
+    department: 'Executive Governance',
+    createdAt: '2026-01-01',
+    status: 'active',
+    isSetupRequired: true,
+  },
+  {
+    id: 'usr-writer-01',
+    name: 'Danish Khan',
+    email: 'writer@orbit-i.tech',
+    company: 'ORBIT-I LTD',
+    role: 'content_writer',
+    portalType: 'admin',
+    password: 'Writer#2026!',
+    department: 'Content & Editorial',
+    createdAt: '2026-03-01',
+    status: 'active',
+    isSetupRequired: false,
+  },
+  {
+    id: 'usr-seo-01',
+    name: 'Ali Raza',
+    email: 'seo@orbit-i.tech',
+    company: 'ORBIT-I LTD',
+    role: 'seo_specialist',
+    portalType: 'admin',
+    password: 'SeoExpert#2026!',
+    department: 'Search Engine Optimization',
+    createdAt: '2026-03-15',
+    status: 'active',
+    isSetupRequired: false,
+  },
+];
+
+
+export const DEFAULT_PARTNERS_SETTINGS: PartnersSectionSettings = {
+  isEnabled: true,
+  badgeText: 'TECHNOLOGY STACK & STRATEGIC ALLIANCES',
+  title: 'Technology Ecosystem & Platform Alliances',
+  subtitle: 'ORBIT-I Private Limited collaborates with enterprise cloud providers, open ecosystems, and modern software architectures to engineer reliable digital solutions.',
+  showTrustBadges: true,
+  trustBadges: [
+    { id: 'tb-1', label: '256-Bit TLS Secured', color: 'emerald', isActive: true },
+    { id: 'tb-2', label: 'Modern Cloud Architecture', color: 'blue', isActive: true },
+    { id: 'tb-3', label: '99.9% Uptime Engineering', color: 'purple', isActive: true },
+    { id: 'tb-4', label: 'Enterprise Software Standards', color: 'indigo', isActive: true },
+  ],
+};
+
+export const INITIAL_PARTNERS: PartnerAlliance[] = [
+  {
+    id: 'aws',
+    name: 'AWS Cloud Architecture',
+    category: 'Cloud Infrastructure & EC2',
+    badge: 'Cloud Platform',
+    iconType: 'aws',
+    websiteUrl: 'https://aws.amazon.com',
+    description: 'Amazon Web Services enterprise cloud architectures and multi-region failover.',
+    displayOrder: 1,
+    isActive: true,
+  },
+  {
+    id: 'google-cloud',
+    name: 'Google Cloud Platform',
+    category: 'Cloud Build & BigQuery Ecosystem',
+    badge: 'AI & Compute',
+    iconType: 'google-cloud',
+    websiteUrl: 'https://cloud.google.com',
+    description: 'Google Cloud infrastructure, Vertex AI, and enterprise data analytics.',
+    displayOrder: 2,
+    isActive: true,
+  },
+  {
+    id: 'microsoft',
+    name: 'Microsoft Azure',
+    category: 'Azure & .NET Enterprise Solutions',
+    badge: 'Enterprise Cloud',
+    iconType: 'microsoft',
+    websiteUrl: 'https://azure.microsoft.com',
+    description: 'Microsoft Azure enterprise cloud, C# ASP.NET Core, and Microsoft server ecosystems.',
+    displayOrder: 3,
+    isActive: true,
+  },
+  {
+    id: 'cloudflare',
+    name: 'Cloudflare Zero-Trust',
+    category: 'Edge CDN & Threat Mitigation',
+    badge: 'Edge & Security',
+    iconType: 'cloudflare',
+    websiteUrl: 'https://www.cloudflare.com',
+    description: 'Global edge DNS, automated DDoS shielding, and Zero-Trust network gateways.',
+    displayOrder: 4,
+    isActive: true,
+  },
+  {
+    id: 'docker',
+    name: 'Docker Containers',
+    category: 'Containerization & Microservices',
+    badge: 'DevOps',
+    iconType: 'docker',
+    websiteUrl: 'https://www.docker.com',
+    description: 'Containerized deployment pipelines and reproducible staging environments.',
+    displayOrder: 5,
+    isActive: true,
+  },
+  {
+    id: 'linux-foundation',
+    name: 'Linux Ecosystem',
+    category: 'Enterprise Linux & Server Standards',
+    badge: 'Open Standards',
+    iconType: 'linux',
+    websiteUrl: 'https://www.linuxfoundation.org',
+    description: 'Open container standards, Linux kernel best practices, and microservice topologies.',
+    displayOrder: 6,
+    isActive: true,
+  },
+  {
+    id: 'react',
+    name: 'React & Next.js Ecosystem',
+    category: 'Modern Web Frontend & SPAs',
+    badge: 'Frontend',
+    iconType: 'react',
+    websiteUrl: 'https://react.dev',
+    description: 'High-performance interactive reactive user interfaces with modern TypeScript integration.',
+    displayOrder: 7,
+    isActive: true,
+  },
+  {
+    id: 'nodejs',
+    name: 'Node.js & TypeScript',
+    category: 'Backend Microservices & APIs',
+    badge: 'Backend Engine',
+    iconType: 'nodejs',
+    websiteUrl: 'https://nodejs.org',
+    description: 'Scalable event-driven asynchronous application runtimes and high-throughput REST APIs.',
+    displayOrder: 8,
+    isActive: true,
+  },
+];
+
 // In-Memory store for graceful local fallback
 interface LocalStoreState {
   company: CompanyInfo;
@@ -320,6 +480,11 @@ interface LocalStoreState {
   media: Array<any>;
   settings: Record<string, any>;
   articles: ContentArticle[];
+  accounts: AuthAccount[];
+  clients: ClientRecord[];
+  partners: PartnerAlliance[];
+  partnersSettings: PartnersSectionSettings;
+  portalConfig: { clientPortalEnabled: boolean };
 }
 
 let memoryStore: LocalStoreState = {
@@ -331,6 +496,11 @@ let memoryStore: LocalStoreState = {
   media: [...INITIAL_MEDIA_ASSETS],
   settings: {},
   articles: [...INITIAL_ARTICLES],
+  accounts: [...INITIAL_ACCOUNTS],
+  clients: [],
+  partners: [...INITIAL_PARTNERS],
+  partnersSettings: { ...DEFAULT_PARTNERS_SETTINGS },
+  portalConfig: { clientPortalEnabled: false },
 };
 
 // Load saved local cache if present
@@ -340,6 +510,18 @@ function loadLocalCache() {
       const data = JSON.parse(fs.readFileSync(LOCAL_CACHE_PATH, 'utf-8'));
       if (data && typeof data === 'object') {
         memoryStore = { ...memoryStore, ...data };
+        if (!Array.isArray(memoryStore.accounts) || memoryStore.accounts.length === 0) {
+          memoryStore.accounts = [...INITIAL_ACCOUNTS];
+        }
+        if (!Array.isArray(memoryStore.partners)) {
+          memoryStore.partners = [...INITIAL_PARTNERS];
+        }
+        if (!memoryStore.partnersSettings) {
+          memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+        }
+        if (!memoryStore.portalConfig) {
+          memoryStore.portalConfig = { clientPortalEnabled: false };
+        }
       }
     }
   } catch (err) {
@@ -1628,3 +1810,201 @@ export async function getDatabaseStatus() {
     timestamp: new Date().toISOString(),
   };
 }
+
+// Helper to persist JSON settings to MySQL
+async function saveSettingToDb(key: string, value: any) {
+  if (pool && isMysqlConnected) {
+    try {
+      await pool.query(
+        `INSERT INTO \`site_settings\` (\`setting_key\`, \`setting_value\`)
+         VALUES (?, ?)
+         ON DUPLICATE KEY UPDATE \`setting_value\` = VALUES(\`setting_value\`), \`updated_at\` = CURRENT_TIMESTAMP`,
+        [key, JSON.stringify(value)]
+      );
+    } catch (e) {
+      console.warn(`[DATABASE] Failed to save setting ${key} to MySQL:`, e);
+    }
+  }
+}
+
+// 9. PORTAL ACCOUNTS, CLIENTS & GOVERNANCE CONFIG
+export async function getAccounts(): Promise<AuthAccount[]> {
+  return memoryStore.accounts;
+}
+
+export async function setupSuperadmin(
+  email: string,
+  password: string,
+  name?: string
+): Promise<{ success: boolean; user?: AuthAccount; error?: string }> {
+  if (!password || password.length < 8) {
+    return { success: false, error: 'Password must be at least 8 characters long.' };
+  }
+
+  const normalized = email.trim().toLowerCase();
+  let target = memoryStore.accounts.find(
+    (a) => a.email.toLowerCase() === normalized && a.role === 'superadmin'
+  );
+
+  if (!target) {
+    target = memoryStore.accounts.find((a) => a.role === 'superadmin');
+  }
+
+  if (!target) {
+    target = {
+      id: 'usr-samad-root',
+      name: name || 'Abdul Samad Rind',
+      email: normalized || 'ab.samad@orbit-i.tech',
+      company: 'ORBIT-I LTD',
+      role: 'superadmin',
+      portalType: 'admin',
+      password: password,
+      department: 'Executive Governance',
+      createdAt: new Date().toISOString().split('T')[0],
+      status: 'active',
+      isSetupRequired: false,
+      lastLogin: new Date().toISOString(),
+    };
+    memoryStore.accounts.unshift(target);
+  } else {
+    target.email = normalized || target.email;
+    target.password = password;
+    target.isSetupRequired = false;
+    target.lastLogin = new Date().toISOString();
+    if (name) target.name = name;
+  }
+
+  saveLocalCache();
+  await saveSettingToDb('portal_accounts', memoryStore.accounts);
+
+  return { success: true, user: target };
+}
+
+export async function createAccount(account: AuthAccount): Promise<{ success: boolean; user?: AuthAccount; error?: string }> {
+  const normalized = account.email.trim().toLowerCase();
+  if (memoryStore.accounts.some((a) => a.email.toLowerCase() === normalized)) {
+    return { success: false, error: 'An account with this email address already exists.' };
+  }
+  memoryStore.accounts.push(account);
+  saveLocalCache();
+  await saveSettingToDb('portal_accounts', memoryStore.accounts);
+  return { success: true, user: account };
+}
+
+export async function updateAccount(
+  id: string,
+  updates: Partial<AuthAccount>
+): Promise<{ success: boolean; user?: AuthAccount; error?: string }> {
+  const target = memoryStore.accounts.find((a) => a.id === id);
+  if (!target) {
+    return { success: false, error: 'Account not found.' };
+  }
+  Object.assign(target, updates);
+  saveLocalCache();
+  await saveSettingToDb('portal_accounts', memoryStore.accounts);
+  return { success: true, user: target };
+}
+
+export async function deleteAccount(id: string): Promise<{ success: boolean; error?: string }> {
+  const index = memoryStore.accounts.findIndex((a) => a.id === id);
+  if (index === -1) {
+    return { success: false, error: 'Account not found.' };
+  }
+  if (memoryStore.accounts[index].role === 'superadmin') {
+    return { success: false, error: 'Cannot delete the master Superadmin account.' };
+  }
+  memoryStore.accounts.splice(index, 1);
+  saveLocalCache();
+  await saveSettingToDb('portal_accounts', memoryStore.accounts);
+  return { success: true };
+}
+
+export async function getClients(): Promise<ClientRecord[]> {
+  return memoryStore.clients;
+}
+
+export async function saveClients(clients: ClientRecord[]): Promise<{ success: boolean }> {
+  memoryStore.clients = clients;
+  saveLocalCache();
+  await saveSettingToDb('portal_clients', memoryStore.clients);
+  return { success: true };
+}
+
+export async function getPortalConfig(): Promise<{ clientPortalEnabled: boolean }> {
+  return memoryStore.portalConfig || { clientPortalEnabled: false };
+}
+
+export async function setPortalConfig(enabled: boolean): Promise<{ success: boolean; portalConfig: { clientPortalEnabled: boolean } }> {
+  memoryStore.portalConfig = { clientPortalEnabled: enabled };
+  saveLocalCache();
+  await saveSettingToDb('portal_config', memoryStore.portalConfig);
+  return { success: true, portalConfig: memoryStore.portalConfig };
+}
+
+// -----------------------------------------------------------------------------
+// VERIFIED STRATEGIC ALLIANCES & COLLABORATIONS CMS
+// -----------------------------------------------------------------------------
+export async function getPartners(): Promise<PartnerAlliance[]> {
+  if (!Array.isArray(memoryStore.partners)) {
+    memoryStore.partners = [...INITIAL_PARTNERS];
+  }
+  return memoryStore.partners;
+}
+
+export async function savePartners(partners: PartnerAlliance[]): Promise<{ success: boolean; partners: PartnerAlliance[] }> {
+  memoryStore.partners = partners;
+  saveLocalCache();
+  await saveSettingToDb('strategic_partners', memoryStore.partners);
+  return { success: true, partners: memoryStore.partners };
+}
+
+export async function addPartner(partner: PartnerAlliance): Promise<{ success: boolean; partner: PartnerAlliance }> {
+  if (!Array.isArray(memoryStore.partners)) {
+    memoryStore.partners = [];
+  }
+  memoryStore.partners.push(partner);
+  saveLocalCache();
+  await saveSettingToDb('strategic_partners', memoryStore.partners);
+  return { success: true, partner };
+}
+
+export async function updatePartner(id: string, updates: Partial<PartnerAlliance>): Promise<{ success: boolean; partner?: PartnerAlliance; error?: string }> {
+  const index = memoryStore.partners.findIndex((p) => p.id === id);
+  if (index === -1) {
+    return { success: false, error: 'Partner alliance not found.' };
+  }
+  memoryStore.partners[index] = { ...memoryStore.partners[index], ...updates };
+  saveLocalCache();
+  await saveSettingToDb('strategic_partners', memoryStore.partners);
+  return { success: true, partner: memoryStore.partners[index] };
+}
+
+export async function deletePartner(id: string): Promise<{ success: boolean; error?: string }> {
+  const index = memoryStore.partners.findIndex((p) => p.id === id);
+  if (index === -1) {
+    return { success: false, error: 'Partner alliance not found.' };
+  }
+  memoryStore.partners.splice(index, 1);
+  saveLocalCache();
+  await saveSettingToDb('strategic_partners', memoryStore.partners);
+  return { success: true };
+}
+
+export async function getPartnersSettings(): Promise<PartnersSectionSettings> {
+  if (!memoryStore.partnersSettings) {
+    memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+  }
+  return memoryStore.partnersSettings;
+}
+
+export async function updatePartnersSettings(settings: Partial<PartnersSectionSettings>): Promise<{ success: boolean; settings: PartnersSectionSettings }> {
+  if (!memoryStore.partnersSettings) {
+    memoryStore.partnersSettings = { ...DEFAULT_PARTNERS_SETTINGS };
+  }
+  memoryStore.partnersSettings = { ...memoryStore.partnersSettings, ...settings };
+  saveLocalCache();
+  await saveSettingToDb('partners_settings', memoryStore.partnersSettings);
+  return { success: true, settings: memoryStore.partnersSettings };
+}
+
+

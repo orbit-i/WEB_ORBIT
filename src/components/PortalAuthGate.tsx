@@ -96,6 +96,15 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
     setAuthMode('signin');
     if (portalType === 'admin') {
       setSuperadminPending(isSuperadminSetupPending());
+      // Query server status to confirm if Superadmin setup has already been completed on server
+      fetch('/api/portal/status')
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data && typeof data.isSuperadminSetupPending === 'boolean') {
+            setSuperadminPending(data.isSuperadminSetupPending);
+          }
+        })
+        .catch(() => {});
     }
   }, [portalType]);
 
@@ -104,10 +113,10 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
   const SESSION_KEY = `orbit_auth_session_${activeMode}`;
   const TOKEN_KEY = `orbit_auth_token_${activeMode}`;
 
-  // Session check on mount
+  // Session check on mount (Checks localStorage first for persistence across refresh, then sessionStorage)
   useEffect(() => {
-    const storedToken = sessionStorage.getItem(TOKEN_KEY);
-    const storedSession = sessionStorage.getItem(SESSION_KEY);
+    const storedToken = localStorage.getItem(TOKEN_KEY) || sessionStorage.getItem(TOKEN_KEY);
+    const storedSession = localStorage.getItem(SESSION_KEY) || sessionStorage.getItem(SESSION_KEY);
 
     if (storedToken && storedSession) {
       try {
@@ -120,10 +129,14 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
           setIsAuthenticated(true);
           setAuthenticatedUser(user);
         } else {
+          localStorage.removeItem(TOKEN_KEY);
+          localStorage.removeItem(SESSION_KEY);
           sessionStorage.removeItem(TOKEN_KEY);
           sessionStorage.removeItem(SESSION_KEY);
         }
       } catch {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(SESSION_KEY);
         sessionStorage.removeItem(TOKEN_KEY);
         sessionStorage.removeItem(SESSION_KEY);
       }
@@ -172,7 +185,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
     const password = passwordInput.trim();
 
     try {
-      const result = authenticateUser(email, password, activeMode);
+      const result = await authenticateUser(email, password, activeMode);
 
       if (result.requiresSetup) {
         setAuthMode('setup_superadmin');
@@ -191,7 +204,9 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
           sessionStarted: new Date().toLocaleTimeString(),
         };
 
-        const token = `orbit-jwt-${Date.now()}`;
+        const token = (result as any).token || `orbit-jwt-${Date.now()}`;
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
         sessionStorage.setItem(TOKEN_KEY, token);
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
         localStorage.removeItem(ATTEMPTS_KEY);
@@ -254,7 +269,7 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
 
     setIsSubmitting(true);
     try {
-      const result = setupSuperadminPassword(setupEmail, setupPassword);
+      const result = await setupSuperadminPassword(setupEmail, setupPassword);
       if (result.success && result.user) {
         const sessionUser = {
           name: result.user.name,
@@ -265,7 +280,9 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
           sessionStarted: new Date().toLocaleTimeString(),
         };
 
-        const token = `orbit-jwt-${Date.now()}`;
+        const token = (result as any).token || `orbit-jwt-${Date.now()}`;
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
         sessionStorage.setItem(TOKEN_KEY, token);
         sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
         localStorage.removeItem(ATTEMPTS_KEY);
@@ -317,6 +334,8 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
       };
 
       const token = `token-${Date.now()}`;
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
       sessionStorage.setItem(TOKEN_KEY, token);
       sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionUser));
 
@@ -386,6 +405,8 @@ export const PortalAuthGate: React.FC<PortalAuthGateProps> = ({
   };
 
   const handleLogout = () => {
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(SESSION_KEY);
     sessionStorage.removeItem(TOKEN_KEY);
     sessionStorage.removeItem(SESSION_KEY);
     setIsAuthenticated(false);

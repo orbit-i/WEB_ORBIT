@@ -49,6 +49,18 @@ const INITIAL_ACCOUNTS: AuthAccount[] = [
   },
 ];
 
+// Eager server synchronization
+if (typeof window !== 'undefined') {
+  fetch('/api/portal/accounts')
+    .then((res) => (res.ok ? res.json() : null))
+    .then((serverAccounts) => {
+      if (Array.isArray(serverAccounts) && serverAccounts.length > 0) {
+        saveStoredAccounts(serverAccounts);
+      }
+    })
+    .catch(() => {});
+}
+
 /**
  * Retrieve all registered accounts from local secure store
  */
@@ -75,6 +87,40 @@ export const saveStoredAccounts = (accounts: AuthAccount[]): void => {
 };
 
 /**
+ * Sync accounts from server into local store
+ */
+export const syncAccountsFromServer = async (): Promise<AuthAccount[]> => {
+  try {
+    const res = await fetch('/api/portal/accounts');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        saveStoredAccounts(data);
+        return data;
+      }
+    }
+  } catch {}
+  return getStoredAccounts();
+};
+
+/**
+ * Check portal status from server
+ */
+export const fetchPortalStatus = async (): Promise<{ isSuperadminSetupPending: boolean; clientPortalEnabled: boolean }> => {
+  try {
+    const res = await fetch('/api/portal/status');
+    if (res.ok) {
+      const data = await res.json();
+      return data;
+    }
+  } catch {}
+  return {
+    isSuperadminSetupPending: isSuperadminSetupPending(),
+    clientPortalEnabled: false,
+  };
+};
+
+/**
  * Checks whether the root Superadmin account has completed master setup
  */
 export const isSuperadminSetupPending = (): boolean => {
@@ -86,11 +132,12 @@ export const isSuperadminSetupPending = (): boolean => {
 /**
  * Superadmin Initial Setup / Secure Registration
  * Allows Abdul Samad Rind to register/set his permanent root master password.
+ * Persists locally and automatically pushes to the server backend.
  */
-export const setupSuperadminPassword = (
+export const setupSuperadminPassword = async (
   email: string,
   newPass: string
-): { success: boolean; user?: AuthAccount; error?: string } => {
+): Promise<{ success: boolean; user?: AuthAccount; error?: string; token?: string }> => {
   if (!newPass || newPass.length < 8) {
     return { success: false, error: 'Password must be at least 8 characters long.' };
   }
@@ -131,20 +178,81 @@ export const setupSuperadminPassword = (
 
   saveStoredAccounts(accounts);
 
-  return { success: true, user: target };
+  let sessionToken: string | undefined;
+
+  // Persist to backend server & storage
+  try {
+    const res = await fetch('/api/portal/setup-superadmin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: target.email, password: newPass, name: target.name }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.token) {
+        sessionToken = data.token;
+      }
+      if (data.user) {
+        target = data.user;
+      }
+    }
+  } catch (err) {
+    console.warn('[AUTH] Offline or fallback superadmin setup:', err);
+  }
+
+  return { success: true, user: target, token: sessionToken };
 };
 
 /**
  * Authenticate user with strict portal role separation
+ * Checks backend API first; falls back gracefully to local verified accounts.
  */
-export const authenticateUser = (
+export const authenticateUser = async (
   email: string,
   pass: string,
   targetPortal: 'admin' | 'client'
-): { success: boolean; user?: AuthAccount; error?: string; requiresSetup?: boolean } => {
-  const accounts = getStoredAccounts();
+): Promise<{ success: boolean; user?: AuthAccount; error?: string; requiresSetup?: boolean; token?: string }> => {
   const normalizedEmail = email.trim().toLowerCase();
 
+  // 1. Try Backend Authentication API
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: normalizedEmail, password: pass, portalType: targetPortal }),
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.user) {
+        return {
+          success: true,
+          user: data.user,
+          token: data.token,
+        };
+      }
+    } else {
+      const errData = await res.json().catch(() => null);
+      if (errData?.requiresSetup) {
+        return {
+          success: false,
+          requiresSetup: true,
+          error: errData.error,
+        };
+      }
+      if (errData?.error && res.status !== 500 && res.status !== 404) {
+        return {
+          success: false,
+          error: errData.error,
+        };
+      }
+    }
+  } catch (err) {
+    // Network failure / offline: fall back to local authentication
+  }
+
+  // 2. Local Fallback Verification
+  const accounts = getStoredAccounts();
   const account = accounts.find(
     (a) => a.email.toLowerCase() === normalizedEmail && a.status === 'active'
   );
@@ -168,7 +276,6 @@ export const authenticateUser = (
 
   // Enforce Strict Portal Separation
   if (targetPortal === 'admin') {
-    // Only corporate staff roles can enter Admin portal
     if (account.role === 'client' || account.portalType !== 'admin') {
       return {
         success: false,
@@ -179,7 +286,6 @@ export const authenticateUser = (
   }
 
   if (targetPortal === 'client') {
-    // Only clients can enter Client portal
     if (account.role !== 'client' || account.portalType !== 'client') {
       return {
         success: false,
@@ -189,7 +295,6 @@ export const authenticateUser = (
     }
   }
 
-  // Update last login
   account.lastLogin = new Date().toISOString();
   saveStoredAccounts(accounts);
 
